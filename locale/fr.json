@@ -1,8 +1,3 @@
 {
-  "welcome": "Bienvenue à {{title}}",
-  "About": "À propos",
-  "Salutation": "Salutation",
-  "coordinates": "Afficher les coordonnées",
-  "googleMap": "Afficher sur Google maps",
-  "googleStreetView": "Afficher sur Google Street view"
+  "welcome": "Bienvenue à {{title}}"
 }
