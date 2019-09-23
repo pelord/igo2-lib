@@ -160,6 +160,9 @@ MIT
 @igo2/utils
 MIT
 
+@mat-datetimepicker/core
+MIT
+
 @ngx-translate/core
 MIT
 
