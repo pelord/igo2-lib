@@ -133,6 +133,8 @@ THE SOFTWARE.
 
 @angular/material/tooltip
 
+@angular/material/tree
+
 @angular/platform-browser
 MIT
 
