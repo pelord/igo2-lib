@@ -18,7 +18,8 @@ import {
   IgoListModule,
   IgoKeyValueModule,
   IgoCollapsibleModule,
-  IgoStopPropagationModule
+  IgoStopPropagationModule,
+  IgoPanelModule
 } from '@igo2/common';
 
 import { MapContextDirective } from './shared/map-context.directive';
@@ -55,7 +56,8 @@ const CONTEXT_DIRECTIVES = [
     IgoKeyValueModule,
     IgoCollapsibleModule,
     IgoStopPropagationModule,
-    IgoLanguageModule
+    IgoLanguageModule,
+    IgoPanelModule
   ],
   exports: [
     ContextListComponent,

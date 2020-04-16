@@ -21,6 +21,9 @@ import { Subscription, BehaviorSubject } from 'rxjs';
 export class ContextListComponent implements OnInit {
   contexts$: BehaviorSubject<ContextsList> = new BehaviorSubject(undefined);
 
+  public contextTool = false;
+  activeContext$: BehaviorSubject<DetailedContext> = new BehaviorSubject(undefined);
+
   @Input()
   get contexts(): ContextsList {
     return this._contexts;
@@ -50,6 +53,16 @@ export class ContextListComponent implements OnInit {
     this._defaultContextId = value;
   }
   private _defaultContextId: string;
+
+  @Input()
+  get activeContext(): DetailedContext {
+    return this._activeContext;
+  }
+  set activeContext(value: DetailedContext) {
+    this._activeContext = value;
+    this.activeContext$.next(value);
+  }
+  private _activeContext: DetailedContext;
 
   @Output() select = new EventEmitter<DetailedContext>();
   @Output() unselect = new EventEmitter<DetailedContext>();
@@ -140,5 +153,16 @@ export class ContextListComponent implements OnInit {
         }
         return false;
     }
+  }
+
+  toggleContextTool(context) {
+    if (this.contextTool && context === this.activeContext) {
+      this.contextTool = false;
+    } else {
+      this.contextTool = true;
+    }
+
+    this.activeContext = context;
+    return;
   }
 }
