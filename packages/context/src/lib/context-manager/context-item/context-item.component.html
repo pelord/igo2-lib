@@ -5,12 +5,16 @@
     igoStopPropagation
     [matTooltip]="auth.authenticated ? ('igo.context.contextManager.favorite' | translate) : ''"
     matTooltipShowDelay="500"
+    [matBadge]="selectedActiveContext === true ? '✓' :''"
+    matBadgeColor="primary"
+    matBadgeSize="medium"
     [color]="default ? 'primary' : 'default'"
     (click)="favoriteClick(context)">
     <mat-icon *ngIf="!context.iconImage" svgIcon="{{context.icon ? context.icon : context.scope === 'public' ? 'earth' : 'star'}}"></mat-icon>
     <img *ngIf="context.iconImage" [src]="context.iconImage">
   </button>
-  <h4 matLine>{{context.title}}</h4>
+
+  <h4 matLine [matTooltip]="selectedActiveContext === true ? ('igo.context.contextManager.activeContext' | translate) : ''">{{context.title}}</h4>
 
   <div *ngIf="auth.authenticated && context.permission === typePermission[typePermission.read]"
        igoStopPropagation
@@ -30,15 +34,6 @@
   <div *ngIf="context.permission === typePermission[typePermission.write]"
        igoStopPropagation
        class="igo-actions-container">
-
-     <button
-       mat-icon-button
-       [matTooltip]="'igo.context.contextManager.save' | translate"
-       matTooltipShowDelay="500"
-       [color]="color"
-       (click)="save.emit(context)">
-       <mat-icon svgIcon="content-save"></mat-icon>
-     </button>
 
     <button
       mat-icon-button

@@ -6,8 +6,13 @@
   flex-shrink: 0;
 }
 
-mat-list-item >>> .mat-list-item-content .mat-list-text {
+:host mat-list-item >>> .mat-list-item-content .mat-list-text {
   padding: 0;
+  overflow: visible;
+}
+
+:host mat-list-item >>> .mat-list-item-content .mat-list-text .mat-line {
+  overflow: visible;
 }
 
 mat-icon.disabled {

@@ -51,7 +51,8 @@
         "publicContexts": "Contextes publics",
         "save": "Sauvegarder ce contexte",
         "sharedContexts": "Contextes partagés",
-        "filterPlaceHolder": "Filtrer la liste des contextes"
+        "filterPlaceHolder": "Filtrer la liste des contextes",
+        "activeContext": "Ce contexte est présentement actif"
       },
       "permission": {
         "addBtn": "Ajouter",

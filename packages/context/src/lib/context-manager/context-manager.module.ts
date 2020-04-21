@@ -9,7 +9,8 @@ import {
   MatFormFieldModule,
   MatInputModule,
   MatCheckboxModule,
-  MatRadioModule
+  MatRadioModule,
+  MatBadgeModule
 } from '@angular/material';
 
 import { IgoAuthModule } from '@igo2/auth';
@@ -51,6 +52,7 @@ const CONTEXT_DIRECTIVES = [
     MatListModule,
     MatCheckboxModule,
     MatRadioModule,
+    MatBadgeModule,
     IgoAuthModule,
     IgoListModule,
     IgoKeyValueModule,

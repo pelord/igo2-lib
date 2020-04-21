@@ -1,4 +1,4 @@
-<igo-list [navigation]="true" [ngClass]="(contextTool) ? 'igo-list-min-height': 'igo-list-max-height'">
+<igo-list [selection]="false" [ngClass]="(contextTool) ? 'igo-list-min-height': 'igo-list-max-height'">
   <mat-form-field *ngIf="showFilter()" class="contextFilter">
     <input
       matInput
@@ -27,6 +27,7 @@
           igoListItem
           color="accent"
           [selected]="selectedContext && selectedContext.uri === context.uri"
+          [selectedContext]="selectedContext"
           [context]="context"
           [default]="context.id && this.defaultContextId && this.defaultContextId === context.id"
           [activeContext]="activeContext"
@@ -58,6 +59,15 @@
 
 <igo-panel *ngIf="auth.authenticated && activeContext && contextTool" [title]="activeContext.title">
   <div #actions class="igo-actions-container">
+
+    <button
+      mat-icon-button
+      [matTooltip]="'igo.context.contextManager.save' | translate"
+      matTooltipShowDelay="500"
+      color="primary"
+      (click)="save.emit(activeContext)">
+      <mat-icon svgIcon="content-save"></mat-icon>
+    </button>
 
     <button
       mat-icon-button

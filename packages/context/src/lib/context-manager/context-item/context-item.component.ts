@@ -1,5 +1,5 @@
 import { BehaviorSubject } from 'rxjs';
-import { Component, Input, Output, EventEmitter, Renderer2, ElementRef, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, Renderer2, ElementRef } from '@angular/core';
 
 import { AuthService } from '@igo2/auth';
 import { TypePermission } from '../shared/context.enum';
@@ -10,10 +10,10 @@ import { DetailedContext } from '../shared/context.interface';
   templateUrl: './context-item.component.html',
   styleUrls: ['./context-item.component.scss']
 })
-export class ContextItemComponent implements OnInit {
+export class ContextItemComponent {
   public typePermission = TypePermission;
   public color = 'primary';
-  public focusedCls = 'igo-layer-item-focused';
+  public focusedCls = 'igo-context-item-focused';
 
   @Input()
   get context(): DetailedContext {
@@ -23,6 +23,15 @@ export class ContextItemComponent implements OnInit {
     this._context = value;
   }
   private _context: DetailedContext;
+
+  @Input()
+  get selectedContext(): DetailedContext {
+    return this._selectedContext;
+  }
+  set selectedContext(value: DetailedContext) {
+    this._selectedContext = value;
+  }
+  private _selectedContext: DetailedContext;
 
   @Input()
   get default(): boolean {
@@ -39,7 +48,9 @@ export class ContextItemComponent implements OnInit {
   }
   set activeContext(value) {
     if (value) {
+      this._activeContext = value;
       if (this.context && value.id === this.context.id) {
+        this.contextTool$.next(true);
         this.renderer.addClass(this.elRef.nativeElement, this.focusedCls);
       } else {
         this.renderer.removeClass(this.elRef.nativeElement, this.focusedCls);
@@ -48,7 +59,15 @@ export class ContextItemComponent implements OnInit {
   }
   private _activeContext;
 
-  contextTool$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(undefined);
+  get selectedActiveContext() {
+    if (this.context && this.selectedContext) {
+      return this.context.id === this.selectedContext.id;
+    } else {
+      return false;
+    }
+  }
+
+  contextTool$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   @Output() edit = new EventEmitter<DetailedContext>();
   @Output() delete = new EventEmitter<DetailedContext>();
@@ -61,16 +80,6 @@ export class ContextItemComponent implements OnInit {
 
   constructor(public auth: AuthService, private renderer: Renderer2, private elRef: ElementRef) {}
 
-  ngOnInit() {
-    this.contextTool$.subscribe((value) => {
-      if (value === true) {
-        this.renderer.addClass(this.elRef.nativeElement, this.focusedCls);
-      } else if (value === false) {
-        this.renderer.removeClass(this.elRef.nativeElement, this.focusedCls);
-      }
-    });
-  }
-
   favoriteClick(context) {
     if (this.auth.authenticated) {
       this.favorite.emit(context);
@@ -79,6 +88,11 @@ export class ContextItemComponent implements OnInit {
 
   toggleContextTool() {
     this.contextTool$.next(!this.contextTool$.getValue());
+    if (this.contextTool$.getValue() === true) {
+      this.renderer.addClass(this.elRef.nativeElement, this.focusedCls);
+    } else {
+      this.renderer.removeClass(this.elRef.nativeElement, this.focusedCls);
+    }
     this.action.emit(this.context);
   }
 }

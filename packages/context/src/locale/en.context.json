@@ -51,7 +51,8 @@
         "publicContexts": "Public contexts",
         "save": "Save this context",
         "sharedContexts": "Shared contexts",
-        "filterPlaceHolder": "Filer the contexts list"
+        "filterPlaceHolder": "Filer the contexts list",
+        "activeContext": "This context is currently active"
       },
       "permission": {
         "addBtn": "Add",
