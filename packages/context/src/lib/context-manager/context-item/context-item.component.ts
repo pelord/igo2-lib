@@ -21,6 +21,7 @@ export class ContextItemComponent {
   }
   set context(value: DetailedContext) {
     this._context = value;
+    this.renderer.removeClass(this.elRef.nativeElement, 'igo-list-item-selected');
   }
   private _context: DetailedContext;
 
@@ -90,6 +91,7 @@ export class ContextItemComponent {
     this.contextTool$.next(!this.contextTool$.getValue());
     if (this.contextTool$.getValue() === true) {
       this.renderer.addClass(this.elRef.nativeElement, this.focusedCls);
+      console.log(this.elRef.nativeElement);
     } else {
       this.renderer.removeClass(this.elRef.nativeElement, this.focusedCls);
     }

@@ -1,9 +1,9 @@
-@mixin igo-context-item-theming($theme) {
+@mixin igo-context-manager-theming($theme) {
   $primary: map-get($theme, primary);
   $accent: map-get($theme, accent);
 
   igo-context-item.igo-context-item-focused > mat-list-item {
-    background-color: mat-color($accent, lighter);
+    background-color: mat-color($primary, lighter);
     color: mat-color($primary, default-contrast);
   }
 }
