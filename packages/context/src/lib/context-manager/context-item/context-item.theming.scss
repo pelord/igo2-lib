@@ -1,0 +1,9 @@
+@mixin igo-context-item-theming($theme) {
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+
+  igo-context-item[igolistitem][color="accent"].igo-context-item-focused {
+    background-color: mat-color($accent);
+    color: mat-color($accent, default-contrast);
+  }
+}

@@ -1,4 +1,4 @@
-<igo-list [selection]="false" [ngClass]="(contextTool) ? 'igo-list-min-height': 'igo-list-max-height'">
+<igo-list [selection]="false" [ngClass]="contextTool ? 'igo-list-min-height': 'igo-list-max-height'">
   <mat-form-field *ngIf="showFilter()" class="contextFilter">
     <input
       matInput

@@ -21,7 +21,6 @@ export class ContextItemComponent {
   }
   set context(value: DetailedContext) {
     this._context = value;
-    this.renderer.removeClass(this.elRef.nativeElement, 'igo-list-item-selected');
   }
   private _context: DetailedContext;
 
