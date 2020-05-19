@@ -23,6 +23,8 @@ export interface LayerOptions {
   ol?: olLayer;
   tooltip?: TooltipContent;
   _internal?: { [key: string]: string };
+  active?: boolean;
+  check?: boolean;
 }
 
 export interface GroupLayers {

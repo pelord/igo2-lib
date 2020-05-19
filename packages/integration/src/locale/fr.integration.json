@@ -8,6 +8,8 @@
         "importExport": "Importer et exporter",
         "ogcFilter": "Filtrer par",
         "map": "Carte",
+        "layers": "Couches",
+        "legend": "Légende",
         "measurer": "Mesure",
         "print": "Imprimer",
         "searchResults": "Résultats de recherche",
@@ -25,7 +27,10 @@
         "empty": "La carte ne contient aucune couche de données. Personnalisez-là en ajoutant des couches à partir des outils suivants : ",
         "search-tool": "Recherche",
         "catalog-tool": "Catalogue de données",
-        "context-tool": "Gestionnaire de contextes"
+        "context-tool": "Gestionnaire de contextes",
+        "customize": "Personnalisez-là en ajoutant des couches à partir des outils suivants : ",
+        "noLayersVisible": "Aucune couche visible.",
+        "noLayersInRange": "Aucune couche visible dans la plage d'échelle active. Veuillez zoomer ou dézoomer pour découvrir ces couches."
       }
     }
   }

@@ -272,15 +272,32 @@ export class IgoMap {
 
   raiseLayer(layer: Layer) {
     const index = this.getLayerIndex(layer);
-    if (index > 0) {
+    if (index > 1 && !this.layers[index - 1].baseLayer) {
       this.moveLayer(layer, index, index - 1);
+    }
+  }
+
+  raiseLayers(layers: Layer[]) {
+    for (const layer of layers) {
+      if (layer.baseLayer !== true) {
+        this.raiseLayer(layer);
+      }
     }
   }
 
   lowerLayer(layer: Layer) {
     const index = this.getLayerIndex(layer);
-    if (index < this.layers.length - 1) {
+    if (index < this.layers.length - 1 && !this.layers[index + 1].baseLayer) {
       this.moveLayer(layer, index, index + 1);
+    }
+  }
+
+  lowerLayers(layers: Layer[]) {
+    const reverseLayers = layers.reverse();
+    for (const layer of reverseLayers) {
+      if (layer.baseLayer !== true) {
+        this.lowerLayer(layer);
+      }
     }
   }
 
@@ -393,8 +410,12 @@ export class IgoMap {
           )
         ) {
           this.overlay.dataSource.ol.removeFeature(this.geolocationFeature);
+        }
+
+        if (this.bufferFeature) {
           this.buffer.dataSource.ol.removeFeature(this.bufferFeature);
         }
+
         this.geolocationFeature = new olFeature({ geometry });
         this.geolocationFeature.setId('geolocationFeature');
         this.overlay.addOlFeature(this.geolocationFeature);

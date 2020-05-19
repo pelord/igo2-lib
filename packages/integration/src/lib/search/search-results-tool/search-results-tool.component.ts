@@ -291,22 +291,14 @@ export class SearchResultsToolComponent implements OnInit, OnDestroy {
     this.map.overlay.addFeature(feature);
   }
 
-  /**
-   * Try to add a layer to the map
-   * @param result A search result that could be some layer options
-   */
-  private tryAddLayerToMap(result: SearchResult) {
-    if (this.map === undefined) {
-      return;
-    }
+  isScrolledIntoView(elemSource, elem) {
+    const padding = 6;
+    const docViewTop = elemSource.scrollTop;
+    const docViewBottom = docViewTop + elemSource.clientHeight;
 
-    if (result.meta.dataType !== LAYER) {
-      return undefined;
-    }
-    const layerOptions = (result as SearchResult<LayerOptions>).data;
-    this.layerService
-      .createAsyncLayer(layerOptions)
-      .subscribe(layer => this.map.addLayer(layer));
+    const elemTop = elem.offsetTop;
+    const elemBottom = elemTop + elem.clientHeight + padding;
+    return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop));
   }
 
   isScrolledIntoView(elemSource, elem) {

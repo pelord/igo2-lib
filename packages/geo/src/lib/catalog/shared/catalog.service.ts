@@ -319,7 +319,13 @@ export class CatalogService {
       crossOrigin: catalog.setCrossOriginAnonymous ? 'anonymous' : undefined,
       queryFormat: configuredQueryFormat,
       queryHtmlTarget:
+<<<<<<< HEAD
         configuredQueryFormat === QueryFormat.HTML ? 'iframe' : undefined,
+=======
+        configuredQueryFormat === (QueryFormat.HTML || QueryFormat.HTMLGML2)
+          ? 'iframe'
+          : undefined,
+>>>>>>> origin/next
       optionsFromCapabilities: true
     };
 
@@ -443,13 +449,15 @@ export class CatalogService {
         break;
       } else {
         // layer without group
-        const layerItem = this.prepareCatalogItemLayer(
-          item,
-          catalog.id,
-          layersQueryFormat,
-          catalog
-        );
-        itemsPrepare.push(layerItem);
+        if (this.testLayerRegexes(item.Name, regexes) !== false) {
+          const layerItem = this.prepareCatalogItemLayer(
+            item,
+            catalog.id,
+            layersQueryFormat,
+            catalog
+          );
+          itemsPrepare.push(layerItem);
+        }
       }
     }
   }
