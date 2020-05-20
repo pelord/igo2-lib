@@ -1,5 +1,5 @@
 import { BehaviorSubject } from 'rxjs';
-import { Component, Input, Output, EventEmitter, Renderer2, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, Renderer2, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 
 import { AuthService } from '@igo2/auth';
 import { TypePermission } from '../shared/context.enum';
@@ -40,6 +40,7 @@ export class ContextItemComponent {
   }
   set default(value: boolean) {
     this._default = value;
+    this.cdRef.detectChanges();
   }
   private _default = false;
 
@@ -79,7 +80,10 @@ export class ContextItemComponent {
   @Output() manageTools = new EventEmitter<DetailedContext>();
   @Output() action = new EventEmitter<DetailedContext>();
 
-  constructor(public auth: AuthService, private renderer: Renderer2, private elRef: ElementRef) {}
+  constructor(public auth: AuthService,
+              private cdRef: ChangeDetectorRef,
+              private renderer: Renderer2,
+              private elRef: ElementRef) {}
 
   favoriteClick(context) {
     if (this.auth.authenticated) {
@@ -91,7 +95,6 @@ export class ContextItemComponent {
     this.contextTool$.next(!this.contextTool$.getValue());
     if (this.contextTool$.getValue() === true) {
       this.renderer.addClass(this.elRef.nativeElement, this.focusedCls);
-      console.log(this.elRef.nativeElement);
     } else {
       this.renderer.removeClass(this.elRef.nativeElement, this.focusedCls);
     }
