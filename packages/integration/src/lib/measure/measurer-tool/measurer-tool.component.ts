@@ -14,7 +14,7 @@ import { MeasureState } from '../measure.state';
 @ToolComponent({
   name: 'measurer',
   title: 'igo.integration.tools.measurer',
-  icon: 'ruler'
+  icon: 'candycane'
 })
 @Component({
   selector: 'igo-measurer-tool',

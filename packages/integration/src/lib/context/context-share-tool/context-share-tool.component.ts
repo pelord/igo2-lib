@@ -9,7 +9,7 @@ import { LayerListToolState } from '../../map/layer-list-tool.state';
 @ToolComponent({
   name: 'shareMap',
   title: 'igo.integration.tools.shareMap',
-  icon: 'share-variant'
+  icon: 'string-lights'
 })
 @Component({
   selector: 'igo-context-share-tool',

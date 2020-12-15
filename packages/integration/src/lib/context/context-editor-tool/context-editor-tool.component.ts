@@ -6,7 +6,7 @@ import { ToolState } from '../../tool/tool.state';
 @ToolComponent({
   name: 'contextEditor',
   title: 'igo.integration.tools.contexts',
-  icon: 'star',
+  icon: 'snowflake',
   parent: 'contextManager'
 })
 @Component({

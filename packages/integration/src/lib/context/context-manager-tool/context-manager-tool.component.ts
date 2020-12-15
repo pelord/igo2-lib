@@ -9,7 +9,7 @@ import { IgoMap } from '@igo2/geo';
 @ToolComponent({
   name: 'contextManager',
   title: 'igo.integration.tools.contexts',
-  icon: 'star'
+  icon: 'snowflake'
 })
 @Component({
   selector: 'igo-context-manager-tool',
