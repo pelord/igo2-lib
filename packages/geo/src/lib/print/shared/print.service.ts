@@ -53,8 +53,8 @@ export class PrintService {
     ];
 
     const margins = [10, 10, 10, 10];
-    const width = dimensions[0] - margins[3] - margins[2];
-    const height = dimensions[1] - margins[0] - margins[1];
+    const width = dimensions[0] - margins[3] - margins[1];
+    const height = dimensions[1] - margins[0] - margins[2];
     const size = [width, height];
     let titleSizeResults = [0, 0];
 
@@ -564,6 +564,8 @@ export class PrintService {
       const commentWidth = newContext.measureText(comment).width;
       // Add height for title if defined
       height = title !== '' ? height + 30 : height;
+      // Add height for subtitle if defined
+      height = subtitle !== '' ? height + 30 : height;
       // Add height for projection or scale (same line) if defined
       height = projection !== false || scale !== false ? height + 30 : height;
       const positionHProjScale = height - 10;
@@ -592,12 +594,12 @@ export class PrintService {
         newContext.fillText(title, width / 2, 20, width * 0.9);
       }
       if (subtitle !== '') {
-        // Set font for title
+        // Set font for subtitle
         // Ajuster en fonction de la longueur du titre
         newContext.font = '26px Calibri';
-        positionHCanvas = 30;
+        positionHCanvas = 60;
         newContext.textAlign = 'center';
-        newContext.fillText(subtitle, width / 2, 20, width * 0.9);
+        newContext.fillText(subtitle, width / 2, 50, width * 0.9);
       }
       // Set font for next section
       newContext.font = '20px Calibri';
