@@ -1,4 +1,4 @@
-import * as olstyle from 'ol/style';
+import * as OlStyle from 'ol/style';
 import OlPoint from 'ol/geom/Point';
 import OlLineString from 'ol/geom/LineString';
 import OlPolygon from 'ol/geom/Polygon';
@@ -11,28 +11,32 @@ import {
 
 
 /**
- * Create a default style for a drawO interaction
- * @returns OL style
+ * Create a style for a OL Draw interaction
+ * @param fillColor the fill color of the geometry (ex. 'rgba(255,0,0,1)')
+ * @param strokeColor the stroke color of the geometry (ex. 'rgba(255,0,0,1)')
+ * @param label the label of the geometry
+ * @returns OL Style
  */
-export function createDrawingInteractionStyle(fill?: string, stroke?: string, text?: string): olstyle.Style {
-    return new olstyle.Style({
-      stroke: new olstyle.Stroke({
-        color: stroke ? stroke : '#3399CC',
+export function createDrawingInteractionStyle(fillColor?: string, strokeColor?: string, label?: string): OlStyle.Style {
+    return new OlStyle.Style({
+      stroke: new OlStyle.Stroke({
+        color: strokeColor ? strokeColor : 'rgba(25,118,210,1)',
         width: 2
       }),
-      fill: new olstyle.Fill({
-        color: fill ? fill : 'rgba(255,255,255,0.4)'
+      fill: new OlStyle.Fill({
+        color: fillColor ? fillColor : 'rgba(255,255,255,0.4)'
       }),
-      text: new olstyle.Text({
-        text: text ? text : ''
+      text: new OlStyle.Text({
+        text: label ? label: ''
       }),
-      image: new olstyle.Circle({
+      image: new OlStyle.Circle({
         radius: 5,
-        stroke: new olstyle.Stroke({
-          color: stroke ? stroke : '#3399CC',
+        stroke: new OlStyle.Stroke({
+          color: strokeColor ? strokeColor : 'rgba(25,118,210,1)',
+          width: 2
         }),
-        fill: new olstyle.Fill({
-          color: fill ? fill : 'rgba(255,255,255,0.4)'
+        fill: new OlStyle.Fill({
+          color: fillColor ? fillColor : 'rgba(255,255,255,0.4)'
         })
       })
     });

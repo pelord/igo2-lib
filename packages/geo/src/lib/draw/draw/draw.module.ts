@@ -31,6 +31,9 @@ import {
 import {
   MatDividerModule
 } from '@angular/material/divider';
+import {
+  MatDialogModule
+} from '@angular/material/dialog'
 import { ColorPickerModule } from 'ngx-color-picker';
 
 import { IgoLanguageModule } from '@igo2/core';
@@ -60,7 +63,8 @@ import { DrawPopupComponent } from './draw-popup.component';
     MatSlideToggleModule,
     IgoLanguageModule,
     IgoEntityTableModule,
-    ColorPickerModule
+    ColorPickerModule,
+    MatDialogModule
   ],
   declarations: [
     DrawComponent,

@@ -621,13 +621,13 @@
         "icon": "Icons",
         "labels": "Labels",
         "LineString": "Line",
-        "okColorPicker": "OK",
+        "noLabel": "No Label",
         "Point": "Point",
         "Polygon": "Polygon",
         "radius": "Radius",
         "stroke": "Stroke",
         "styleSelect": "Select style",
-        "toggleMapTooltips": "Show map tooltips",
+        "toggleMapLabels": "Show labels",
         "noIcon": "No icon"
       },
       "network": {

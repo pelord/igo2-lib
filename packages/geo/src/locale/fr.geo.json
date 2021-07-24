@@ -611,7 +611,7 @@
         }
       },
       "draw": {
-        "cancelColorPicker": "Annulé",
+        "cancelColorPicker": "Annuler",
         "Circle": "Cercle",
         "dialogInstruction": "Veuillez entrer l'étiquette de votre dessin",
         "dialogTitle": "Étiquette",
@@ -621,13 +621,13 @@
         "icon": "Icônes",
         "labels": "Étiquettes",
         "LineString": "Ligne",
-        "okColorPicker": "OK",
+        "noLabel": "Aucune étiquette",
         "Point": "Point",
         "Polygon": "Polygone",
         "radius": "Rayon",
         "stroke": "Contour",
         "styleSelect": "Sélectionner le style",
-        "toggleMapTooltips": "Afficher les étiquettes",
+        "toggleMapLabels": "Afficher les étiquettes",
         "noIcon": "Aucune icône"
       },
       "network": {

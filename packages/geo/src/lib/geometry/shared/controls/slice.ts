@@ -154,7 +154,7 @@ export class SliceControl {
   private addDrawLineControl() {
     this.drawLineControl = new DrawControl({
       geometryType: 'LineString',
-      drawStyle: this.options.drawStyle,
+      interactionStyle: this.options.drawStyle,
       maxPoints: 2
     });
     this.drawLineStart$$ = this.drawLineControl.start$
@@ -174,7 +174,7 @@ export class SliceControl {
 
     this.drawLineStart$$.unsubscribe();
     this.drawLineEnd$$.unsubscribe();
-    this.drawLineControl.getSource().clear(true);
+    this.drawLineControl.getDrawingLayerSource().clear(true);
     this.drawLineControl.setOlMap(undefined);
   }
 
@@ -183,7 +183,7 @@ export class SliceControl {
    * @param olLine Ol linestring or polygon
    */
   private onDrawLineStart(olLine: OlLineString) {
-    this.drawLineControl.getSource().clear(true);
+    this.drawLineControl.getDrawingLayerSource().clear(true);
   }
 
   /**
@@ -213,7 +213,7 @@ export class SliceControl {
       }
     }
 
-    this.drawLineControl.getSource().clear(true);
+    this.drawLineControl.getDrawingLayerSource().clear(true);
 
     this.olOverlaySource.addFeatures(
       olSlicedGeometries.map((olGeometry: OlGeometry) => new OlFeature(olGeometry))
