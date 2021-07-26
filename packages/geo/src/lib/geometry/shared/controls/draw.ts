@@ -28,23 +28,23 @@ export interface DrawControlOptions {
 }
 
 /**
-  * Control to draw geometries
-  */
+ * Control to draw geometries
+ */
 export class DrawControl {
 
   /**
-    * Draw start observable
-    */
+   * Draw start observable
+   */
   public start$: Subject<OlGeometry> = new Subject();
 
   /**
-    * Draw end observable
-    */
+   * Draw end observable
+   */
   public end$: Subject<OlGeometry> = new Subject();
 
   /**
-    * Geometry changes observable
-    */
+   * Geometry changes observable
+   */
   public changes$: Subject<OlGeometry> = new Subject();
 
   private olMap: OlMap;
@@ -73,7 +73,7 @@ export class DrawControl {
     this.olGeometryType = options.geometryType;
     options.drawingLayerSource ? this.olDrawingLayerSource = options.drawingLayerSource : this.olDrawingLayerSource = new OlVectorSource();
     options.drawingLayer ? this.olDrawingLayer = options.drawingLayer : this.olDrawingLayer = this.createOlDrawingLayer();
-    this.olDrawingLayerStyle = options.drawingLayerStyle
+    this.olDrawingLayerStyle = options.drawingLayerStyle;
     options.interactionStyle ? this.olInteractionStyle = options.interactionStyle : this.olInteractionStyle = this.olDrawingLayerStyle;
     options.maxPoints ? this.olMaxPoints = options.maxPoints : this.olMaxPoints = undefined;
   }
@@ -83,9 +83,9 @@ export class DrawControl {
   }
 
   /**
-    * Add control to map
-    * @param olMap OL Map
-    */
+   * Add control to map
+   * @param olMap OL Map
+   */
   setOlMap(olMap: OlMap) {
     this.olMap = olMap;
     this.addOlInteractions();
@@ -101,16 +101,16 @@ export class DrawControl {
 
   /**
    * Set geometry type
-   * @param geometryType
+   * @param geometryType geometry type
    */
   setGeometryType(geometryType: OlGeometryType) {
     this.olGeometryType = geometryType;
   }
 
   /**
-    * Create a drawing layer if none is defined in the options
-    * @returns a vector layer
-    */
+   * Create a drawing layer if none is defined in the options
+   * @returns a vector layer
+   */
   private createOlDrawingLayer(): OlVectorLayer {
     const olVectorLayer = new OlVectorLayer({
       source: this.olDrawingLayerSource,
@@ -122,8 +122,8 @@ export class DrawControl {
   }
 
   /**
-    * Clear the drawing layer source if it wasn't defined in the options
-    */
+   * Clear the drawing layer source if it wasn't defined in the options
+   */
   private clearOlDrawingLayerSource() {
     if (!this.options.drawingLayer && !this.options.drawingLayerSource) {
       this.olDrawingLayerSource.clear(true);
@@ -131,8 +131,8 @@ export class DrawControl {
   }
 
   /**
-    * Add interactions to the map ans set up listeners
-    */
+   * Add interactions to the map ans set up listeners
+   */
   addOlInteractions() {
     let olDrawInteraction;
     if (!this.freehand$.getValue()) {
@@ -175,8 +175,8 @@ export class DrawControl {
   }
 
   /**
-    * Remove the draw interaction
-    */
+   * Remove the draw interaction
+   */
   private removeOlInteractions() {
     if (!this.olDrawInteraction) {
       return;
@@ -196,14 +196,14 @@ export class DrawControl {
   }
 
   /**
-    * When drawing starts, clear the overlay and start watching from changes
-    * @param event Draw start event
-    */
+   * When drawing starts, clear the overlay and start watching from changes
+   * @param event Draw start event
+   */
   private onDrawStart(event: OlDrawEvent) {
     const olGeometry = event.feature.getGeometry();
     this.start$.next(olGeometry);
     this.clearOlDrawingLayerSource();
-    this.onDrawKey = olGeometry.on('change',(olGeometryEvent: OlGeometryEvent) => {
+    this.onDrawKey = olGeometry.on('change', (olGeometryEvent: OlGeometryEvent) => {
       this.mousePosition = getMousePositionFromOlGeometryEvent(olGeometryEvent);
       this.changes$.next(olGeometryEvent.target);
     });
@@ -212,9 +212,9 @@ export class DrawControl {
   }
 
   /**
-    * When drawing ends, update the geometry observable and start watching from changes
-    * @param event Draw end event
-    */
+   * When drawing ends, update the geometry observable and start watching from changes
+   * @param event Draw end event
+   */
   private onDrawEnd(event: OlDrawEvent) {
     this.unsubscribeKeyDown();
     unByKey(this.onDrawKey);
@@ -257,8 +257,8 @@ export class DrawControl {
   }
 
   /**
-    * Unsubscribe to key down
-    */
+   * Unsubscribe to key down
+   */
   private unsubscribeKeyDown() {
     if (this.keyDown$$) {
       this.keyDown$$.unsubscribe();

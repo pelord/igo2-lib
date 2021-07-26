@@ -79,7 +79,7 @@ export class DrawStyleService {
     if (geom instanceof OlPoint) {
       labelOffset = !labelOffset;
     }
-    /**
+
     if (feature.get('radius') !== undefined) {
       const coordinates = transform(feature.getGeometry().flatCoordinates, proj, 'EPSG:4326');
 
@@ -105,71 +105,73 @@ export class DrawStyleService {
             color: this.fillColor
           })
         })
-      }
+      };
 
       return style;
 
-      }*/ if (icon) {
-        style = new OlStyle.Style({
-          text: new OlStyle.Text({
-            text: showLabels ? feature.get('draw') : '',
-            offsetY: -26,
-            stroke: new OlStyle.Stroke({
-              color: 'white',
-              width: 0.75
-            }),
-            fill: new OlStyle.Fill({
-              color: 'black'
-            }),
-            font: '20px sans-serif',
-            overflow: true
-          }),
-          stroke: new OlStyle.Stroke({
-            color: this.strokeColor,
-            width: 2
-          }),
-          fill:  new OlStyle.Fill({
-            color: this.fillColor
-          }),
-          image: new OlStyle.Icon({
-            src: icon
-          })
-        })
-        return style;
-
-      } else {
-        style = new OlStyle.Style({
-          text: new OlStyle.Text({
-            text: showLabels ? feature.get('draw') : '',
-            stroke: new OlStyle.Stroke({
-              color: 'white',
-              width: 0.75
-            }),
-            fill: new OlStyle.Fill({
-              color: 'black'
-            }),
-            font: '20px sans-serif',
-            overflow: true,
-            offsetY: labelOffset ? -15 : 0
-          }),
-          stroke: new OlStyle.Stroke({
-            color: this.strokeColor,
-            width: 2
-          }),
-          fill:  new OlStyle.Fill({
-            color: this.fillColor
-          }),
-          image: new OlStyle.Circle({
-            radius: 5,
-            stroke: new OlStyle.Stroke({
-              color: this.strokeColor
-            }),
-            fill: new OlStyle.Fill({
-              color: this.fillColor
-            })
-          })
-        })
-        return style;
-      }
     }
+
+    if (icon) {
+      style = new OlStyle.Style({
+        text: new OlStyle.Text({
+          text: showLabels ? feature.get('draw') : '',
+          offsetY: -26,
+          stroke: new OlStyle.Stroke({
+            color: 'white',
+            width: 0.75
+          }),
+          fill: new OlStyle.Fill({
+            color: 'black'
+          }),
+          font: '20px sans-serif',
+          overflow: true
+        }),
+        stroke: new OlStyle.Stroke({
+          color: this.strokeColor,
+          width: 2
+        }),
+        fill:  new OlStyle.Fill({
+          color: this.fillColor
+        }),
+        image: new OlStyle.Icon({
+          src: icon
+        })
+      });
+      return style;
+
+    } else {
+      style = new OlStyle.Style({
+        text: new OlStyle.Text({
+          text: showLabels ? feature.get('draw') : '',
+          stroke: new OlStyle.Stroke({
+            color: 'white',
+            width: 0.75
+          }),
+          fill: new OlStyle.Fill({
+            color: 'black'
+          }),
+          font: '20px sans-serif',
+          overflow: true,
+          offsetY: labelOffset ? -15 : 0
+        }),
+        stroke: new OlStyle.Stroke({
+          color: this.strokeColor,
+          width: 2
+        }),
+        fill:  new OlStyle.Fill({
+          color: this.fillColor
+        }),
+        image: new OlStyle.Circle({
+          radius: 5,
+          stroke: new OlStyle.Stroke({
+            color: this.strokeColor
+          }),
+          fill: new OlStyle.Fill({
+            color: this.fillColor
+          })
+        })
+      });
+      return style;
+    }
+  }
 }

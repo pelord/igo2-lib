@@ -59,9 +59,9 @@ import { DrawIconService } from '../shared/draw-icon.service';
 export class DrawComponent implements OnInit, OnDestroy {
 
   /**
-    * Table template
-    * @internal
-    */
+   * Table template
+   * @internal
+   */
   public tableTemplate: EntityTableTemplate = {
     selection: true,
     selectMany: true,
@@ -76,37 +76,37 @@ export class DrawComponent implements OnInit, OnDestroy {
         }
       }
     ]
-  }
+  };
 
   /**
-    * Reference to the DrawType enum
-    * @internal
-    */
+   * Reference to the DrawType enum
+   * @internal
+   */
   public geometryType = GeometryType;
 
   @Output() fillColor: any;
   @Output() strokeColor: any;
 
   /**
-    * The map to draw on
-    */
+   * The map to draw on
+   */
   @Input() map: IgoMap;
 
   /**
-    * The draws store
-    */
+   * The draws store
+   */
   @Input() store: FeatureStore<FeatureWithDraw>;
 
   /**
-    * Observable of draw
-    * @internal
-    */
+   * Observable of draw
+   * @internal
+   */
   public draw$: BehaviorSubject<Draw> = new BehaviorSubject({});
 
   /**
-    * Wheter one of the draw control is active
-    * @internal
-    */
+   * Wheter one of the draw control is active
+   * @internal
+   */
   get drawControlIsActive(): boolean {
     return this.drawControl !== undefined;
   }
@@ -150,20 +150,20 @@ export class DrawComponent implements OnInit, OnDestroy {
   }
 
   /**
-    * Clear the overlay layer and any interaction added by this component.
-    * @internal
-    */
+   * Clear the overlay layer and any interaction added by this component.
+   * @internal
+   */
   ngOnDestroy() {
     this.deactivateDrawControl();
   }
 
   /**
-    * Create an OL Draw Control
-    * @param fillColor the fill color of the geometry (ex. 'rgba(255,0,0,1)')
-    * @param strokeColor the stroke color of the geometry (ex. 'rgba(255,0,0,1)')
-    * @param label the label of the geometry
-    * @returns  an OL Draw Control
-    */
+   * Create an OL Draw Control
+   * @param fillColor the fill color of the geometry (ex. 'rgba(255,0,0,1)')
+   * @param strokeColor the stroke color of the geometry (ex. 'rgba(255,0,0,1)')
+   * @param label the label of the geometry
+   * @returns  an OL Draw Control
+   */
   createDrawControl(fillColor?: OlColor, strokeColor?: OlColor, label?: string) {
     const drawControl: DrawControl = new DrawControl({
       geometryType: undefined,
@@ -251,19 +251,18 @@ export class DrawComponent implements OnInit, OnDestroy {
   }
 
   /**
-    * Activate or deactivate the current draw control
-    * @internal
-    */
+   * Activate or deactivate the current draw control
+   * @internal
+   */
   onToggleDrawControl(drawControlToggled: boolean) {
     drawControlToggled ? this.toggleDrawControl() : this.deactivateDrawControl();
   }
 
   /**
-    * Activate the right control
-    */
+   * Activate the right control
+   */
   private toggleDrawControl() {
     this.deactivateDrawControl();
-    console.log(this.activeGeometryType)
     this.drawControl.setGeometryType(this.activeGeometryType);
     this.activateDrawControl();
   }
@@ -281,9 +280,9 @@ export class DrawComponent implements OnInit, OnDestroy {
   }
 
   /**
-    * Activate a given control
-    * @param drawControl Draw control
-    */
+   * Activate a given control
+   * @param drawControl Draw control
+   */
   private activateDrawControl() {
     this.drawEnd$$ = this.drawControl.end$
     .subscribe((olGeometry: OlPoint | OlLineString | OlPolygon | OlCircle) => {
@@ -294,8 +293,8 @@ export class DrawComponent implements OnInit, OnDestroy {
   }
 
   /**
-    * Deactivate the active draw control
-    */
+   * Deactivate the active draw control
+   */
   private deactivateDrawControl() {
     if (!this.drawControl) {
       return;
@@ -309,19 +308,19 @@ export class DrawComponent implements OnInit, OnDestroy {
   }
 
   /**
-    * Clear the draw source and track the geometry being draw
-    * @param olGeometry Ol linestring or polygon
-    */
+   * Clear the draw source and track the geometry being draw
+   * @param olGeometry Ol linestring or polygon
+   */
   private onDrawEnd(olGeometry: OlPoint | OlLineString | OlPolygon | OlCircle) {
     this.addFeatureToStore(olGeometry);
     this.clearTooltipsOfOlGeometry(olGeometry);
   }
 
   /**
-    * Add a feature with draw label to the store. The loading stragegy of the store
-    * will trigger and add the feature to the map.
-    * @internal
-    */
+   * Add a feature with draw label to the store. The loading stragegy of the store
+   * will trigger and add the feature to the map.
+   * @internal
+   */
   private addFeatureToStore(olGeometry: OlPoint | OlLineString | OlPolygon | OlCircle, feature?: FeatureWithDraw) {
     let rad;
     const featureId = feature ? feature.properties.id : uuid();
@@ -369,9 +368,9 @@ export class DrawComponent implements OnInit, OnDestroy {
   }
 
   /**
-    * Clear the tooltips of an OL geometrys
-    * @param olGeometry OL geometry with tooltips
-    */
+   * Clear the tooltips of an OL geometrys
+   * @param olGeometry OL geometry with tooltips
+   */
   private clearTooltipsOfOlGeometry(olGeometry: OlPoint | OlLineString | OlPolygon | OlCircle) {
     getTooltipsOfOlGeometry(olGeometry).forEach((olTooltip: OlOverlay | undefined) => {
       if (olTooltip !== undefined && olTooltip.getMap() !== undefined) {

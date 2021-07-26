@@ -33,7 +33,7 @@ import {
 } from '@angular/material/divider';
 import {
   MatDialogModule
-} from '@angular/material/dialog'
+} from '@angular/material/dialog';
 import { ColorPickerModule } from 'ngx-color-picker';
 
 import { IgoLanguageModule } from '@igo2/core';

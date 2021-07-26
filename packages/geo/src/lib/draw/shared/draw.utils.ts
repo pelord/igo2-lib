@@ -19,7 +19,7 @@ import {
  * @returns OL Style
  */
 export function createDrawingLayerStyle(fillColor?: OlColor, strokeColor?: OlColor, label?: string): OlStyle.Style {
-  let olStyle: OlStyle.Style
+  let olStyle: OlStyle.Style;
   olStyle = new OlStyle.Style({
     stroke: new OlStyle.Stroke({
       color: strokeColor ? strokeColor : 'rgba(25,118,210,1)',
@@ -31,7 +31,7 @@ export function createDrawingLayerStyle(fillColor?: OlColor, strokeColor?: OlCol
     }),
 
     text: new OlStyle.Text({
-      text: label ? label: ''
+      text: label ? label : ''
     }),
 
     image: new OlStyle.Circle({
@@ -47,7 +47,7 @@ export function createDrawingLayerStyle(fillColor?: OlColor, strokeColor?: OlCol
     })
   });
 
-  return olStyle
+  return olStyle;
 }
 
 /**
