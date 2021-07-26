@@ -629,9 +629,9 @@ export class MeasurerComponent implements OnInit, OnDestroy {
   private createDrawLineControl() {
     this.drawLineControl = new DrawControl({
       geometryType: 'LineString',
-      layerSource: this.olDrawSource,
+      drawingLayerSource: this.olDrawSource,
       interactionStyle: createMeasureInteractionStyle(),
-      layerStyle: new OlStyle({})
+      drawingLayerStyle: new OlStyle({})
     });
   }
 
@@ -641,9 +641,9 @@ export class MeasurerComponent implements OnInit, OnDestroy {
   private createDrawPolygonControl() {
     this.drawPolygonControl = new DrawControl({
       geometryType: 'Polygon',
-      layerSource: this.olDrawSource,
+      drawingLayerSource: this.olDrawSource,
       interactionStyle: createMeasureInteractionStyle(),
-      layerStyle: new OlStyle({})
+      drawingLayerStyle: new OlStyle({})
     });
   }
 

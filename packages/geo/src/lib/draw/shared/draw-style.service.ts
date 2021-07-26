@@ -1,4 +1,4 @@
-import { olColor } from 'ol/color';
+import { olColor as OlColor } from 'ol/color';
 import { Injectable } from '@angular/core';
 
 import * as OlStyle from 'ol/style';
@@ -14,25 +14,26 @@ export class DrawStyleService {
   private strokeColor: string = 'rgba(25,118,210,1)';
   private strokeWidth: number = 2;
   private drawCount: number = 1;
+  private toggleLabel: boolean = true;
   private icon: string;
 
   constructor(
     private mapService: MapService
   ) {}
 
-  getFillColor(): olColor {
+  getFillColor(): OlColor {
     return this.fillColor;
   }
 
-  setFillColor(fillColor: olColor) {
+  setFillColor(fillColor: OlColor) {
     this.fillColor = fillColor;
   }
 
-  getStrokeColor(): olColor {
+  getStrokeColor(): OlColor {
     return this.strokeColor;
   }
 
-  setStrokeColor(strokeColor: olColor) {
+  setStrokeColor(strokeColor: OlColor) {
     this.strokeColor = strokeColor;
   }
 
@@ -50,6 +51,14 @@ export class DrawStyleService {
 
   incrementDrawCount() {
     this.drawCount = this.drawCount + 1;
+  }
+
+  getToggleLabel() {
+    return this.toggleLabel;
+  }
+
+  switchLabel() {
+    this.toggleLabel = !this.toggleLabel;
   }
 
   setIcon(icon: string) {

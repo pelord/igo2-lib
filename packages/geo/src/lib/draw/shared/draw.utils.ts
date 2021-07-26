@@ -4,6 +4,7 @@ import OlLineString from 'ol/geom/LineString';
 import OlPolygon from 'ol/geom/Polygon';
 import OlCircle from 'ol/geom/Circle';
 import OlOverlay from 'ol/Overlay';
+import { olColor as OlColor } from 'ol/color';
 import {
   updateOlGeometryMidpoints,
   updateOlGeometryCenter
@@ -11,35 +12,42 @@ import {
 
 
 /**
- * Create a style for a OL Draw interaction
+ * Create a style for the drawing layer
  * @param fillColor the fill color of the geometry (ex. 'rgba(255,0,0,1)')
  * @param strokeColor the stroke color of the geometry (ex. 'rgba(255,0,0,1)')
  * @param label the label of the geometry
  * @returns OL Style
  */
-export function createDrawingInteractionStyle(fillColor?: string, strokeColor?: string, label?: string): OlStyle.Style {
-    return new OlStyle.Style({
+export function createDrawingLayerStyle(fillColor?: OlColor, strokeColor?: OlColor, label?: string): OlStyle.Style {
+  let olStyle: OlStyle.Style
+  olStyle = new OlStyle.Style({
+    stroke: new OlStyle.Stroke({
+      color: strokeColor ? strokeColor : 'rgba(25,118,210,1)',
+      width: 2
+    }),
+
+    fill: new OlStyle.Fill({
+      color: fillColor ? fillColor : 'rgba(255,255,255,0.4)'
+    }),
+
+    text: new OlStyle.Text({
+      text: label ? label: ''
+    }),
+
+    image: new OlStyle.Circle({
+      radius: 5,
       stroke: new OlStyle.Stroke({
         color: strokeColor ? strokeColor : 'rgba(25,118,210,1)',
         width: 2
       }),
+
       fill: new OlStyle.Fill({
         color: fillColor ? fillColor : 'rgba(255,255,255,0.4)'
-      }),
-      text: new OlStyle.Text({
-        text: label ? label: ''
-      }),
-      image: new OlStyle.Circle({
-        radius: 5,
-        stroke: new OlStyle.Stroke({
-          color: strokeColor ? strokeColor : 'rgba(25,118,210,1)',
-          width: 2
-        }),
-        fill: new OlStyle.Fill({
-          color: fillColor ? fillColor : 'rgba(255,255,255,0.4)'
-        })
       })
-    });
+    })
+  });
+
+  return olStyle
 }
 
 /**

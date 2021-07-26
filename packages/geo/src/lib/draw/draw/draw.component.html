@@ -23,14 +23,15 @@
   <div class="draw-options mat-typography">
     <mat-slide-toggle
       [checked]="drawControlIsActive"
-      [labelPosition]="'before'">
+      [labelPosition]="'before'"
+      (change)="onToggleDrawControl($event.checked)">
       {{'igo.geo.spatialFilter.drawControl' | translate}}
     </mat-slide-toggle>
 
     <mat-slide-toggle
-      [checked]="showLabels"
+      [checked]="showTooltips"
       [labelPosition]="'before'"
-      (change)="onToggleLabels()">
+      (change)="onToggleTooltips($event.checked)">
       {{'igo.geo.draw.toggleMapLabels' | translate}}
     </mat-slide-toggle>
   </div>
@@ -60,7 +61,7 @@
           [cpCancelButton]="true"
           [cpCancelButtonText]="'igo.geo.draw.cancelColorPicker' | translate"
           [cpOKButton]="true"
-          (colorPickerChange)="changeStoreLayerStyle(showLabels, icon)">
+          (colorPickerChange)="changeStoreLayerStyle(showTooltips, false)">
       </mat-form-field>
     </div>
 
@@ -88,7 +89,7 @@
           [cpCancelButton]="true"
           [cpCancelButtonText]="'igo.geo.draw.cancelColorPicker' | translate"
           [cpOKButton]="true"
-          (colorPickerChange)="changeStoreLayerStyle(showLabels, icon)">
+          (colorPickerChange)="changeStoreLayerStyle(showTooltips, false)">
       </mat-form-field>
     </div>
 

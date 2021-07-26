@@ -31,23 +31,21 @@ import { FeatureDataSource } from '../../datasource/shared/datasources/feature-d
 import { DrawControl } from '../../geometry/shared/controls/draw';
 import { EntityRecord, EntityTableTemplate } from '@igo2/common';
 
-import * as OlStyle from 'ol/style';
+import { olColor as OlColor } from 'ol/color';
 import OlVectorSource from 'ol/source/Vector';
-import OlGeometryType from 'ol/geom/GeometryType';
 import OlPoint from 'ol/geom/Point';
 import OlLineString from 'ol/geom/LineString';
 import OlPolygon from 'ol/geom/Polygon';
 import OlCircle from 'ol/geom/Circle';
 import OlGeoJSON from 'ol/format/GeoJSON';
 import OlOverlay from 'ol/Overlay';
-
 import { getDistance } from 'ol/sphere';
 import { uuid } from '@igo2/utils';
 import { DrawStyleService } from '../shared/draw-style.service';
 import { skip } from 'rxjs/operators';
 import { DrawPopupComponent } from './draw-popup.component';
 import { getTooltipsOfOlGeometry } from '../../measure/shared/measure.utils';
-import { createDrawingInteractionStyle } from '../shared/draw.utils';
+import { createDrawingLayerStyle } from '../shared/draw.utils';
 import { transform } from 'ol/proj';
 import { DrawIconService } from '../shared/draw-icon.service';
 
@@ -95,7 +93,7 @@ export class DrawComponent implements OnInit, OnDestroy {
   @Input() map: IgoMap;
 
   /**
-    * The drawings store
+    * The draws store
     */
   @Input() store: FeatureStore<FeatureWithDraw>;
 
@@ -113,12 +111,15 @@ export class DrawComponent implements OnInit, OnDestroy {
     return this.drawControl !== undefined;
   }
 
+  private activeGeometryType: GeometryType;
   private drawControl: DrawControl;
-  private olDrawSource = new OlVectorSource();
   private drawEnd$$: Subscription;
   private layer: VectorLayer;
   public selectedFeatures$: BehaviorSubject<FeatureWithDraw[]> = new BehaviorSubject([]);
-  public showLabels: boolean;
+  public showTooltips: boolean;
+  public fillForm: string;
+  public strokeForm: string;
+  public toggleLabel: boolean;
   public drawsPresence: boolean = false;
 
   public position: string = 'bottom';
@@ -136,6 +137,8 @@ export class DrawComponent implements OnInit, OnDestroy {
     this.buildForm();
     this.fillColor = this.drawStyleService.getFillColor();
     this.strokeColor = this.drawStyleService.getStrokeColor();
+    this.showTooltips = this.drawStyleService.getToggleLabel();
+    this.toggleLabel = this.drawStyleService.getToggleLabel();
     this.icons = this.drawIconService.getIcons();
     this.icon = this.drawStyleService.getIcon();
   }
@@ -143,20 +146,40 @@ export class DrawComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.initStore();
     this.drawControl = this.createDrawControl(this.fillColor, this.strokeColor);
-    console.log(this.drawControl)
     this.checkStoreCount();
   }
 
   /**
-    * Clear the drawing layer and any interaction added by this component.
+    * Clear the overlay layer and any interaction added by this component.
     * @internal
     */
   ngOnDestroy() {
-    this.drawControl = undefined;
+    this.deactivateDrawControl();
+  }
+
+  /**
+    * Create an OL Draw Control
+    * @param fillColor the fill color of the geometry (ex. 'rgba(255,0,0,1)')
+    * @param strokeColor the stroke color of the geometry (ex. 'rgba(255,0,0,1)')
+    * @param label the label of the geometry
+    * @returns  an OL Draw Control
+    */
+  createDrawControl(fillColor?: OlColor, strokeColor?: OlColor, label?: string) {
+    const drawControl: DrawControl = new DrawControl({
+      geometryType: undefined,
+      drawingLayerSource: new OlVectorSource(),
+      drawingLayerStyle: createDrawingLayerStyle(fillColor, strokeColor, label),
+    });
+
+    return drawControl;
+  }
+
+  onGeometryTypeChange(geometryType: GeometryType) {
+    this.activeGeometryType = geometryType;
+    this.toggleDrawControl();
   }
 
   private initStore() {
-    console.log('initStore')
     const store = this.store;
     this.map.removeLayer(this.layer);
 
@@ -195,63 +218,62 @@ export class DrawComponent implements OnInit, OnDestroy {
       return record.state.selected === true;
     }).pipe(
       skip(1)  // Skip initial emission
-    ).subscribe(
-      (records: EntityRecord<FeatureWithDraw>[]) => {
-        this.selectedFeatures$.next(records.map(record => record.entity));
+    )
+    .subscribe((records: EntityRecord<FeatureWithDraw>[]) => {
+      this.selectedFeatures$.next(records.map(record => record.entity));
     });
   }
 
-
-  /**
-  * Create a OL control to draw on map
-  * @param fillColor the fill color of the geometry (ex. 'rgba(255,0,0,1)')
-  * @param strokeColor the stroke color of the geometry (ex. 'rgba(255,0,0,1)')
-  * @param label the label of the geometry
-  * @returns a OL Draw control
-  */
-  createDrawControl(fillColor?: string, strokeColor?: string) {
-    const drawControl: DrawControl = new DrawControl({
-      geometryType: undefined,
-      layerSource: this.olDrawSource,
-      layerStyle: new OlStyle.Style(),
-      interactionStyle: createDrawingInteractionStyle(fillColor, strokeColor)
-    });
-
-    return drawControl;
+  changeStoreLayerStyle(enableLabel: boolean, icon: boolean) {
+    this.fillForm = this.fillColor;
+    this.strokeForm = this.strokeColor;
+    this.drawStyleService.setFillColor(this.fillColor);
+    this.drawStyleService.setStrokeColor(this.strokeColor);
+    if (enableLabel && !icon) {
+      this.store.layer.ol.setStyle((feature, resolution) => {
+        return this.drawStyleService.createDrawLayerStyle(feature, resolution, true);
+      });
+      this.icon = undefined;
+    } else if (!enableLabel && !icon) {
+      this.store.layer.ol.setStyle((feature, resolution) => {
+        return this.drawStyleService.createDrawLayerStyle(feature, resolution, false);
+      });
+      this.icon = undefined;
+    } else if (enableLabel && icon) {
+      this.store.layer.ol.setStyle((feature, resolution) => {
+        return this.drawStyleService.createDrawLayerStyle(feature, resolution, true, this.icon);
+      });
+    } else if (!enableLabel && icon) {
+      this.store.layer.ol.setStyle((feature, resolution) => {
+        return this.drawStyleService.createDrawLayerStyle(feature, resolution, false, this.icon);
+      });
+    }
   }
 
   /**
-    * Called when the user selects a new geometry type
-    * @param geometryType the geometry type selected by the user
+    * Activate or deactivate the current draw control
+    * @internal
     */
-  onGeometryTypeChange(geometryType: OlGeometryType) {
-    console.log('onGeometryTypeChange')
-    this.drawControl.setDrawingGeometryType(geometryType);
-    console.log(this.drawControl);
+  onToggleDrawControl(drawControlToggled: boolean) {
+    drawControlToggled ? this.toggleDrawControl() : this.deactivateDrawControl();
+  }
+
+  /**
+    * Activate the right control
+    */
+  private toggleDrawControl() {
+    this.deactivateDrawControl();
+    console.log(this.activeGeometryType)
+    this.drawControl.setGeometryType(this.activeGeometryType);
     this.activateDrawControl();
   }
 
-  changeStoreLayerStyle(showLabels: boolean, icon: string) {
-    console.log('changeStoreLayerStyle')
-    this.drawStyleService.setFillColor(this.fillColor);
-    this.drawStyleService.setStrokeColor(this.strokeColor);
-
-    this.store.layer.ol.setStyle((feature, resolution) => {
-      return this.drawStyleService.createDrawLayerStyle(feature, resolution, showLabels, icon);
-    });
-  }
-
-  /**
-   * Open dialog box for label and save it after closing
-   * @param olGeometry
-   */
   private openDialog(olGeometry: OlPoint | OlLineString | OlPolygon | OlCircle): void {
-    console.log('openDialog')
     const dialogRef = this.dialog.open(DrawPopupComponent, {
-      disableClose: false,
+      disableClose: false
     });
 
-    dialogRef.afterClosed().subscribe(label => {
+    dialogRef.afterClosed().subscribe (label => {
       this.updateLabelOfOlGeometry(olGeometry, label);
       this.onDrawEnd(olGeometry);
       this.checkStoreCount();
@@ -263,28 +285,27 @@ export class DrawComponent implements OnInit, OnDestroy {
     * @param drawControl Draw control
     */
   private activateDrawControl() {
-    console.log('activateDrawControl')
-    if (this.drawEnd$$) {
-      this.drawEnd$$.unsubscribe();
-    }
-
     this.drawEnd$$ = this.drawControl.end$
-      .subscribe((OlGeometry: OlPoint | OlLineString | OlPolygon | OlCircle) => {
-        this.openDialog(OlGeometry);
-      });
+    .subscribe((olGeometry: OlPoint | OlLineString | OlPolygon | OlCircle) => {
+      this.openDialog(olGeometry);
+    });
 
-      this.drawControl.setInteractions();
+    this.drawControl.setOlMap(this.map.ol);
   }
 
   /**
     * Deactivate the active draw control
     */
   private deactivateDrawControl() {
-    console.log('deactivateDrawControl')
-    this.olDrawSource.clear();
+    if (!this.drawControl) {
+      return;
+    }
+
+    if (this.drawEnd$$) {
+      this.drawEnd$$.unsubscribe();
+    }
 
     this.drawControl.unsetOlMap();
-    this.drawControl = undefined;
   }
 
   /**
@@ -292,10 +313,8 @@ export class DrawComponent implements OnInit, OnDestroy {
     * @param olGeometry Ol linestring or polygon
     */
   private onDrawEnd(olGeometry: OlPoint | OlLineString | OlPolygon | OlCircle) {
-    console.log('onDrawEnd')
     this.addFeatureToStore(olGeometry);
     this.clearTooltipsOfOlGeometry(olGeometry);
-    this.olDrawSource.clear(true);
   }
 
   /**
@@ -304,7 +323,6 @@ export class DrawComponent implements OnInit, OnDestroy {
     * @internal
     */
   private addFeatureToStore(olGeometry: OlPoint | OlLineString | OlPolygon | OlCircle, feature?: FeatureWithDraw) {
-    console.log('addFeatureToStore')
     let rad;
     const featureId = feature ? feature.properties.id : uuid();
     const projection = this.map.ol.getView().getProjection();
@@ -335,12 +353,10 @@ export class DrawComponent implements OnInit, OnDestroy {
         id: featureId
       }
     });
-
     this.drawStyleService.incrementDrawCount();
   }
 
   private buildForm() {
-    console.log('buildForm')
     this.form = this.formBuilder.group({
       fill: [''],
       stroke: ['']
@@ -348,7 +364,6 @@ export class DrawComponent implements OnInit, OnDestroy {
   }
 
   deleteDrawings() {
-    console.log('deleteDrawings')
     this.store.deleteMany(this.selectedFeatures$.value);
     this.checkStoreCount();
   }
@@ -358,7 +373,6 @@ export class DrawComponent implements OnInit, OnDestroy {
     * @param olGeometry OL geometry with tooltips
     */
   private clearTooltipsOfOlGeometry(olGeometry: OlPoint | OlLineString | OlPolygon | OlCircle) {
-    console.log('clearTooltipsOfOlGeometry')
     getTooltipsOfOlGeometry(olGeometry).forEach((olTooltip: OlOverlay | undefined) => {
       if (olTooltip !== undefined && olTooltip.getMap() !== undefined) {
         this.map.ol.removeOverlay(olTooltip);
@@ -366,20 +380,18 @@ export class DrawComponent implements OnInit, OnDestroy {
     });
   }
 
-  onToggleLabels() {
-    console.log('onToggleLabels')
-    this.showLabels = !this.showLabels;
+  onToggleTooltips(toggle: boolean) {
+    this.drawStyleService.switchLabel();
+    this.toggleLabel = !this.toggleLabel;
 
-    this.changeStoreLayerStyle(this.showLabels, this.icon);
+    this.icon ? this.changeStoreLayerStyle(this.toggleLabel, true) : this.changeStoreLayerStyle(this.toggleLabel, false);
   }
 
   private updateLabelOfOlGeometry(olGeometry: OlPoint | OlLineString | OlPolygon | OlCircle, label: string) {
-    console.log('updateLabelOfOlGeometry')
     olGeometry.setProperties({_label: label}, true);
   }
 
   onIconChange(event?) {
-    console.log('onIconChange')
     this.icon = event;
     this.drawStyleService.setIcon(this.icon);
     this.store.layer.ol.setStyle((feature, resolution) => {
@@ -388,7 +400,6 @@ export class DrawComponent implements OnInit, OnDestroy {
   }
 
   private checkStoreCount() {
-    console.log('checkStoreCount')
     this.store.count$.getValue() !== 0 ? this.drawsPresence = true : this.drawsPresence = false;
   }
 }
