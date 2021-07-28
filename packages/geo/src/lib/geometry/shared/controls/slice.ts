@@ -175,7 +175,7 @@ export class SliceControl {
     this.drawLineStart$$.unsubscribe();
     this.drawLineEnd$$.unsubscribe();
     this.drawLineControl.getDrawingLayerSource().clear(true);
-    this.drawLineControl.setOlMap(undefined);
+    this.drawLineControl.unsetOlMap();
   }
 
   /**

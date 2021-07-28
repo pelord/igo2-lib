@@ -395,20 +395,20 @@ export function hideOlFeature(olFeature: OlFeature) {
  * @param layer An optional VectorLayer
  */
 export function tryBindStoreLayer(store: FeatureStore, layer?: VectorLayer) {
-  if (store.layer !== undefined) {
-    if (store.layer.map === undefined) {
+  if (store.layer) {
+    if (!store.layer.map) {
       store.map.addLayer(store.layer);
     }
     return;
   }
 
-  layer = layer
-    ? layer
-    : new VectorLayer({
-        source: new FeatureDataSource()
-      });
+  layer = layer ? layer : new VectorLayer({
+    source: new FeatureDataSource()
+  });
+
   store.bindLayer(layer);
-  if (store.layer.map === undefined) {
+
+  if (!store.layer.map) {
     store.map.addLayer(store.layer);
   }
 }

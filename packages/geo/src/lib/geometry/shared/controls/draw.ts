@@ -3,7 +3,6 @@ import OlFeature from 'ol/Feature';
 import OlStyle from 'ol/style';
 import type { default as OlGeometryType } from 'ol/geom/GeometryType';
 import OlVectorSource from 'ol/source/Vector';
-import OlVectorLayer from 'ol/layer/Vector';
 import OlDraw from 'ol/interaction/Draw';
 import OlModify from 'ol/interaction/Modify';
 import OlSnap from 'ol/interaction/Snap';
@@ -11,7 +10,10 @@ import {
   Geometry as OlGeometry,
   GeometryEvent as OlGeometryEvent
 } from 'ol/geom/Geometry';
-import { DrawEvent as OlDrawEvent } from 'ol/interaction/Draw';
+import {
+  DrawEvent as OlDrawEvent,
+  createRegularPolygon as OlCreateRegularPolygon } from 'ol/interaction/Draw';
+import { ModifyEvent as OlModifyEvent } from 'ol/interaction/Modify';
 import { unByKey } from 'ol/Observable';
 
 import { Subject, Subscription, fromEvent, BehaviorSubject } from 'rxjs';
@@ -21,7 +23,6 @@ import { getMousePositionFromOlGeometryEvent } from '../geometry.utils';
 export interface DrawControlOptions {
   geometryType: OlGeometryType | undefined;
   drawingLayerSource?: OlVectorSource;
-  drawingLayer?: OlVectorLayer;
   drawingLayerStyle?: OlStyle | ((olfeature: OlFeature) => OlStyle);
   interactionStyle?: OlStyle | ((olfeature: OlFeature) => OlStyle);
   maxPoints?: number;
@@ -47,10 +48,11 @@ export class DrawControl {
    */
   public changes$: Subject<OlGeometry> = new Subject();
 
+  public modifyChanges$: Subject<OlGeometry> = new Subject();
+
   private olMap: OlMap;
   private olGeometryType: OlGeometryType;
   private olDrawingLayerSource: OlVectorSource;
-  private olDrawingLayer: OlVectorLayer;
   private olDrawingLayerStyle: OlStyle;
   private olInteractionStyle: OlStyle;
   private olMaxPoints: number;
@@ -61,7 +63,8 @@ export class DrawControl {
 
   private onDrawStartKey: string;
   private onDrawEndKey: string;
-  private onDrawKey: string;
+  private onDrawChangeKey: string;
+  private onModifyChangeKey: string;
 
   private mousePosition: [number, number];
 
@@ -72,7 +75,6 @@ export class DrawControl {
   constructor(private options: DrawControlOptions) {
     this.olGeometryType = options.geometryType;
     options.drawingLayerSource ? this.olDrawingLayerSource = options.drawingLayerSource : this.olDrawingLayerSource = new OlVectorSource();
-    options.drawingLayer ? this.olDrawingLayer = options.drawingLayer : this.olDrawingLayer = this.createOlDrawingLayer();
     this.olDrawingLayerStyle = options.drawingLayerStyle;
     options.interactionStyle ? this.olInteractionStyle = options.interactionStyle : this.olInteractionStyle = this.olDrawingLayerStyle;
     options.maxPoints ? this.olMaxPoints = options.maxPoints : this.olMaxPoints = undefined;
@@ -108,24 +110,10 @@ export class DrawControl {
   }
 
   /**
-   * Create a drawing layer if none is defined in the options
-   * @returns a vector layer
-   */
-  private createOlDrawingLayer(): OlVectorLayer {
-    const olVectorLayer = new OlVectorLayer({
-      source: this.olDrawingLayerSource,
-      style: this.olDrawingLayerStyle,
-      zIndex: 500
-    });
-
-    return olVectorLayer;
-  }
-
-  /**
    * Clear the drawing layer source if it wasn't defined in the options
    */
   private clearOlDrawingLayerSource() {
-    if (!this.options.drawingLayer && !this.options.drawingLayerSource) {
+    if (!this.options.drawingLayerSource) {
       this.olDrawingLayerSource.clear(true);
     }
   }
@@ -139,6 +127,7 @@ export class DrawControl {
       olDrawInteraction = new OlDraw({
         type: this.olGeometryType,
         source: this.olDrawingLayerSource,
+        geometryFunction: this.olGeometryType === 'Circle' ? OlCreateRegularPolygon(1000) : undefined,
         stopClick: true,
         style: this.olInteractionStyle,
         maxPoints: this.olMaxPoints,
@@ -150,20 +139,24 @@ export class DrawControl {
       olDrawInteraction = new OlDraw({
         type: this.olGeometryType,
         source: this.olDrawingLayerSource,
+        geometryFunction: this.olGeometryType === 'Circle' ? OlCreateRegularPolygon(1000) : undefined,
         maxPoints: this.olMaxPoints,
         freehand: true
       });
     }
 
+    // Add Draw interaction
     this.olMap.addInteraction(olDrawInteraction);
     this.olDrawInteraction = olDrawInteraction;
 
-    const olModifyInteraction = new OlModify({
+    // Add Modify interaction
+    let olModifyInteraction = new OlModify({
       source: this.olDrawingLayerSource
     });
     this.olMap.addInteraction(olModifyInteraction);
     this.olModifyInteraction = olModifyInteraction;
 
+    // Add Snap interaction
     const olSnapInteraction = new OlSnap({
       source: this.olDrawingLayerSource
     });
@@ -172,18 +165,19 @@ export class DrawControl {
 
     this.onDrawStartKey = olDrawInteraction.on('drawstart', (event: OlDrawEvent) => this.onDrawStart(event));
     this.onDrawEndKey = olDrawInteraction.on('drawend', (event: OlDrawEvent) => this.onDrawEnd(event));
+    this.onModifyChangeKey = olModifyInteraction.on('modifyend', (event: OlModifyEvent) => this.onModifyGeom(event));
   }
 
   /**
-   * Remove the draw interaction
+   * Remove interactions
    */
-  private removeOlInteractions() {
+  removeOlInteractions() {
     if (!this.olDrawInteraction) {
       return;
     }
 
     this.unsubscribeKeyDown();
-    unByKey([this.onDrawStartKey, this.onDrawEndKey, this.onDrawKey]);
+    unByKey([this.onDrawStartKey, this.onDrawEndKey, this.onDrawChangeKey]);
     if (this.olMap) {
       this.olMap.removeInteraction(this.olDrawInteraction);
       this.olMap.removeInteraction(this.olModifyInteraction);
@@ -202,8 +196,8 @@ export class DrawControl {
   private onDrawStart(event: OlDrawEvent) {
     const olGeometry = event.feature.getGeometry();
     this.start$.next(olGeometry);
-    this.clearOlDrawingLayerSource();
-    this.onDrawKey = olGeometry.on('change', (olGeometryEvent: OlGeometryEvent) => {
+    //this.clearOlDrawingLayerSource();
+    this.onDrawChangeKey = olGeometry.on('change', (olGeometryEvent: OlGeometryEvent) => {
       this.mousePosition = getMousePositionFromOlGeometryEvent(olGeometryEvent);
       this.changes$.next(olGeometryEvent.target);
     });
@@ -217,8 +211,13 @@ export class DrawControl {
    */
   private onDrawEnd(event: OlDrawEvent) {
     this.unsubscribeKeyDown();
-    unByKey(this.onDrawKey);
+    unByKey(this.onDrawChangeKey);
+    console.log(event.feature.getGeometry())
     this.end$.next(event.feature.getGeometry());
+  }
+
+  private onModifyGeom(event: OlModifyEvent) {
+    this.modifyChanges$.next(event.features);
   }
 
   /**

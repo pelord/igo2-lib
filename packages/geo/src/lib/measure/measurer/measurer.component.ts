@@ -704,7 +704,7 @@ export class MeasurerComponent implements OnInit, OnDestroy {
     if (this.activeOlGeometry !== undefined) {
       this.clearTooltipsOfOlGeometry(this.activeOlGeometry);
     }
-    this.activeDrawControl.setOlMap(undefined);
+    this.activeDrawControl.unsetOlMap();
     this.activeDrawControl = undefined;
     this.activeOlGeometry = undefined;
   }

@@ -12,13 +12,13 @@ import {
 
 
 /**
- * Create a style for the drawing layer
+ * Create a style for the OL Draw interaction
  * @param fillColor the fill color of the geometry (ex. 'rgba(255,0,0,1)')
  * @param strokeColor the stroke color of the geometry (ex. 'rgba(255,0,0,1)')
  * @param label the label of the geometry
  * @returns OL Style
  */
-export function createDrawingLayerStyle(fillColor?: OlColor, strokeColor?: OlColor, label?: string): OlStyle.Style {
+export function createInteractionStyle(fillColor?: OlColor, strokeColor?: OlColor, label?: string): OlStyle.Style {
   let olStyle: OlStyle.Style;
   olStyle = new OlStyle.Style({
     stroke: new OlStyle.Stroke({

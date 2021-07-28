@@ -22,16 +22,17 @@
 
   <div class="draw-options mat-typography">
     <mat-slide-toggle
-      [checked]="drawControlIsActive"
+      [checked]="drawControlToggleToggled"
+      [disabled]="drawControlToggleDisabled"
       [labelPosition]="'before'"
-      (change)="onToggleDrawControl($event.checked)">
+      (change)="onToggleDrawControl()">
       {{'igo.geo.spatialFilter.drawControl' | translate}}
     </mat-slide-toggle>
 
     <mat-slide-toggle
-      [checked]="showTooltips"
+      [checked]="showLabels"
       [labelPosition]="'before'"
-      (change)="onToggleTooltips($event.checked)">
+      (change)="onToggleLabels()">
       {{'igo.geo.draw.toggleMapLabels' | translate}}
     </mat-slide-toggle>
   </div>
@@ -61,7 +62,7 @@
           [cpCancelButton]="true"
           [cpCancelButtonText]="'igo.geo.draw.cancelColorPicker' | translate"
           [cpOKButton]="true"
-          (colorPickerChange)="changeStoreLayerStyle(showTooltips, false)">
+          (colorPickerChange)="changeStoreLayerStyle(showLabels, false)">
       </mat-form-field>
     </div>
 
@@ -89,7 +90,7 @@
           [cpCancelButton]="true"
           [cpCancelButtonText]="'igo.geo.draw.cancelColorPicker' | translate"
           [cpOKButton]="true"
-          (colorPickerChange)="changeStoreLayerStyle(showTooltips, false)">
+          (colorPickerChange)="changeStoreLayerStyle(showLabels, false)">
       </mat-form-field>
     </div>
 
@@ -119,8 +120,7 @@
   <mat-divider></mat-divider>
 
   <div>
-    <button
-      *ngIf="drawsPresence"
+    <button *ngIf="drawsPresence"
       class="deleteBtn"
       mat-icon-button
       color="warn"

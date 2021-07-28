@@ -143,12 +143,11 @@ export function addLinearRingToOlPolygon(olPolygon: OlPolygon, olLinearRing: OlL
   olPolygon.appendLinearRing(olLinearRing);
 }
 
-export function getMousePositionFromOlGeometryEvent(
-  olEvent: OlGeometryEvent
-): [number, number] {
+export function getMousePositionFromOlGeometryEvent(olEvent: OlGeometryEvent): [number, number] {
   const olGeometry = olEvent.target;
-  if (olGeometry instanceof OlPolygon) {
-    return olGeometry.flatCoordinates.slice(-4, -2);
-  }
-  return olGeometry.flatCoordinates.slice(-2);
+  let mousePos;
+
+  olGeometry instanceof OlPolygon ? mousePos = olGeometry.flatCoordinates.slice(-4, -2) : mousePos = olGeometry.flatCoordinates.slice(-2);
+
+  return mousePos;
 }
