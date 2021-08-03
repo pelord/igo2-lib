@@ -20,4 +20,6 @@ export interface PrintOptions {
   showScale?: boolean;
   isPrintService: boolean;
   doZipFile: boolean;
+  scale: string;
+  scalePrint: boolean;
 }

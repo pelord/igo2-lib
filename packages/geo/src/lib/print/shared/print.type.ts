@@ -30,3 +30,11 @@ export const PrintSaveImageFormat = strEnum([
   'Tiff'
 ]);
 export type PrintSaveImageFormat = keyof typeof PrintSaveImageFormat;
+
+export const PrintScale = strEnum([
+  'none',
+  '1:50000',
+  '1:100000',
+  '1:500000',
+  '1:1000000']);
+export type PrintScale = keyof typeof PrintScale;

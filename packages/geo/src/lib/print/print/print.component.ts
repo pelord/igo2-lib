@@ -1,16 +1,16 @@
 import { Component, Input } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 
 import { IgoMap } from '../../map/shared/map';
 import { PrintOptions } from '../shared/print.interface';
-
 import {
   PrintOutputFormat,
   PrintPaperFormat,
   PrintOrientation,
   PrintResolution,
-  PrintSaveImageFormat
+  PrintSaveImageFormat,
+  PrintScale
 } from '../shared/print.type';
 
 import { PrintService } from '../shared/print.service';
@@ -75,6 +75,15 @@ export class PrintComponent {
     this._resolution = value;
   }
   private _resolution: PrintResolution;
+
+  @Input()
+  get scale(): PrintScale{
+    return this._scale;
+  }
+  set scale(value: PrintScale){
+    this._scale = value;
+  }
+  private _scale: PrintScale;
 
   constructor(private printService: PrintService) {}
 

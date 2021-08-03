@@ -114,6 +114,30 @@
     </mat-form-field>
   </div>
 
+  <div class="igo-input-container">
+    <div class="print-slide-toggle-container mat-typography">
+      <mat-slide-toggle
+          class="print-option"
+          (change)="onToggleScalePrint($event.checked)"
+          formControlName="scalePrint"
+          [labelPosition]="'before'">
+          {{'scale print'}}
+      </mat-slide-toggle>
+    </div>
+  </div>
+
+  <div class="igo-input-container" [style.display]="scalePrint ? 'block' : 'none'">
+    <mat-form-field>
+      <mat-select
+        formControlName="scale"
+        placeholder="{{'igo.geo.printForm.scale' | translate}}">
+        <mat-option *ngFor="let scale of scales | keyvalue " [value]="scale.key" (click)="changeDimension($event)">
+          {{scale.value}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
   <div class="igo-form-button-group print-button-top-padding">
     <button
       mat-raised-button
@@ -125,3 +149,4 @@
   </div>
 
 </form>
+<igo-print-limit *ngIf="scaleToggle" [scalePrint]="(scaleToggle$ | async)"></igo-print-limit>

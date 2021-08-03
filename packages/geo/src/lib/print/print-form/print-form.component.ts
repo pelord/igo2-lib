@@ -5,7 +5,8 @@ import {
   FormControl,
   Validators
 } from '@angular/forms';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { IgoMap } from '../../map';
 
 import { PrintOptions } from '../shared/print.interface';
 
@@ -14,7 +15,8 @@ import {
   PrintPaperFormat,
   PrintOrientation,
   PrintResolution,
-  PrintSaveImageFormat
+  PrintSaveImageFormat,
+  PrintScale
 } from '../shared/print.type';
 
 @Component({
@@ -29,6 +31,7 @@ export class PrintFormComponent implements OnInit {
   public orientations = PrintOrientation;
   public resolutions = PrintResolution;
   public imageFormats = PrintSaveImageFormat;
+  public scales = PrintScale;
   public isPrintService = true;
 
   @Input() disabled$: BehaviorSubject<boolean>;
@@ -134,6 +137,22 @@ export class PrintFormComponent implements OnInit {
     this.doZipFileField.setValue(value, { onlySelf: true });
   }
 
+  @Input()
+  get scale(): PrintScale {
+    return this.scaleField.value;
+  }
+  set scale(value: PrintScale) {
+    this.scaleField.setValue(value || PrintScale['none'], {onlySelf: true});
+  }
+
+  @Input()
+  get scalePrint(): boolean {
+    return this.scalePrintField.value;
+  }
+  set scalePrint(value: boolean) {
+    this.scalePrintField.setValue(value, {onlySelf: true});
+  }
+
   get outputFormatField() {
     return (this.form.controls as any).outputFormat as FormControl;
   }
@@ -182,6 +201,14 @@ export class PrintFormComponent implements OnInit {
     return (this.form.controls as any).subtitle as FormControl;
   }
 
+  get scaleField() {
+    return (this.form.controls as any).scale as FormControl;
+  }
+
+  get scalePrintField() {
+    return (this.form.controls as any).scalePrint as FormControl;
+  }
+ 
   @Output() submit: EventEmitter<PrintOptions> = new EventEmitter();
 
   constructor(private formBuilder: FormBuilder) {
@@ -197,7 +224,9 @@ export class PrintFormComponent implements OnInit {
       showProjection: false,
       showScale: false,
       showLegend: false,
-      doZipFile: [{hidden: this.isPrintService }]
+      doZipFile: [{hidden: this.isPrintService }],
+      scalePrint: false,
+      scale: ['', []]
     });
   }
 
@@ -219,4 +248,24 @@ export class PrintFormComponent implements OnInit {
       this.isPrintService = true;
     }
   }
+  public scaleToggle: boolean = false;
+  public scaleToggle$ = new BehaviorSubject<boolean>(true);
+  public selectedScale: string;
+  public map: IgoMap;
+  public height = '250px'; 
+
+  onToggleScalePrint(toggle: boolean) {
+    this.scaleToggle = toggle;
+    this.scaleToggle$.next(toggle);
+  }
+
+  changeDimension(event){
+    event.stopPropagation();
+    this.selectedScale = this.form.controls.scale.value;
+    const doc = document.getElementById('limit');
+    if (this.selectedScale === '1:100000'){
+      doc.style.height = this.height;
+    }
+  }
+
 }
