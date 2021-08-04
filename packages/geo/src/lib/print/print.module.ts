@@ -14,7 +14,6 @@ import { IgoKeyValueModule } from '@igo2/common';
 
 import { PrintComponent } from './print/print.component';
 import { PrintFormComponent } from './print-form/print-form.component';
-import { PrintLimitComponent } from './print-limit/print-limit.component';
 
 @NgModule({
   imports: [
@@ -31,7 +30,7 @@ import { PrintLimitComponent } from './print-limit/print-limit.component';
     IgoLanguageModule,
     IgoKeyValueModule
   ],
-  exports: [PrintComponent, PrintFormComponent, PrintLimitComponent],
-  declarations: [PrintComponent, PrintFormComponent, PrintLimitComponent]
+  exports: [PrintComponent, PrintFormComponent],
+  declarations: [PrintComponent, PrintFormComponent]
 })
 export class IgoPrintModule {}

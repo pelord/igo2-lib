@@ -1,4 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+// import { MapState } from '../map/map.state';
+// import { MapState } from 'packages/integration/src/lib/map/map.state'
 import {
   FormGroup,
   FormBuilder,
@@ -211,7 +213,10 @@ export class PrintFormComponent implements OnInit {
  
   @Output() submit: EventEmitter<PrintOptions> = new EventEmitter();
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor(
+    private formBuilder: FormBuilder,
+    // public mapState: MapState
+    ) {
     this.form = this.formBuilder.group({
       title: ['', []],
       subtitle: ['', []],
@@ -249,23 +254,27 @@ export class PrintFormComponent implements OnInit {
     }
   }
   public scaleToggle: boolean = false;
-  public scaleToggle$ = new BehaviorSubject<boolean>(true);
   public selectedScale: string;
-  public map: IgoMap;
-  public height = '250px'; 
+
+  @Input()
+  get map(): IgoMap {
+    return this._map;
+  }
+  set map(value: IgoMap) {
+    this._map = value;
+  }
+  private _map: IgoMap;
+
+  // public height = '250px';
 
   onToggleScalePrint(toggle: boolean) {
     this.scaleToggle = toggle;
-    this.scaleToggle$.next(toggle);
+    this.map.scalePrint$.next(toggle);
   }
 
   changeDimension(event){
     event.stopPropagation();
-    this.selectedScale = this.form.controls.scale.value;
-    const doc = document.getElementById('limit');
-    if (this.selectedScale === '1:100000'){
-      doc.style.height = this.height;
-    }
+    this.map.selectedScale$.next(this.form.controls.scale.value);
   }
 
 }
