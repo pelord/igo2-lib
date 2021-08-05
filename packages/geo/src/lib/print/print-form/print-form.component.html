@@ -149,4 +149,9 @@
   </div>
 
 </form>
-<igo-print-limit *ngIf="scaleToggle" [scalePrint]="(scaleToggle$ | async)"></igo-print-limit>
+<igo-print-limit
+  *ngIf="scaleToggle"
+  [scalePrint]="(scaleToggle$ | async)"
+  [map]="map"
+  [store]="store">
+</igo-print-limit>
