@@ -37,6 +37,7 @@ export class PrintFormComponent implements OnInit {
   public scaleToggle: boolean = false;
   public scaleToggle$ = new BehaviorSubject<boolean>(true);
   public selectedScale: string = 'none';
+  public selectedFormat: string = 'none';
   public selectedScale$ = new BehaviorSubject<string>('');
 
   @Input() map: IgoMap;
@@ -269,8 +270,10 @@ export class PrintFormComponent implements OnInit {
   changeDimension(event){
     event.stopPropagation();
     this.selectedScale = this.form.controls.scale.value;
+    this.selectedFormat = this.form.controls.paperFormat.value;
+    this.map.selectedFormat$.next(this.selectedFormat);
     this.map.selectedScale$.next(this.selectedScale);
-    console.log(`on a choisi ${this.selectedScale}`)
+    // console.log(`on a choisi ${this.selectedScale}`)
   }
 
 }

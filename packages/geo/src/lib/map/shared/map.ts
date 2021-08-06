@@ -36,6 +36,7 @@ export class IgoMap {
   public ol: olMap;
   public offlineButtonToggle$ = new BehaviorSubject<boolean>(false);
   public selectedScale$ = new BehaviorSubject<string>('');
+  public selectedFormat$ = new BehaviorSubject<string>('');
   public layers$ = new BehaviorSubject<Layer[]>([]);
   public status$: Subject<SubjectStatus>;
   public alwaysTracking: boolean;

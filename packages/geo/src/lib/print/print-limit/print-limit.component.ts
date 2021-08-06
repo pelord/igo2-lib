@@ -59,20 +59,27 @@ export class PrintLimitComponent implements OnInit {
     get drawControlIsActive(): boolean {
     return this.activeLimitControl !== undefined;
   }
-
+  private format: string = '';
+  private scale: string = '';
+  public selectedScale$$: Subscription;
+  public selectedFormat$$: Subscription;
 
 
   constructor() {}
 
   ngOnInit() {
+    
+    this.listenScaleFormat();
     this.initStore();
-    const coord = this.limitOfPrint();
-    this.createLimit(coord);
+    this.afficherLimit();
+
   }
 
   ngOnDestroy() {
     this.setActiveLimitType(undefined);
     this.delLimit();
+    this.selectedFormat$$.unsubscribe();
+    this.selectedScale$$.unsubscribe();
   }
 
   private initStore() {
@@ -114,7 +121,6 @@ export class PrintLimitComponent implements OnInit {
         this.selectedFeatures$.next(records.map(record => record.entity));
     });
     
-    this.listenScale();
   }
 
   private setActiveLimitType(drawType: LimitType) {
@@ -122,24 +128,46 @@ export class PrintLimitComponent implements OnInit {
     // this.toggleDrawControl();
   }
 
-  limitOfPrint(): Array<number>{
+  limitOfPrint(format:string, scale:string): Array<number> {
     let coord = [];
     const center2 = this.map.viewController.getCenter('EPSG:32187').map(coord => coord.toFixed(5));
-    const dd = 100000;
+    const delta = this.calculDelta(format, scale);
+    const dN = delta[0];
+    const dE = delta[1];
     const center = [parseFloat(center2[0]), parseFloat(center2[1])];
-    const NE = [center[0] + dd, center[1] + dd];
-    const NO = [center[0] - dd, center[1] + dd];
-    const SO = [center[0] - dd, center[1] - dd];
-    const SE = [center[0] + dd, center[1] - dd];
+    const NE = [center[0] + dE, center[1] + dN];
+    const NO = [center[0] - dE, center[1] + dN];
+    const SO = [center[0] - dE, center[1] - dN];
+    const SE = [center[0] + dE, center[1] - dN];
     coord.push(NE,NO,SO,SE);
     return coord;
   }
 
-  createLimit(coordinates: Array<number>) {
-    const lonlat = this.map.viewController.getCenter('EPSG:4326');
-    const zoneMtm = this.zoneMtm(lonlat[0]); // on affiche le limit pour "dd", depende de l'echelle
+  calculDelta(format:string, scale:string): Array<number>{
+    if (format === 'Letter') {
+      const dimHor = 27.9;
+      const dimVert = 21.6;
+      if(scale === '1:2000') {
+        const coef = 20;
+        return [dimHor*coef, dimVert*coef];
+      }
+      else {return [800,1000]}
+    }
+    else {return [800,1000]}
+  }
 
-    console.log('creation d\'une limite');
+  afficherLimit() {
+    const coord = this.limitOfPrint(this.format, this.scale);
+    this.createLimit(coord);
+  }
+
+
+  createLimit(coordinates: Array<number>) {
+    this.delLimit();
+    const lonlat = this.map.viewController.getCenter('EPSG:4326');
+    const zoneMtm = this.zoneMtm(lonlat[0]);
+
+    // console.log('creation d\'une limite');
     this.store.load([
       {
         meta: { id: 3 },
@@ -157,14 +185,22 @@ export class PrintLimitComponent implements OnInit {
   }
 
   delLimit() {
-    console.log('efface limite')
+    // console.log('efface limite')
     this.store.clear();
   }
-  public selectedScale$$: Subscription;
 
-  listenScale() {   // je n'aime pas le façon dont je l'ai fait (en passant par this.map...)
-    this.selectedScale$$ = this.map.selectedScale$.subscribe((scale)=>
-    console.log(scale))
+  listenScaleFormat() {   // je n'aime pas le façon dont je l'ai fait (en passant par this.map...)
+    // il n'écoute pas. il est souscrit, mais quand je change selectedScale$, $$ ne reagit pas. 
+    this.selectedScale$$ = this.map.selectedScale$.subscribe((scale)=> {
+      this.scale = scale;
+      console.log(scale, 'scale');
+      this.afficherLimit();}
+      );
+    this.selectedFormat$$  = this.map.selectedFormat$.subscribe((format)=> {
+      this.format = format;
+      console.log(format, 'format');
+      this.afficherLimit()}
+      );
   }
 
   zoneMtm(lon: number): number {
