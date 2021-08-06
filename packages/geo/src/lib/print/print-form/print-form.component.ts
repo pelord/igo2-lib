@@ -1,21 +1,16 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
   FormControl,
   Validators
 } from '@angular/forms';
-import { IonNav } from '@ionic/angular';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { FeatureDataSource } from '../../datasource';
-import { FeatureStore, FeatureStoreSelectionStrategy, tryAddLoadingStrategy, tryAddSelectionStrategy, tryBindStoreLayer } from '../../feature';
-import { VectorLayer } from '../../layer';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { Feature, FeatureStore } from '../../feature';
 
 import { IgoMap } from '../../map';
-import { createFrameLayerStyle } from '../shared/print.util'
-import { PrintOptions, PrintTest, Limit } from '../shared/print.interface';
-import { OlVectorSourceEvent } from 'ol/source/Vector';
-import { OlPolygon } from 'ol/geom/polygon';
+import { PrintOptions } from '../shared/print.interface';
+import { PrintLimitComponent } from '../print-limit';
 import {
   PrintOutputFormat,
   PrintPaperFormat,
@@ -39,9 +34,13 @@ export class PrintFormComponent implements OnInit {
   public imageFormats = PrintSaveImageFormat;
   public scales = PrintScale;
   public isPrintService = true;
+  public scaleToggle: boolean = false;
+  public scaleToggle$ = new BehaviorSubject<boolean>(true);
+  public selectedScale: string = 'none';
+  public selectedScale$ = new BehaviorSubject<string>('');
 
   @Input() map: IgoMap;
-  @Input() store: FeatureStore<PrintTest>;
+  @Input() store: FeatureStore<Feature>;
 
   @Input() disabled$: BehaviorSubject<boolean>;
 
@@ -217,7 +216,7 @@ export class PrintFormComponent implements OnInit {
   get scalePrintField() {
     return (this.form.controls as any).scalePrint as FormControl;
   }
-  private onFeatureAddedKey: string;
+
  
   @Output() submit: EventEmitter<PrintOptions> = new EventEmitter();
 
@@ -242,43 +241,8 @@ export class PrintFormComponent implements OnInit {
 
   ngOnInit() {
     this.doZipFileField.setValue(false);
-    this.initStore();
   }
-  private initStore() {
-    const store = this.store;
-
-    const layer = new VectorLayer({
-      title: 'Limit',
-      zIndex: 200,
-      source: new FeatureDataSource,
-      style: createFrameLayerStyle(),
-      showInLayerList: true,
-      exportable: true,
-      browsable: false
-    });
-    tryBindStoreLayer(store, layer);
-    tryAddLoadingStrategy(store);
-    tryAddSelectionStrategy(store, new FeatureStoreSelectionStrategy({
-      map:this.map,
-      many:true
-    }));
-
-    this.onFeatureAddedKey = store.source.ol.on('addfeature',
-    (event: OlVectorSourceEvent) => {
-      const feature = event.feature;
-      const olGeometry = feature.getGeometry();
-      this.updateFrameOfOlGeometry(olGeometry, feature.get('limit'));
-    });
-
-  }
-  updateFrameOfOlGeometry(olGeometry: OlPolygon, limit: Limit) {
-    olGeometry.setProperties({_limit: limit}, true);
-  }
-
-/* create a geometry in a layer from coordinates for each zoom-level*/
-
-
-
+  
   handleFormSubmit(data: PrintOptions, isValid: boolean) {
     data.isPrintService = this.isPrintService;
     if (isValid) {
@@ -293,24 +257,20 @@ export class PrintFormComponent implements OnInit {
       this.isPrintService = true;
     }
   }
-  public scaleToggle: boolean = false;
-  public scaleToggle$ = new BehaviorSubject<boolean>(true);
-  public selectedScale: string;
-  // public map: IgoMap;
-  public height = '250px'; 
+
+  // public printLimit: PrintLimitComponent = new PrintLimitComponent();
 
   onToggleScalePrint(toggle: boolean) {
     this.scaleToggle = toggle;
     this.scaleToggle$.next(toggle);
+    this.map.selectedScale$.next(this.selectedScale);
   }
-
+ 
   changeDimension(event){
     event.stopPropagation();
     this.selectedScale = this.form.controls.scale.value;
-    const doc = document.getElementById('limit');
-    if (this.selectedScale === '1:100000'){
-      doc.style.height = this.height;
-    }
+    this.map.selectedScale$.next(this.selectedScale);
+    console.log(`on a choisi ${this.selectedScale}`)
   }
 
 }

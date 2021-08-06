@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { FeatureStore, PrintTest  } from '@igo2/geo';
+import { Feature, FeatureStore  } from '@igo2/geo';
 import { MapState } from '../map/map.state';
 
 /**
@@ -14,7 +14,7 @@ export class PrintState {
   /**
    * Store that holds the measures
    */
-  public store: FeatureStore<PrintTest> = new FeatureStore<PrintTest>([], {
+  public store: FeatureStore<Feature> = new FeatureStore<Feature>([], {
     map: this.mapState.map
   });
 

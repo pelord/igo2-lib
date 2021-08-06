@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { FeatureStore } from '../../feature';
-import { PrintTest } from '../shared/print.interface';
+import { Feature, FeatureStore } from '../../feature';
+// import { PrintTest } from '../shared/print.interface';
 import { IgoMap } from '../../map/shared/map';
 import { PrintOptions } from '../shared/print.interface';
 import {
@@ -24,7 +24,7 @@ export class PrintComponent {
   public disabled$ = new BehaviorSubject(false);
 
   @Input() map: IgoMap;
-  @Input() store: FeatureStore<PrintTest>;
+  @Input() store: FeatureStore<Feature>;
 
   @Input()
   get outputFormat(): PrintOutputFormat {

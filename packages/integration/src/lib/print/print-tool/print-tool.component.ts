@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 import { ToolComponent } from '@igo2/common';
-import { IgoMap, FeatureStore, PrintTest } from '@igo2/geo';
+import { IgoMap, FeatureStore, Feature } from '@igo2/geo';
 import { MapState } from '../../map/map.state';
 import { PrintState } from '../print.state';
 import { MeasureState } from '../../measure/measure.state';
@@ -18,7 +18,7 @@ import { MeasureState } from '../../measure/measure.state';
 })
 export class PrintToolComponent {
 
-  get store(): FeatureStore<PrintTest> { 
+  get store(): FeatureStore<Feature> { 
     return this.printState.store;
   }
   

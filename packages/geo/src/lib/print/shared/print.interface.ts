@@ -1,5 +1,6 @@
 import { PrintOutputFormat, PrintPaperFormat, PrintOrientation, PrintResolution, PrintSaveImageFormat } from './print.type';
 import { Feature } from '../../feature';
+import { IgoMap } from '../../map/shared/map';
 
 export interface PrintOptions {
     outputFormat: PrintOutputFormat;
@@ -18,12 +19,22 @@ export interface PrintOptions {
     scale: string;
     scalePrint: boolean;
 }
-export interface PrintTest extends Feature<FeatureWithTest> {}
+export interface FeatureWithLimit extends Feature<FeatureWithLimitProperties> {}
 
-export interface FeatureWithTest {
+export interface FeatureWithLimitProperties {
     id: string;
+    coordinates?: any;
+    dimensions?: any;
+}
+export interface FeatureStorePrintStrategyOptions {
+    map: IgoMap;
+}
+export interface LimitStyle {
+    fill?: string;
+    stroke?: string;
 }
 export interface Limit {
+    coordinate?: number;
     coordinates?: number[];
     dimensions?: number[];
 }

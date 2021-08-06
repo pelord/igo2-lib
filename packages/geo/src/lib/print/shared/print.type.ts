@@ -33,6 +33,11 @@ export type PrintSaveImageFormat = keyof typeof PrintSaveImageFormat;
 
 export const PrintScale = strEnum([
   'none',
+  '1:200',
+  '1:500',
+  '1:1000',
+  '1:5000',
+  '1:10000',
   '1:50000',
   '1:100000',
   '1:500000',
