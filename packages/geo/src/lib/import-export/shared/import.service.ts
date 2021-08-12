@@ -36,7 +36,7 @@ export class ImportService {
     'application/x-zip'
   ];
 
-  static allowedExtensions = ['geojson', 'kml', 'gpx', 'json', 'gml'];
+  static allowedExtensions = ['geojson', 'kml', 'gpx', 'json', 'gml', 'dgn', 'dxf', 'gpkg'];
 
   private ogreUrl: string;
   private clientSideFileSizeMax: number;

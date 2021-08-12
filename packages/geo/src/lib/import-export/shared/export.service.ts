@@ -22,7 +22,10 @@ export class ExportService {
   static ogreFormats = {
     GML: 'gml',
     GPX: 'gpx',
+    GPKG: 'gpkg',
     KML: 'kml',
+    DGN: 'dgn',
+    DXF: 'dxf',
     Shapefile: 'ESRI Shapefile',
     CSVcomma: 'CSVcomma',
     CSVsemicolon: 'CSVsemicolon'

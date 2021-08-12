@@ -1,6 +1,6 @@
 import { strEnum } from '@igo2/utils';
 
-export const ExportFormat = strEnum(['URL', 'GeoJSON', 'GML', 'GPX', 'KML', 'Shapefile', 'CSVcomma', 'CSVsemicolon']);
+export const ExportFormat = strEnum(['URL', 'GeoJSON','DGN', 'DXF', 'GML', 'GPX', 'GPKG', 'KML', 'Shapefile', 'CSVcomma', 'CSVsemicolon']);
 export type ExportFormat = keyof typeof ExportFormat;
 
 export const EncodingFormat = strEnum(['UTF8', 'LATIN1']);

@@ -780,8 +780,11 @@ export class ImportExportComponent implements OnDestroy, OnInit {
         if (
           format.toUpperCase() === ExportFormat.CSVcomma.toUpperCase() ||
           format.toUpperCase() === ExportFormat.CSVsemicolon.toUpperCase() ||
+          format.toUpperCase() === ExportFormat.DGN.toUpperCase() ||
+          format.toUpperCase() === ExportFormat.DXF.toUpperCase() ||
           format.toUpperCase() === ExportFormat.GML.toUpperCase() ||
           format.toUpperCase() === ExportFormat.GPX.toUpperCase() ||
+          format.toUpperCase() === ExportFormat.GPKG.toUpperCase() ||
           format.toUpperCase() === ExportFormat.GeoJSON.toUpperCase() ||
           format.toUpperCase() === ExportFormat.KML.toUpperCase() ||
           format.toUpperCase() === ExportFormat.Shapefile.toUpperCase() ||
@@ -797,6 +800,14 @@ export class ImportExportComponent implements OnDestroy, OnInit {
         }
         if (format.toUpperCase() === ExportFormat.CSVsemicolon.toUpperCase()) {
           format = ExportFormat.CSVsemicolon;
+          return format;
+        }
+        if (format.toUpperCase() === ExportFormat.DGN.toUpperCase()) {
+          format = ExportFormat.DGN;
+          return format;
+        }
+        if (format.toUpperCase() === ExportFormat.DXF.toUpperCase()) {
+          format = ExportFormat.DXF;
           return format;
         }
         if (format.toUpperCase() === ExportFormat.GML.toUpperCase()) {
