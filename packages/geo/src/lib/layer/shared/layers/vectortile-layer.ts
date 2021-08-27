@@ -67,7 +67,7 @@ export class VectorTileLayer extends Layer {
       arrayBuffer.then((data) => {
         const format = tile.getFormat();
         const features = format.readFeatures(data, {
-          extent: extent,
+          extent,
           featureProjection: projection
         });
         tile.setFeatures(features);

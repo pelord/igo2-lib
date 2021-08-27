@@ -7,7 +7,20 @@ import stylefunction from 'ol-mapbox-style/dist/stylefunction';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import {
-  ArcGISRestDataSource, CartoDataSource, ClusterDataSource, FeatureDataSource, ImageArcGISRestDataSource, MVTDataSource, OSMDataSource, TileArcGISRestDataSource, TileDebugDataSource, WebSocketDataSource, WFSDataSource, WMSDataSource, WMTSDataSource, XYZDataSource
+  ArcGISRestDataSource,
+  CartoDataSource,
+  ClusterDataSource,
+  FeatureDataSource,
+  ImageArcGISRestDataSource,
+  MVTDataSource,
+  OSMDataSource,
+  TileArcGISRestDataSource,
+  TileDebugDataSource,
+  WebSocketDataSource,
+  WFSDataSource,
+  WMSDataSource,
+  WMTSDataSource,
+  XYZDataSource
 } from '../../datasource';
 import { DataSourceService } from '../../datasource/shared/datasource.service';
 import {
