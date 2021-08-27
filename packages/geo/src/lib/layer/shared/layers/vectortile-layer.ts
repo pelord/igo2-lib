@@ -1,14 +1,15 @@
+import { AuthInterceptor } from '@igo2/auth';
+import { GeoNetworkService, MessageService } from '@igo2/core';
 import olLayerVectorTile from 'ol/layer/VectorTile';
 import olSourceVectorTile from 'ol/source/VectorTile';
-
+import { first } from 'rxjs/operators';
 import { MVTDataSource } from '../../../datasource/shared/datasources/mvt-datasource';
-
+import { IgoMap } from '../../../map';
+import { TileWatcher } from '../../utils';
 import { Layer } from './layer';
 import { VectorTileLayerOptions } from './vectortile-layer.interface';
-import { TileWatcher } from '../../utils';
-import { AuthInterceptor } from '@igo2/auth';
-import { IgoMap } from '../../../map';
-import { MessageService } from '@igo2/core';
+
+
 
 export class VectorTileLayer extends Layer {
   public dataSource: MVTDataSource;
@@ -19,8 +20,10 @@ export class VectorTileLayer extends Layer {
 
   constructor(
     options: VectorTileLayerOptions,
+    private geoNetwork: GeoNetworkService,
     public messageService?: MessageService,
-    public authInterceptor?: AuthInterceptor) {
+    public authInterceptor?: AuthInterceptor,
+  ) {
     super(options, messageService, authInterceptor);
     this.watcher = new TileWatcher(this);
     this.status$ = this.watcher.status$;
@@ -35,10 +38,10 @@ export class VectorTileLayer extends Layer {
     const vectorTileSource = vectorTile.getSource() as olSourceVectorTile;
 
     vectorTileSource.setTileLoadFunction((tile, url) => {
-      const loader = this.customLoader(url, tile.getFormat(), this.authInterceptor, tile.onLoad.bind(tile));
-      if (loader) {
-        tile.setLoader(loader);
-      }
+      tile.setLoader((extent, resolution, projection) => {
+          this.customLoader(tile, url, extent, resolution, projection);
+        }
+      );
     }
     );
 
@@ -54,53 +57,21 @@ export class VectorTileLayer extends Layer {
    * @param success On success event action to trigger
    * @param failure On failure event action to trigger TODO
    */
-  customLoader(url, format, interceptor, success, failure?) {
-    return ((extent, resolution, projection) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('GET', typeof url === 'function' ? url = url(extent, resolution, projection) : url);
-      if (interceptor) {
-        interceptor.interceptXhr(xhr, url);
+  customLoader(tile, url, extent, resolution, projection) {
+    const request = this.geoNetwork.get(url);
+    request.pipe(first()).subscribe((blob) => {
+      if (!blob) {
+        return;
       }
-
-      if (format.getType() === 'arraybuffer') {
-        xhr.responseType = 'arraybuffer';
-      }
-      xhr.onload = (event) => {
-        if (!xhr.status || xhr.status >= 200 && xhr.status < 300) {
-          const type = format.getType();
-          let source;
-          if (type === 'json' || type === 'text') {
-            source = xhr.responseText;
-          }
-          else if (type === 'xml') {
-            source = xhr.responseXML;
-            if (!source) {
-              source = new DOMParser().parseFromString(xhr.responseText, 'application/xml');
-            }
-          }
-          else if (type === 'arraybuffer') {
-            source = xhr.response;
-          }
-          if (source) {
-            success.call(this, format.readFeatures(source, {
-              extent,
-              featureProjection: projection
-            }), format.readProjection(source));
-          }
-          else {
-            // TODO
-            failure.call(this);
-          }
-        } else {
-          // TODO
-          failure.call(this);
-        }
-      };
-      xhr.onerror = () => {
-        // TODO
-        failure.call(this);
-      };
-      xhr.send();
+      const arrayBuffer = blob.arrayBuffer();
+      arrayBuffer.then((data) => {
+        const format = tile.getFormat();
+        const features = format.readFeatures(data, {
+          extent: extent,
+          featureProjection: projection
+        });
+        tile.setFeatures(features);
+      });
     });
   }
 

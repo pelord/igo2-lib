@@ -1,46 +1,28 @@
-import { Injectable, Optional } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
-import stylefunction from 'ol-mapbox-style/dist/stylefunction';
+import { Injectable, Optional } from '@angular/core';
 import { AuthInterceptor } from '@igo2/auth';
+import { GeoNetworkService, LanguageService, MessageService } from '@igo2/core';
 import { ObjectUtils } from '@igo2/utils';
-
+import stylefunction from 'ol-mapbox-style/dist/stylefunction';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import {
-  OSMDataSource,
-  FeatureDataSource,
-  XYZDataSource,
-  TileDebugDataSource,
-  WFSDataSource,
-  WMTSDataSource,
-  WMSDataSource,
-  CartoDataSource,
-  ImageArcGISRestDataSource,
-  ArcGISRestDataSource,
-  TileArcGISRestDataSource,
-  WebSocketDataSource,
-  MVTDataSource,
-  ClusterDataSource
+  ArcGISRestDataSource, CartoDataSource, ClusterDataSource, FeatureDataSource, ImageArcGISRestDataSource, MVTDataSource, OSMDataSource, TileArcGISRestDataSource, TileDebugDataSource, WebSocketDataSource, WFSDataSource, WMSDataSource, WMTSDataSource, XYZDataSource
 } from '../../datasource';
-
 import { DataSourceService } from '../../datasource/shared/datasource.service';
-import { GeoNetworkService } from '@igo2/core';
-
 import {
-  Layer,
-  ImageLayer,
-  ImageLayerOptions,
-  TileLayer,
+  AnyLayerOptions, ImageLayer,
+  ImageLayerOptions, Layer, TileLayer,
   TileLayerOptions,
   VectorLayer,
-  VectorLayerOptions,
-  AnyLayerOptions,
-  VectorTileLayer,
+  VectorLayerOptions, VectorTileLayer,
   VectorTileLayerOptions
 } from './layers';
-
 import { StyleService } from './style.service';
-import { LanguageService, MessageService } from '@igo2/core';
+
+
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -194,7 +176,11 @@ export class LayerService {
           layerOptions.styleByAttribute
         );
       };
-      olLayer = new VectorTileLayer(layerOptions, this.messageService, this.authInterceptor);
+      olLayer = new VectorTileLayer(
+        layerOptions,
+        this.geoNetwork,
+        this.messageService,
+        this.authInterceptor);
     }
 
     const layerOptionsOl = Object.assign({}, layerOptions, {
@@ -202,7 +188,11 @@ export class LayerService {
     });
 
     if (!olLayer) {
-      olLayer = new VectorTileLayer(layerOptionsOl, this.messageService, this.authInterceptor);
+      olLayer = new VectorTileLayer(
+        layerOptionsOl,
+        this.geoNetwork,
+        this.messageService,
+        this.authInterceptor);
     }
 
     this.applyMapboxStyle(olLayer, layerOptionsOl);
