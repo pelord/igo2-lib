@@ -13,6 +13,7 @@
         "unavailable": "Le catalogue '{{value}}' est indisponible pour le moment ou vous n'avez pas les permissions requises.",
         "externalProvider": {
           "catalog": "Ce catalogue provient d'une organisation externe.",
+          "group": "Ces couches proviennent d'une organisation externe.",
           "layer": "Cette couche provient d'une organisation externe.",
           "unavailableWithEmail": "Le catalogue '{{value}}' est indisponible pour le moment. Pour ajouter un service externe à la liste prédéfinie, veuillez contacter {{email}}. Des délais peuvent s'appliquer si problème il y a avec le fournisseur externe."
         },
@@ -61,6 +62,10 @@
         "invalidSRS": {
           "text": "La projection est valide. Elle doit commencer par EPSG:",
           "title": "Projection invalid"
+        },
+        "ogreServer": {
+          "title": "Erreur 500 du service Ogre",
+          "text": "Erreur de la conversion du fichier en geojson. Il est possible que le fichier soit trop volumineux, essayer de l'importer en format geojson"
         }
       },
       "export": {
@@ -113,6 +118,7 @@
         "exportButton": "Exporter",
         "exportButtonLink": "Ouvrir le lien",
         "exportButtonLinks": "Ouvrir les liens",
+        "exportCircleToPolygon": "Transformer les entités de type Cercle en polygones",
         "exportFormatPlaceholder": "Format",
         "exportLayerPlaceholder": "Couche(s)",
         "exportFileNamePlaceholder": "Nom du fichier",
@@ -611,24 +617,30 @@
         }
       },
       "draw": {
-        "cancelColorPicker": "Annulé",
+        "abort": "Annuler le dessin en cours",
+        "cancelColorPicker": "Annuler",
         "Circle": "Cercle",
+        "colorPicker": "Cliquer pour ouvrir le sélecteur de couleurs",
         "dialogInstruction": "Veuillez entrer l'étiquette de votre dessin",
         "dialogTitle": "Étiquette",
         "delete": "Retirer les dessins de la carte",
         "drawing": "Dessins",
         "fill": "Remplissage",
+        "finish": "Terminer le dessin en cours",
         "icon": "Icônes",
         "labels": "Étiquettes",
         "LineString": "Ligne",
-        "okColorPicker": "OK",
+        "move": "Centrer la vue sur le curseur",
+        "noIcon": "Aucune icône",
+        "noLabel": "Aucune étiquette",
         "Point": "Point",
         "Polygon": "Polygone",
         "radius": "Rayon",
+        "shortcuts": "Raccourcis clavier",
         "stroke": "Contour",
         "styleSelect": "Sélectionner le style",
         "toggleMapTooltips": "Afficher les étiquettes",
-        "noIcon": "Aucune icône"
+        "undo": "Retirer le dernier sommet"
       },
       "network": {
         "online": {

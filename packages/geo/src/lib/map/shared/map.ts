@@ -49,6 +49,9 @@ export class IgoMap {
   public queryResultsOverlay: Overlay;
   public searchResultsOverlay: Overlay;
   public viewController: MapViewController;
+  public swipeEnabled$ = new BehaviorSubject<boolean>(false);
+  public mapCenter$ = new BehaviorSubject<boolean>(false);
+  public selectedFeatures$ = new BehaviorSubject<Layer[]>(null);
 
   public bufferDataSource: FeatureDataSource;
 
@@ -289,6 +292,7 @@ export class IgoMap {
     let offsetBaseLayerZIndex = 0;
     const addedLayers = layers
       .map((layer: Layer) => {
+        if (!layer) { return; }
         const offset = layer.zIndex
           ? 0
           : layer.baseLayer
