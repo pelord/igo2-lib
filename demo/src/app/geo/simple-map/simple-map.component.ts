@@ -38,7 +38,7 @@ export class AppSimpleMapComponent {
     private languageService: LanguageService,
     private dataSourceService: DataSourceService,
     private layerService: LayerService,
-    private mediaService: MediaService
+    private mediaService: MediaService,
   ) {
     this.dataSourceService
       .createAsyncDataSource({
@@ -53,7 +53,6 @@ export class AppSimpleMapComponent {
         );
       });
   }
-
   onPointerMove(event) {
     this.pointerCoord = event;
   }

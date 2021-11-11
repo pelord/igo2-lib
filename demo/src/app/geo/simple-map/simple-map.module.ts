@@ -15,7 +15,7 @@ import { CommonModule } from '@angular/common';
     AppSimpleMapRoutingModule,
     MatCardModule,
     MatButtonModule,
-    IgoMapModule
+    IgoMapModule,
   ],
   exports: [AppSimpleMapComponent]
 })
