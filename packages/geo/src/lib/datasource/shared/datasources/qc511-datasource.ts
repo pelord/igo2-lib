@@ -3,7 +3,6 @@ import * as olformat from 'ol/format';
 import type { default as OlGeometry } from 'ol/geom/Geometry';
 import * as olproj from 'ol/proj';
 import * as OlLoadingStrategy from 'ol/loadingstrategy';
-import olProjection from 'ol/proj/Projection';
 import olFeature from 'ol/Feature';
 import * as olGeom from 'ol/geom';
 import * as olstyle from 'ol/style';
