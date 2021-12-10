@@ -23,10 +23,12 @@ import { ClusterParam } from '../clusterParam';
 import { StyleByAttribute, MapboxStyle } from '../vector-style.interface';
 import RenderFeature from 'ol/render/Feature';
 import Feature from 'ol/Feature';
+import { Qc511DataSource } from '../../../datasource/shared/datasources/qc511-datasource';
 
 export interface VectorLayerOptions extends LayerOptions {
   source?:
     | FeatureDataSource
+    | Qc511DataSource
     | WFSDataSource
     | ArcGISRestDataSource
     | WebSocketDataSource

@@ -11,6 +11,7 @@ import {
   OSMDataSourceOptions,
   FeatureDataSource,
   FeatureDataSourceOptions,
+  Qc511DataSource,
   XYZDataSource,
   XYZDataSourceOptions,
   TileDebugDataSource,
@@ -67,6 +68,10 @@ export class DataSourceService {
       case 'osm':
         dataSource = this.createOSMDataSource(context as OSMDataSourceOptions);
         break;
+      case 'qc511':
+          dataSource = this.createQc511DataSource(
+            context as FeatureDataSourceOptions
+          );
       case 'vector':
         dataSource = this.createFeatureDataSource(
           context as FeatureDataSourceOptions
@@ -144,6 +149,12 @@ export class DataSourceService {
     context: FeatureDataSourceOptions
   ): Observable<FeatureDataSource> {
     return new Observable(d => d.next(new FeatureDataSource(context)));
+  }
+
+  private createQc511DataSource(
+    context: FeatureDataSourceOptions
+  ): Observable<Qc511DataSource> {
+    return new Observable(d => d.next(new Qc511DataSource(context)));
   }
 
   private createWebSocketDataSource(

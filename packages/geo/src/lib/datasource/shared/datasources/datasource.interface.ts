@@ -12,6 +12,7 @@ export interface DataSourceOptions {
     | 'osm'
     | 'tiledebug'
     | 'carto'
+    | 'qc511'
     | 'arcgisrest'
     | 'imagearcgisrest'
     | 'tilearcgisrest'

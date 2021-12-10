@@ -13,11 +13,13 @@ import { MVTDataSource } from './mvt-datasource';
 import { ClusterDataSource } from './cluster-datasource';
 import { TileDebugDataSource } from './tiledebug-datasource';
 import { ImageArcGISRestDataSource } from './imagearcgisrest-datasource';
+import { Qc511DataSource } from './qc511-datasource';
 
 export type AnyDataSource =
   | DataSource
   | OSMDataSource
   | FeatureDataSource
+  | Qc511DataSource
   | WFSDataSource
   | XYZDataSource
   | TileDebugDataSource

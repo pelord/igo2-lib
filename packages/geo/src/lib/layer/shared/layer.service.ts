@@ -20,7 +20,8 @@ import {
   TileArcGISRestDataSource,
   WebSocketDataSource,
   MVTDataSource,
-  ClusterDataSource
+  ClusterDataSource,
+  Qc511DataSource
 } from '../../datasource';
 
 import { DataSourceService } from '../../datasource/shared/datasource.service';
@@ -79,6 +80,7 @@ export class LayerService {
       case TileArcGISRestDataSource:
         layer = this.createTileLayer(layerOptions as TileLayerOptions);
         break;
+      case Qc511DataSource:
       case FeatureDataSource:
       case WFSDataSource:
       case ArcGISRestDataSource:

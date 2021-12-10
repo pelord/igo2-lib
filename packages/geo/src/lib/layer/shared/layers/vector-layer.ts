@@ -9,6 +9,9 @@ import FormatType from 'ol/format/FormatType';
 import olFeature from 'ol/Feature';
 import olProjection from 'ol/proj/Projection';
 import * as olproj from 'ol/proj';
+import * as olGeom from 'ol/geom';
+import * as olstyle from 'ol/style';
+import { standardizeUrl } from '../../../utils/id-generator';
 
 import { FeatureDataSource } from '../../../datasource/shared/datasources/feature-datasource';
 import { WFSDataSource } from '../../../datasource/shared/datasources/wfs-datasource';
@@ -25,9 +28,13 @@ import { MessageService } from '@igo2/core';
 import { WFSDataSourceOptions } from '../../../datasource/shared/datasources/wfs-datasource.interface';
 import { buildUrl, defaultMaxFeatures } from '../../../datasource/shared/datasources/wms-wfs.utils';
 import { OgcFilterableDataSourceOptions } from '../../../filter/shared/ogc-filter.interface';
+import { Qc511DataSource } from '../../../datasource/shared/datasources/qc511-datasource';
+import { FeatureDataSourceOptions } from 'packages/geo/src/public_api';
+import { Md5 } from 'ts-md5';
 export class VectorLayer extends Layer {
   public dataSource:
     | FeatureDataSource
+    | Qc511DataSource
     | WFSDataSource
     | ArcGISRestDataSource
     | WebSocketDataSource
@@ -95,11 +102,11 @@ export class VectorLayer extends Layer {
             failure
           );
         };
-      } else {
+      } else if (olOptions.sourceOptions.type === 'qc511') {
         loader = (extent, resolution, proj, success, failure) => {
-          this.customLoader(
+          this.custom511Loader(
             vectorSource,
-            url,
+            olOptions.sourceOptions,
             this.authInterceptor,
             extent,
             resolution,
@@ -107,6 +114,19 @@ export class VectorLayer extends Layer {
             success,
             failure
           );
+        };
+      } else {
+        loader = (extent, resolution, proj, success, failure) => {
+            this.customLoader(
+              vectorSource,
+              url,
+              this.authInterceptor,
+              extent,
+              resolution,
+              proj,
+              success,
+              failure
+            );
         };
       }
       if (loader) {
@@ -416,4 +436,67 @@ export class VectorLayer extends Layer {
     };
     xhr.send();
   }
+
+
+  private custom511Loader(
+    vectorSource: olSourceVector<OlGeometry>,
+    options: FeatureDataSourceOptions,
+    interceptor,
+    extent,
+    resolution,
+    projection,
+    success,
+    failure
+  ) {
+    var proj = projection.getCode();
+    const currentExtent = olproj.transformExtent(extent, proj, 'EPSG:4326');
+    const extent4326 = this.map.viewController.getExtent('EPSG:4326');
+    console.log(currentExtent, extent4326);
+    const zoom = this.map.viewController.olView.getZoomForResolution(resolution);
+    const url = `${options.url}&xMin=${extent4326[0]}&yMin=${extent4326[1]}&xMax=${extent4326[2]}&yMax=${extent4326[3]}&lang=fr&zoom=${zoom}`;
+    vectorSource.setUrl(url);
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url);
+    var onError = function () {
+      vectorSource.removeLoadedExtent(extent);
+      failure();
+    };
+    xhr.onerror = onError;
+    xhr.onload = function () {
+      if (xhr.status === 200) {
+        const qc511Response = JSON.parse(xhr.responseText);
+        const features = [];
+        qc511Response.map(f => {
+          const geometry = new olGeom.Point(
+            olproj.transform([f.lng, f.lat], 'EPSG:4326', proj)
+          );
+          const feature = new olFeature({ geometry });
+          feature.setId(Md5.hashStr(('qc511') + standardizeUrl(url) + f.info) as string);
+          feature.setProperties(f);
+
+          const iconStyle = new olstyle.Style({
+            image: new olstyle.Icon({
+              anchor: [0.5, 0],
+              anchorOrigin: 'bottom-left',
+              anchorXUnits: 'fraction',
+              anchorYUnits: 'pixels',
+              src: '/Carte/Images/gm/'+f.ico,
+            }),
+          });
+
+          //    TODO Demander trottier getinfo par id.
+
+          feature.setStyle(iconStyle);
+
+          features.push(feature);
+        });
+        vectorSource.addFeatures(features);
+        success(features);
+      } else {
+        onError();
+      }
+    };
+    xhr.send();
+  }
+
 }
