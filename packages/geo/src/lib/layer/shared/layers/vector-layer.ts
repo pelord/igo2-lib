@@ -81,9 +81,6 @@ export class VectorLayer extends Layer {
     }
 
     const vector = new olLayerVector(olOptions);
-    // const vectorSource = (this.dataSource instanceof ClusterDataSource
-    //   ? vector.getSource().
-    //   : vector.getSource()) as olSourceVector<OlGeometry>;
     const vectorSource = vector.getSource() as olSourceVector<OlGeometry>;
     const url = vectorSource.getUrl();
     if (url) {
@@ -337,9 +334,14 @@ export class VectorLayer extends Layer {
     success, failure) {
 
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', url);
+    const alteredUrlWithKeyAuth = interceptor.alterUrlWithKeyAuth(url);
+    let modifiedUrl = url;
+    if (alteredUrlWithKeyAuth) {
+      modifiedUrl = alteredUrlWithKeyAuth;
+    }
+    xhr.open('GET', modifiedUrl);
     if (interceptor) {
-      interceptor.interceptXhr(xhr, url);
+      interceptor.interceptXhr(xhr, modifiedUrl);
     }
     const onError = () => {
       vectorSource.removeLoadedExtent(extent);
@@ -386,18 +388,22 @@ export class VectorLayer extends Layer {
     failure
   ) {
     const xhr = new XMLHttpRequest();
-    xhr.open(
-      'GET',
-      typeof url === 'function'
-        ? url = url(extent, resolution, projection)
-        : url
-    );
+    let modifiedUrl = url;
+    if (typeof url !== 'function') {
+      const alteredUrlWithKeyAuth = interceptor.alterUrlWithKeyAuth(url);
+      if (alteredUrlWithKeyAuth) {
+        modifiedUrl = alteredUrlWithKeyAuth;
+      }
+    } else {
+      modifiedUrl = url(extent, resolution, projection);
+    }
+    xhr.open( 'GET', modifiedUrl);
     const format = vectorSource.getFormat();
     if (format.getType() === FormatType.ARRAY_BUFFER) {
       xhr.responseType = 'arraybuffer';
     }
     if (interceptor) {
-      interceptor.interceptXhr(xhr, url);
+      interceptor.interceptXhr(xhr, modifiedUrl);
     }
 
     const onError = () => {
