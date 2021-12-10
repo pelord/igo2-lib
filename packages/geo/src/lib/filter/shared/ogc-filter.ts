@@ -1,6 +1,6 @@
 import * as olfilter from 'ol/format/filter';
 import olFormatWKT from 'ol/format/WKT';
-import olFormatWFS from 'ol/format/WFS';
+import olFormatWFS, { WriteGetFeatureOptions } from 'ol/format/WFS';
 import olGeometry from 'ol/geom/Geometry';
 
 import olProjection from 'ol/proj/Projection';
@@ -10,7 +10,6 @@ import { uuid, ObjectUtils } from '@igo2/utils';
 import {
   OgcFilter,
   IgoOgcFilterObject,
-  WFSWriteGetFeatureOptions,
   AnyBaseOgcFilterOptions,
   OgcInterfaceFilterOptions,
   OgcFilterableDataSourceOptions,
@@ -143,7 +142,7 @@ export class OgcFilterWriter {
       return 'bbox=' + extent.join(',') + ',' + proj.getCode();
     }
 
-    const wfsOptions: WFSWriteGetFeatureOptions = {
+    const wfsOptions: WriteGetFeatureOptions = {
       srsName: '',
       featureNS: '',
       featurePrefix: '',

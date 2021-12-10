@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 
+import type { default as OlGeometry } from 'ol/geom/Geometry';
 import * as olstyle from 'ol/style';
 import OlFeature from 'ol/Feature';
 import { StyleByAttribute } from './vector-style.interface';
 
 import { ClusterParam } from './clusterParam';
 import { createOverlayMarkerStyle } from '../../overlay/shared/overlay-marker-style.utils';
+import RenderFeature from 'ol/render/Feature';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +25,7 @@ export class StyleService {
     return this.parseStyle('style', options);
   }
 
-  private parseStyle(key: string, value: any): olstyle {
+  private parseStyle(key: string, value: any) {
     const styleOptions = {};
     const olCls = this.getOlCls(key);
 
@@ -68,7 +70,7 @@ export class StyleService {
     return olCls;
   }
 
-  createStyleByAttribute(feature, styleByAttribute: StyleByAttribute) {
+  createStyleByAttribute(feature: RenderFeature | OlFeature<OlGeometry>, styleByAttribute: StyleByAttribute) {
 
     let style;
     const type = styleByAttribute.type ? styleByAttribute.type : this.guessTypeFeature(feature);
@@ -77,14 +79,16 @@ export class StyleService {
     const stroke = styleByAttribute.stroke;
     const width = styleByAttribute.width;
     const fill = styleByAttribute.fill;
+    const anchor = styleByAttribute.anchor;
     const radius = styleByAttribute.radius;
     const icon = styleByAttribute.icon;
     const scale = styleByAttribute.scale;
     const size = data ? data.length : 0;
-    const label = styleByAttribute.label ? (styleByAttribute.label.attribute || styleByAttribute.label) : undefined;
-    const labelStyle = styleByAttribute.label ?
-      this.parseStyle('text', styleByAttribute.label.style) ||
-      new olstyle.Text() : undefined;
+    const label = styleByAttribute.label ? styleByAttribute.label.attribute : undefined;
+    let labelStyle = styleByAttribute.label?.style ? this.parseStyle('text', styleByAttribute.label.style) : undefined;
+    if (!labelStyle && label) {
+        labelStyle = new olstyle.Text();
+    }
     const baseStyle = styleByAttribute.baseStyle;
 
     if (labelStyle) {
@@ -94,17 +98,20 @@ export class StyleService {
     if (type === 'circle') {
       for (let i = 0; i < size; i++) {
         const val =
-          typeof feature.get(attribute) !== 'undefined'
+          typeof feature.get(attribute) !== 'undefined' && feature.get(attribute) !== null
             ? feature.get(attribute)
             : '';
-        if (val === data[i] || val.toString().match(data[i])) {
+        if (val === data[i] || val.toString().match(new RegExp(data[i], 'gmi'))) {
           if (icon) {
             style = [
               new olstyle.Style({
                 image: new olstyle.Icon({
+                  color: fill ? fill[i] : undefined,
                   src: icon[i],
-                  scale: scale ? scale[i] : 1
-                })
+                  scale: scale ? scale[i] : 1,
+                  anchor: anchor ? anchor[i] : [0.5, 0.5]
+                }),
+                text: labelStyle instanceof olstyle.Text ? labelStyle : undefined
               })
             ];
             return style;
@@ -121,13 +128,13 @@ export class StyleService {
                   color: fill ? fill[i] : 'black'
                 })
               }),
-              text: labelStyle
+              text: labelStyle instanceof olstyle.Text ? labelStyle : undefined
             })
           ];
           return style;
         }
       }
-      if (!feature.getStyle()) {
+      if (!(feature as OlFeature<OlGeometry>).getStyle()) {
         if (baseStyle) {
           style = this.createStyle(baseStyle);
           if (labelStyle) {
@@ -153,10 +160,10 @@ export class StyleService {
     } else if (type === 'regular') {
       for (let i = 0; i < size; i++) {
         const val =
-          typeof feature.get(attribute) !== 'undefined'
+        typeof feature.get(attribute) !== 'undefined' && feature.get(attribute) !== null
             ? feature.get(attribute)
             : '';
-        if (val === data[i] || val.toString().match(data[i])) {
+        if (val === data[i] || val.toString().match(new RegExp(data[i], 'gmi'))) {
           style = [
             new olstyle.Style({
               stroke: new olstyle.Stroke({
@@ -166,7 +173,7 @@ export class StyleService {
               fill: new olstyle.Fill({
                 color: fill ? fill[i] : 'rgba(255,255,255,0.4)'
               }),
-              text: labelStyle
+              text: labelStyle instanceof olstyle.Text ? labelStyle : undefined
             })
           ];
           return style;
@@ -198,7 +205,7 @@ export class StyleService {
   }
 
   createClusterStyle(feature, clusterParam: ClusterParam = {}, layerStyle) {
-    let style: olstyle.Style;
+    let style;
     const size = feature.get('features').length;
     if (size !== 1) {
       if (clusterParam.clusterRanges) {
@@ -207,7 +214,7 @@ export class StyleService {
             (!r.minRadius || r.minRadius <= size) &&
             (!r.maxRadius || r.maxRadius >= size)
           ) {
-            style = this.createStyle(r.style);
+            style = this.createStyle(r.style) as olstyle.Circle;
 
             if (r.showRange) {
               const text = new olstyle.Text({
@@ -221,7 +228,7 @@ export class StyleService {
 
             if (r.dynamicRadius) {
               let clusterRadius: number;
-              const radiusMin = style.image_.getRadius();
+              const radiusMin = style.getRadius();
               clusterRadius = 5 * Math.log(size);
               if (clusterRadius < radiusMin) {
                 clusterRadius = radiusMin;
@@ -249,7 +256,6 @@ export class StyleService {
           new olstyle.Style({
             image: new olstyle.Circle({
               radius: clusterRadius,
-              opacity: 0.4,
               stroke: new olstyle.Stroke({
                 color: 'black'
               }),
@@ -274,6 +280,9 @@ export class StyleService {
 
   getLabel(feature, labelMatch): string {
     let label = labelMatch;
+    if (!label) {
+      return;
+    }
     const labelToGet = Array.from(labelMatch.matchAll(/\$\{([^\{\}]+)\}/g));
 
     labelToGet.forEach(v => {

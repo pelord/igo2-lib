@@ -52,6 +52,10 @@ import { InputProjections, ProjectionsLimitationsOptions } from '../../map/';
 import { DownloadService } from '../../download/shared/download.service';
 import { computeProjectionsConstraints } from '../../map';
 
+import olVectorSource from 'ol/source/Vector';
+import olClusterSource from 'ol/source/Cluster';
+import type { default as OlGeometry } from 'ol/geom/Geometry';
+
 @Component({
   selector: 'igo-import-export',
   templateUrl: './import-export.component.html',
@@ -493,12 +497,13 @@ export class ImportExportComponent implements OnDestroy, OnInit {
         }
       }
       else {
+        const ol = lay.dataSource.ol as olVectorSource<OlGeometry> | olClusterSource ;
         if (data.featureInMapExtent) {
-          olFeatures = lay.dataSource.ol.getFeaturesInExtent(
+          olFeatures = ol.getFeaturesInExtent(
             lay.map.viewController.getExtent()
           );
         } else {
-          olFeatures = lay.dataSource.ol.getFeatures();
+          olFeatures = ol.getFeatures();
         }
         if (lay.dataSource instanceof ClusterDataSource) {
           olFeatures = olFeatures.flatMap((cluster: any) =>
@@ -641,7 +646,9 @@ export class ImportExportComponent implements OnDestroy, OnInit {
     this.loading$.next(false);
     const translate = this.languageService.translate;
     const title = translate.instant('igo.geo.export.popupBlocked.title');
-    const extraMessage = preCheck ? translate.instant('igo.geo.export.popupBlocked.selectAgain') : translate.instant('igo.geo.export.popupBlocked.retry');
+    const extraMessage = preCheck ?
+      translate.instant('igo.geo.export.popupBlocked.selectAgain') :
+      translate.instant('igo.geo.export.popupBlocked.retry');
     const message = translate.instant('igo.geo.export.popupBlocked.text', { extraMessage });
     this.messageService.error(message, title, { timeOut: 20000 });
   }

@@ -10,7 +10,7 @@ import { LegendMapViewOptions } from '../shared/layers/layer.interface';
 import { CapabilitiesService } from '../../datasource/shared/capabilities.service';
 import { catchError, map } from 'rxjs/operators';
 import { LanguageService } from '@igo2/core';
-import { WMSDataSourceOptions } from '../../datasource';
+import { WMSDataSource, WMSDataSourceOptions } from '../../datasource';
 import { SecureImagePipe } from '@igo2/common';
 
 @Component({
@@ -51,7 +51,7 @@ export class LayerLegendComponent implements OnInit, OnDestroy {
   /**
    * The extent used to make the legend
    */
-  private view: LegendMapViewOptions  = undefined;
+  private view: LegendMapViewOptions = undefined;
   /**
    * Get list of images display
    */
@@ -75,7 +75,6 @@ export class LayerLegendComponent implements OnInit, OnDestroy {
   /**
    * activeLegend
    */
-  public legendGraphic: string;
 
   constructor(
     private capabilitiesService: CapabilitiesService,
@@ -142,10 +141,13 @@ export class LayerLegendComponent implements OnInit, OnDestroy {
           return err;
         }
       })
-    ).subscribe((legend: string) => {
-      this.legendGraphic = legend;
-      this.cdRef.detectChanges();
-    });
+      ).subscribe(obsLegGraph => {
+        const idx = this.legendItems$.value.findIndex(leg => leg.title === item.title);
+        const legendGraph = obsLegGraph as string;
+        this.legendItems$.value[idx].imgGraphValue = legendGraph;
+        this.cdRef.detectChanges();
+      }
+    );
   }
 
   toggleLegendItem(collapsed: boolean, item: Legend) {
@@ -215,7 +217,7 @@ export class LayerLegendComponent implements OnInit, OnDestroy {
     if (layerOptions && layerOptions.legendOptions) {
       const translate = this.languageService.translate;
       const title = translate.instant('igo.geo.layer.legend.default');
-      let stylesAvailable =  [{ name: '', title } as ItemStyleOptions];
+      let stylesAvailable = [{ name: '', title } as ItemStyleOptions];
       if (layerOptions.legendOptions.stylesAvailable) {
         stylesAvailable = stylesAvailable.concat(layerOptions.legendOptions.stylesAvailable.filter(sA => (
           sA.name.normalize('NFD').replace(/[\u0300-\u036f]/gi, '') !== 'default' &&
@@ -231,11 +233,13 @@ export class LayerLegendComponent implements OnInit, OnDestroy {
   onChangeStyle() {
     this.updateLegend();
     let STYLES = '';
-    this.layer.dataSource.ol.getParams().LAYERS.split(',').map(layer =>
-      STYLES += this.currentStyle + ','
-    );
-    STYLES = STYLES.slice(0, -1);
-    this.layer.dataSource.ol.updateParams({STYLES});
+    if (this.layer.dataSource instanceof WMSDataSource) {
+      this.layer.dataSource.ol.getParams().LAYERS.split(',').map(layer =>
+        STYLES += this.currentStyle + ','
+      );
+      STYLES = STYLES.slice(0, -1);
+      this.layer.dataSource.ol.updateParams({ STYLES });
+    }
   }
 
   onLoadImage(id: string) {

@@ -49,6 +49,7 @@ export interface Legend {
   style?: { [key: string]: string | number };
   title?: string;
   currentStyle?: string;
+  imgGraphValue?: string;
 }
 
 // refer to https://openlayers.org/en/latest/apidoc/module-ol_tilegrid_TileGrid-TileGrid.html
@@ -57,7 +58,7 @@ export interface TileGridOptions {
   minZoom?: number;
   origin?: [number, number];
   origins?: [number, number][];
-  resolutions?: number[];
+  resolutions: number[];
   sizes?: [number, number][];
   tileSize?: [number, number];
   tileSizes?: [number, number][];

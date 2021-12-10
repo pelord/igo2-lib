@@ -1,5 +1,8 @@
 import olGeometry from 'ol/geom/Geometry';
 import olFormatFilter from 'ol/format/filter/Filter';
+import olSource from 'ol/source/Source';
+import olSourceVector from 'ol/source/Vector';
+import type { default as OlGeometry } from 'ol/geom/Geometry';
 
 import { DataSource } from '../../datasource/shared/datasources/datasource';
 import { DataSourceOptions } from '../../datasource/shared/datasources/datasource.interface';
@@ -54,14 +57,14 @@ export interface OgcFiltersOptions {
   allowedOperatorsType?: OgcFilterOperatorType;
 }
 
-export interface IgoOgcSelector  {
+export interface IgoOgcSelector {
   groups: SelectorGroup[];
   bundles: OgcSelectorBundle[];
   selectorType: 'pushButton' | 'checkbox' | 'radioButton' | 'select';
   order?: number;
 }
 
-export interface SelectorGroup  {
+export interface SelectorGroup {
   enabled?: boolean;
   title?: string;
   name: string;
@@ -69,7 +72,7 @@ export interface SelectorGroup  {
   computedSelectors?: OgcSelectorBundle[];
 }
 
-export interface OgcSelectorBundle  {
+export interface OgcSelectorBundle {
   id: string;
   title?: string;
   logical?: string;
@@ -110,6 +113,7 @@ export interface OgcSelect {
 
 export interface OgcFilterableDataSourceOptions extends DataSourceOptions {
   ogcFilters?: OgcFiltersOptions;
+  ol?: olSourceVector<OlGeometry> | olSource;
 }
 export interface OgcFilterableDataSource extends DataSource {
   options: OgcFilterableDataSourceOptions;
@@ -149,6 +153,7 @@ export interface OgcFilterDuringOptions extends OgcFilterAttributeOptions {
   restrictToStep?: boolean;
   sliderOptions?: SliderOptionsInterface;
   displayFormat?: string;
+  calendarModeYear?: boolean;
 }
 export interface OgcFilterIsBetweenOptions extends OgcFilterAttributeOptions {
   lowerBoundary: number;
