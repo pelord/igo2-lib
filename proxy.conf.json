@@ -23,5 +23,10 @@
     "target": "https://demo.geo-solutions.it",
     "changeOrigin": true,
     "secure": false
+  },
+  "/fr": {
+    "target": "https://www.quebec511.info",
+    "changeOrigin": true,
+    "secure": false
   }
 }
