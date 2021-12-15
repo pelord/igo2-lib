@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { Geometry } from '@turf/helpers';
 import { Observable, Subject, Subscription, zip } from 'rxjs';
 import { map, skip, takeUntil } from 'rxjs/operators';
+import { FeatureGeometry } from '../feature/shared/feature.interfaces';
 import { RegionDBAdminService } from './db/region-db/region-db-admin.service';
 import { RegionDBService } from './db/region-db/region-db.service';
 import { Region, RegionDBData, RegionStatus } from './db/region-db/Region.interface';
@@ -108,7 +108,7 @@ export class DownloadRegionService implements OnDestroy {
 
   downloadRegionFromFeatures(
     featuresText: string[],
-    geometries: Geometry[],
+    geometries: FeatureGeometry[],
     regionName: string,
     generationParams: TileGenerationParams,
     tileGrid,

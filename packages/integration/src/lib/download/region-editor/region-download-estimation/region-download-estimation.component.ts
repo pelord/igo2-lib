@@ -1,11 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { StorageQuotaService } from '@igo2/core';
 import {
-  DownloadEstimator, DownloadSizeEstimation, DownloadSizeEstimationInBytes, TileGenerationParams, TileToDownload
+  DownloadEstimator, DownloadSizeEstimation, DownloadSizeEstimationInBytes, FeatureGeometry, TileGenerationParams, TileToDownload
 } from '@igo2/geo';
 import { NumberUtils } from '@igo2/utils';
 
-import { Geometry } from '@turf/helpers';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { CreationEditionStrategy, EditionStrategy, UpdateEditionStrategy } from '../editing-strategy';
@@ -19,7 +18,7 @@ export class RegionDownloadEstimationComponent implements OnInit {
   @Input() updateEstimation$: Subject<void> = new Subject();
   @Input() disabled: boolean = false;
   @Input() tilesToDownload: TileToDownload[];
-  @Input() geometries: Geometry[];
+  @Input() geometries: FeatureGeometry[];
   @Input() genParams: TileGenerationParams;
   @Input() tileGrid: any;
   @Input() mode: EditionStrategy = new CreationEditionStrategy();

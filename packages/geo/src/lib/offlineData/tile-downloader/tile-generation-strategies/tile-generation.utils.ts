@@ -1,5 +1,4 @@
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
-import { Geometry } from '@turf/helpers';
 import intersect from '@turf/intersect';
 import lineIntersect from '@turf/line-intersect';
 import { LineString, Polygon } from 'geojson';
@@ -8,6 +7,7 @@ import type { default as OlGeometry } from 'ol/geom/Geometry';
 import * as olformat from 'ol/format';
 import { fromExtent } from 'ol/geom/Polygon';
 import { Tile } from '../../Tile.interface';
+import { FeatureGeometry } from '../../../feature/shared/feature.interfaces';
 
 export function zoom(tile: Tile): Tile[] {
     const x0 = 2 * tile.X;
@@ -107,7 +107,7 @@ export function isLineIntersect(lineString: LineString, tileGeometry: Polygon): 
   }
 }
 
-export function tileInsidePolygon(polygon: Geometry, tile: Tile, tileGrid): boolean {
+export function tileInsidePolygon(polygon: FeatureGeometry, tile: Tile, tileGrid): boolean {
   const tileGeometry = getTileGeometry(tile, tileGrid);
   switch (polygon.type) {
     case 'Polygon':

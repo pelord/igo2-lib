@@ -1,5 +1,5 @@
-import { Geometry } from '@turf/helpers';
 import { Polygon } from 'geojson';
+import { FeatureGeometry } from '../../../feature/shared/feature.interfaces';
 import { Tile } from '../../Tile.interface';
 import { tileInsidePolygon } from './tile-generation.utils';
 
@@ -7,19 +7,19 @@ import { tileInsidePolygon } from './tile-generation.utils';
 export abstract class TileGenerationStrategy {
     constructor() {}
 
-    getTilesFromGeometriesAtLevel(geometries: Geometry[], level: number, tileGrid): Tile[] {
+    getTilesFromGeometriesAtLevel(geometries: FeatureGeometry[], level: number, tileGrid): Tile[] {
         if (!geometries) {
             return [];
         }
 
         let tiles: Tile[] = new Array();
-        geometries.forEach((geometry: Geometry) => {
+        geometries.forEach((geometry: FeatureGeometry) => {
             tiles = tiles.concat(this.getTilesFromFeatureAtLevel(geometry, level, tileGrid));
         });
         return tiles;
     }
 
-    getTilesFromFeatureAtLevel(geometry: Geometry, level: number, tileGrid): Tile[] {
+    getTilesFromFeatureAtLevel(geometry: FeatureGeometry, level: number, tileGrid): Tile[] {
         if (!geometry) {
             return;
         }
@@ -98,7 +98,7 @@ export abstract class TileGenerationStrategy {
         return tilesCoveringPolygon;
     }
 
-    generateFromGeometries(geometries: Geometry[], startLevel: number, endLevel: number, tileGrid): Tile[] {
+    generateFromGeometries(geometries: FeatureGeometry[], startLevel: number, endLevel: number, tileGrid): Tile[] {
       let tiles: Tile[] = new Array();
       for (let level = startLevel; level <= endLevel; level++) {
           tiles = tiles.concat(this.getTilesFromGeometriesAtLevel(geometries, level, tileGrid));

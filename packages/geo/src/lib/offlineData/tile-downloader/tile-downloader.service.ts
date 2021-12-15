@@ -1,10 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { StorageQuotaService } from '@igo2/core';
-import { Geometry } from '@turf/helpers';
 import { createFromTemplate } from 'ol/tileurlfunction.js';
 import { BehaviorSubject, Observable, Observer } from 'rxjs';
 import { first, map, retry } from 'rxjs/operators';
+import { FeatureGeometry } from '../../feature/shared/feature.interfaces';
 import { TileDBService } from '../db/tile-db/tile-db.service';
 
 import { GeoNetworkService } from '../geo-network.service';
@@ -129,7 +129,7 @@ export class TileDownloaderService {
   }
 
   downloadFromFeatures(
-    geometries: Geometry[],
+    geometries: FeatureGeometry[],
     regionID: number,
     generationParams: TileGenerationParams,
     tileGrid,

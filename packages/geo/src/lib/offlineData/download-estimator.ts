@@ -1,4 +1,5 @@
-import { Geometry, LineString, Polygon } from '@turf/helpers';
+import { LineString, Polygon } from '@turf/helpers';
+import { FeatureGeometry } from '../feature/shared/feature.interfaces';
 import { RegionDBData } from './db/region-db/Region.interface';
 
 import { getNumberOfTilesLineStringIntersect, getPolygonOlArea, getTileLengthFast, getTileOlArea } from './download-estimator.utils';
@@ -21,7 +22,7 @@ export class DownloadEstimator {
 
     estimateRegionDownloadSize(
         tilesToDownload: TileToDownload[],
-        geometries: Geometry[],
+        geometries: FeatureGeometry[],
         genParams: TileGenerationParams,
         tileGrid
     ): DownloadSizeEstimation {
@@ -59,7 +60,7 @@ export class DownloadEstimator {
     }
 
     estimateNumberOfTilesDrawnRegionDownload(
-        geometries: Geometry[],
+        geometries: FeatureGeometry[],
         genParams: TileGenerationParams,
         tileGrid
     ): DownloadSizeEstimation {
@@ -80,7 +81,7 @@ export class DownloadEstimator {
 
     public estimateRegionDownloadSizeInBytes(
         tilesToDownload: TileToDownload[],
-        geometries: Geometry[],
+        geometries: FeatureGeometry[],
         genParams: TileGenerationParams,
         tileGrid
     ): DownloadSizeEstimationInBytes {
@@ -96,7 +97,7 @@ export class DownloadEstimator {
     estimateRegionUpdateSize(
         regionToUpdate: RegionDBData,
         tilesToDownload: TileToDownload[],
-        geometries: Geometry[],
+        geometries: FeatureGeometry[],
         tileGrid
     ): DownloadSizeEstimation {
         const genParams = regionToUpdate.generationParams;
@@ -117,7 +118,7 @@ export class DownloadEstimator {
     estimateRegionUpdateSizeInBytes(
         regionToUpdate: RegionDBData,
         tilesToDownload: TileToDownload[],
-        geometries: Geometry[],
+        geometries: FeatureGeometry[],
         tileGrid
     ): DownloadSizeEstimationInBytes {
         const estimation = this.estimateRegionUpdateSize(
@@ -194,7 +195,7 @@ export class DownloadEstimator {
     }
 
     estimateTilesOfGeometryAtLevel(
-        geometry: Geometry,
+        geometry: FeatureGeometry,
         genParams: TileGenerationParams,
         tileGrid
     ): number {

@@ -1,4 +1,5 @@
-import { Feature } from '@turf/helpers';
+
+import { Feature } from '../feature/shared/feature.interfaces';
 import { TileGenerationParams } from './tile-downloader/tile-generation-strategies/tile-generation-params.interface';
 
 export interface TileDownload {
