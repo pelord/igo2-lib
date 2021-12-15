@@ -1,5 +1,4 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatSlider } from '@angular/material/slider';
 import {
