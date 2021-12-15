@@ -14,12 +14,12 @@ import { TileDebugDataSource } from '../../../datasource/shared/datasources/tile
 
 import { Layer } from './layer';
 import { TileLayerOptions } from './tile-layer.interface';
-import { GeoNetworkService } from '@igo2/core';
 import { first } from 'rxjs/operators';
 
 import { MessageService } from '@igo2/core';
 import { AuthInterceptor } from '@igo2/auth';
 import Tile from 'ol/Tile';
+import { GeoNetworkService } from '../../../offlineData/geo-network.service';
 export class TileLayer extends Layer {
   public dataSource:
     | OSMDataSource

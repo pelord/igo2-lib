@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { TileGenerationParams, TileGenerationStrategies, TileToDownload } from '@igo2/core';
-import { Feature } from '@igo2/geo';
+import { Feature, TileGenerationParams, TileGenerationStrategies, TileToDownload } from '@igo2/geo';
 import { Observable } from 'rxjs';
 import { MapState } from '../../map';
 import { CreationEditionStrategy } from './editing-strategy/creation-editing-strategy';

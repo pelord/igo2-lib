@@ -1,7 +1,8 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { interval, Observable, Subscription } from 'rxjs';
-import { TileDBService } from '../storage';
+import { TileDBService } from './db/tile-db/tile-db.service';
+
 
 @Injectable({
   providedIn: 'root'

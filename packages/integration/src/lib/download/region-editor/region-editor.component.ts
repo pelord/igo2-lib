@@ -2,8 +2,9 @@ import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChi
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatSlider } from '@angular/material/slider';
 import {
-  DownloadRegionService, LanguageService, MessageService, RegionDBData, TileDownloaderService, TileGenerationParams, TileToDownload
-} from '@igo2/core';
+  DownloadRegionService, RegionDBData, TileDownloaderService, TileGenerationParams, TileToDownload
+} from '@igo2/geo';
+import { LanguageService, MessageService } from '@igo2/core';
 import { Feature, IgoMap } from '@igo2/geo';
 import { Geometry } from '@turf/helpers';
 import { Observable, Subject, Subscription } from 'rxjs';

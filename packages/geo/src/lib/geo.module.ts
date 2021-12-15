@@ -20,6 +20,8 @@ import { IgoSearchModule } from './search/search.module';
 import { IgoToastModule } from './toast/toast.module';
 import { IgoGeoWorkspaceModule } from './workspace/workspace.module';
 import { IgoWktModule } from './wkt/wkt.module';
+import { TileDownloaderService } from './offlineData/tile-downloader/tile-downloader.service';
+import { DownloadRegionService } from './offlineData/download-region.service';
 
 @NgModule({
   imports: [],
@@ -45,6 +47,10 @@ import { IgoWktModule } from './wkt/wkt.module';
     IgoToastModule,
     IgoGeoWorkspaceModule,
     IgoWktModule
+  ],
+  providers: [
+    TileDownloaderService,
+    DownloadRegionService
   ]
 })
 export class IgoGeoModule {

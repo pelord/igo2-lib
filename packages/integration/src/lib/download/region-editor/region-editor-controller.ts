@@ -1,5 +1,5 @@
 import { ChangeDetectorRef } from '@angular/core';
-import { DownloadRegionService, RegionDBData } from '@igo2/core';
+import { DownloadRegionService, RegionDBData } from '@igo2/geo';
 import { GeoJSONGeometry, XYZDataSource } from '@igo2/geo';
 import TileGrid from 'ol/tilegrid/TileGrid';
 import { createFromTemplate } from 'ol/tileurlfunction.js';

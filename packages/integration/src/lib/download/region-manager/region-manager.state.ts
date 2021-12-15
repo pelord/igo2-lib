@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { RegionDBData } from '@igo2/core';
+import { RegionDBData } from '@igo2/geo';
 import { Subject } from 'rxjs';
 import { DisplayRegion } from './region-manager.component';
 

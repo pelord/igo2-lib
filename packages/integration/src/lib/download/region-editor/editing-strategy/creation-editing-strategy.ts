@@ -1,4 +1,4 @@
-import { DownloadRegionService } from '@igo2/core';
+import { DownloadRegionService } from '@igo2/geo';
 import { EditedRegion } from '../region-editor.state';
 import { EditionStrategy } from './edition-strategy';
 

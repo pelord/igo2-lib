@@ -1,4 +1,4 @@
-import { TileGenerationParams } from '../../download/tile-downloader/tile-generation-strategies/tile-generation-params.interface';
+import { TileGenerationParams } from "../../tile-downloader/tile-generation-strategies/tile-generation-params.interface";
 
 export interface Region {
   name: string;

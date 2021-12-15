@@ -1,5 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
-import { DownloadEstimator, DownloadRegionService, Region, RegionDBData, RegionDBService, RegionStatus } from '@igo2/core';
+import { DownloadEstimator, DownloadRegionService, Region, RegionDBData, RegionDBService, RegionStatus } from '@igo2/geo';
 import { Feature } from '@igo2/geo';
 import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';

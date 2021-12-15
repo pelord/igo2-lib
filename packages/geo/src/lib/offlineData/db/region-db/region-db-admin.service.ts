@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { DBMode } from 'ngx-indexed-db';
 import { interval } from 'rxjs';
-import { TileDBData, TileDBService } from '../tile-db';
+import { TileDBService } from '../tile-db/tile-db.service';
+import { TileDBData } from '../tile-db/TileDBData.interface';
 import { RegionDBService } from './region-db.service';
 import { RegionDBData, RegionStatus } from './Region.interface';
 

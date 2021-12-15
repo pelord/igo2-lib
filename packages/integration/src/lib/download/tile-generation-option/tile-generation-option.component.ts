@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { MatSelect } from '@angular/material/select';
-import { TileGenerationStrategies } from '@igo2/core';
-import { TileGenerationParams } from '@igo2/core/lib/download/tile-downloader/tile-generation-strategies/tile-generation-params.interface';
+
+import { TileGenerationParams, TileGenerationStrategies } from '@igo2/geo';
 import { SliderGenerationParams, TileGenerationSliderComponent } from './tile-generation-sliders/tile-generation-slider.component';
 
 

@@ -1,4 +1,5 @@
-import { DownloadEstimator, DownloadRegionService } from '@igo2/core';
+
+import { DownloadEstimator, DownloadRegionService } from '@igo2/geo';
 import { EditedRegion } from '../region-editor.state';
 
 export abstract class EditionStrategy {

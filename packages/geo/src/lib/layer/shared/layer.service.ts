@@ -26,7 +26,6 @@ import {
 } from '../../datasource';
 
 import { DataSourceService } from '../../datasource/shared/datasource.service';
-import { GeoNetworkService } from '@igo2/core';
 
 import {
   Layer,
@@ -44,6 +43,7 @@ import {
 import { computeMVTOptionsOnHover } from '../utils/layer.utils';
 import { StyleService } from './style.service';
 import { LanguageService, MessageService } from '@igo2/core';
+import { GeoNetworkService } from '../../offlineData/geo-network.service';
 
 @Injectable({
   providedIn: 'root'
@@ -127,7 +127,7 @@ export class LayerService {
   }
 
   private createImageLayer(layerOptions: ImageLayerOptions): ImageLayer {
-    return new ImageLayer(layerOptions, this.messageService, this.geoNetwork, this.languageService, this.authInterceptor);
+    return new ImageLayer(layerOptions, this.messageService, this.languageService, this.authInterceptor);
   }
 
   private createTileLayer(layerOptions: TileLayerOptions): TileLayer {

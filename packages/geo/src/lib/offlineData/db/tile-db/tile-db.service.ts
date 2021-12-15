@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
+import { CompressionService } from '@igo2/core';
 import { DBMode, NgxIndexedDBService } from 'ngx-indexed-db';
 import { Observable, Subject } from 'rxjs';
 import { first, map, take } from 'rxjs/operators';
-import { CompressionService } from '../compression/compression.service';
 import { TileDBData } from './TileDBData.interface';
 
 @Injectable({

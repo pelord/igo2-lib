@@ -15,6 +15,7 @@ export class DownloadState {
     readonly addNewTile$: BehaviorSubject<TransferedTile> = new BehaviorSubject(undefined);
     private _openedWithMouse: boolean = false;
     public regionStore: FeatureStore = new FeatureStore([], { map: this.map });
+    public offlineRegionsStore: FeatureStore = new FeatureStore([], { map: this.map });
     readonly rightMouseClick$: Subject<boolean> = new Subject();
 
 
@@ -47,6 +48,31 @@ export class DownloadState {
             });
             tryBindStoreLayer(this.regionStore, offlineRegionLayer);
             tryAddLoadingStrategy(this.regionStore, new FeatureStoreLoadingStrategy({
+                motion: FeatureMotion.None
+            }));
+            const offlineRegionsLayer = new VectorLayer({
+                title: 'offlineRegionsLayer',
+                zIndex: 2000,
+                source: new FeatureDataSource(),
+                showInLayerList: true,
+                workspace: {
+                    enabled: true,
+                },
+                exportable: true,
+                browsable: false,
+                style: this.styleService.createStyle({
+                    stroke: {
+                        color: "orange",
+                    },
+                    fill: {
+                        color: 'rgba(0, 0, 255, 0.1)',
+                    },
+                    width: 5
+                }
+                )
+            });
+            tryBindStoreLayer(this.offlineRegionsStore, offlineRegionsLayer);
+            tryAddLoadingStrategy(this.offlineRegionsStore, new FeatureStoreLoadingStrategy({
                 motion: FeatureMotion.None
             }));
         });

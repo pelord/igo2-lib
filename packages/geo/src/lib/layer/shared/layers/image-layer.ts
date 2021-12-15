@@ -11,7 +11,6 @@ import { WMSDataSource } from '../../../datasource/shared/datasources/wms-dataso
 import { Layer } from './layer';
 import { ImageLayerOptions } from './image-layer.interface';
 import { ImageArcGISRestDataSource } from '../../../datasource/shared/datasources/imagearcgisrest-datasource';
-import { GeoNetworkService } from '@igo2/core';
 import { LanguageService, MessageService } from '@igo2/core';
 
 export class ImageLayer extends Layer {
@@ -24,7 +23,6 @@ export class ImageLayer extends Layer {
   constructor(
     options: ImageLayerOptions,
     public messageService: MessageService,
-    private geoNetwork: GeoNetworkService,
     private languageService: LanguageService,
     public authInterceptor?: AuthInterceptor
   ) {

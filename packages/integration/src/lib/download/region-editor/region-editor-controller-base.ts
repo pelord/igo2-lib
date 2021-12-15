@@ -1,4 +1,4 @@
-import { TileGenerationParams, TileToDownload } from '@igo2/core';
+import { TileGenerationParams, TileToDownload } from '@igo2/geo';
 import { Feature, IgoMap } from '@igo2/geo';
 import { Observable } from 'rxjs';
 import { DownloadState } from '../download.state';

@@ -6,7 +6,6 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { DBConfig, NgxIndexedDBModule } from 'ngx-indexed-db';
 import { IgoActivityModule } from './activity/activity.module';
 import { IgoConfigModule } from './config/config.module';
-import { DownloadRegionService, TileDownloaderService } from './download';
 import { IgoLanguageModule } from './language/language.module';
 import { IgoMessageModule } from './message/message.module';
 import { IgoErrorModule } from './request/error.module';
@@ -47,10 +46,6 @@ const dbConfig: DBConfig = {
     IgoErrorModule,
     IgoLanguageModule,
     IgoMessageModule
-  ],
-  providers: [
-    TileDownloaderService,
-    DownloadRegionService
   ]
 })
 export class IgoCoreModule {

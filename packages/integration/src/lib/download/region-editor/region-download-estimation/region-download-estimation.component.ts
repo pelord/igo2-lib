@@ -1,7 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { StorageQuotaService } from '@igo2/core';
 import {
-  DownloadEstimator, DownloadSizeEstimation, DownloadSizeEstimationInBytes, StorageQuotaService, TileGenerationParams, TileToDownload
-} from '@igo2/core';
+  DownloadEstimator, DownloadSizeEstimation, DownloadSizeEstimationInBytes, TileGenerationParams, TileToDownload
+} from '@igo2/geo';
 import { NumberUtils } from '@igo2/utils';
 
 import { Geometry } from '@turf/helpers';

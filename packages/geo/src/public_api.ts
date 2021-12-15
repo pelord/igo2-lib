@@ -33,6 +33,7 @@ export * from './lib/query/query.module';
 export * from './lib/search/search.module';
 export * from './lib/toast/toast.module';
 export * from './lib/wkt/wkt.module';
+export * from './lib/offlineData';
 
 export * from './lib/catalog';
 export * from './lib/datasource';

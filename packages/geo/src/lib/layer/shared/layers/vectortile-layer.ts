@@ -8,10 +8,11 @@ import { VectorTileLayerOptions } from './vectortile-layer.interface';
 import { TileWatcher } from '../../utils';
 import { AuthInterceptor } from '@igo2/auth';
 import { IgoMap } from '../../../map';
-import { GeoNetworkService, MessageService } from '@igo2/core';
+import { MessageService } from '@igo2/core';
 import VectorTile from 'ol/VectorTile';
 import { first } from 'rxjs/operators';
 import Feature from 'ol/Feature';
+import { GeoNetworkService } from '../../../offlineData/geo-network.service';
 
 export class VectorTileLayer extends Layer {
   public dataSource: MVTDataSource;

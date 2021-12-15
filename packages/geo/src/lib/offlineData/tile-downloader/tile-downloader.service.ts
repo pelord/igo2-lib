@@ -1,11 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { StorageQuotaService } from '@igo2/core';
 import { Geometry } from '@turf/helpers';
 import { createFromTemplate } from 'ol/tileurlfunction.js';
 import { BehaviorSubject, Observable, Observer } from 'rxjs';
 import { first, map, retry } from 'rxjs/operators';
-import { GeoNetworkService } from '../../network';
-import { StorageQuotaService, TileDBService } from '../../storage';
+import { TileDBService } from '../db/tile-db/tile-db.service';
+
+import { GeoNetworkService } from '../geo-network.service';
 import { Tile } from '../Tile.interface';
 import {
   newTileGenerationStrategy, ParentTileGeneration, strategyToTileGenerationStrategies,
