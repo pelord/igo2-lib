@@ -104,9 +104,9 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit() {
-    this.regionStore.entities$.subscribe((r) => {
+    this.regionStore.entities$.subscribe((entities) => {
       this.updateEstimation$.next();
-      console.log(r);
+      console.log('entities', entities);
     });
     if (!this.editedTilesFeature) {
       this.regionStore.updateMany(this.editedTilesFeature);
@@ -190,6 +190,7 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   public onDownloadClick() {
+    // todo this.offlineRegionsStore.insertMany(this.regionStore.entities$.value);
     if (!this.controller.hasEditedRegion()) {
       return;
     }
@@ -276,6 +277,10 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
 
   get downloadButtonTitle() {
     return this.editionStrategy.downloadButtonTitle;
+  }
+
+  get offlineRegionsStore() {
+    return this.downloadState.offlineRegionsStore;
   }
 
   get regionStore() {
