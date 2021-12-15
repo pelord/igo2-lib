@@ -1,4 +1,3 @@
-import { FormControl } from '@angular/forms';
 import { TileGenerationParams, TileToDownload } from '@igo2/core';
 import { Feature, IgoMap } from '@igo2/geo';
 import { Observable } from 'rxjs';
@@ -18,7 +17,7 @@ export class RegionEditorControllerBase {
       return this.tilesToDownload.length !== 0
       || this.regionStore.index.size !== 0;
     }
-    const regionDrawIsEmpty = this.drawnRegionGeometryForm.value === null;
+    const regionDrawIsEmpty = false; // this.drawnRegionkkkGeometryForm.value === null;
     return this.tilesToDownload.length !== 0
     || this.regionStore.index.size !== 0
     || !regionDrawIsEmpty;
@@ -36,16 +35,16 @@ export class RegionEditorControllerBase {
     || !this.hasEditedRegion();
   }
 
-  get drawnRegionGeometryForm(): FormControl {
-    return this.state.drawnRegionGeometryForm;
+  /*get drawnRegionkkkGeometryForm(): FormControl {
+    return this.state.drawnRegionkkkGeometryForm;
   }
 
-  set drawnRegionGeometryForm(form: FormControl) {
-    this.state.drawnRegionGeometryForm = form;
-  }
+  set drawnRegionkkkGeometryForm(form: FormControl) {
+    this.state.drawnRegionkkkGeometryForm = form;
+  }*/
 
   get isDrawingMode(): boolean {
-    return this.drawnRegionGeometryForm.value !== null;
+    return true; //this.drawnRegionkkkGeometryForm.value !== null;
   }
 
   get igoMap(): IgoMap {

@@ -84,7 +84,7 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
           return Math.round(value * 100);
         }));
     }
-    this.drawnRegionGeometryForm.valueChanges.subscribe((value) => {
+  /*  this.drawnRegionkkGeometryForm.valueChanges.subscribe((value) => {
       if (!value) {
         return;
       }
@@ -93,7 +93,7 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
       this.parentLevel = this.map.getZoom();
       this.cdRef.detectChanges();
       this.genParams = this.genParamComponent.tileGenerationParams;
-    });
+    });*/
   }
 
   private initController() {
@@ -198,8 +198,8 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.isDrawingMode) {
       this.controller.setTileGridAndTemplateUrl();
       this.cdRef.detectChanges();
-      const geoJSON = this.drawnRegionGeometryForm.value;
-      this.controller.loadGeoJSON(geoJSON);
+      // const geoJSON = this.drawnRegionkkkGeometryForm.value;
+      // this.controller.loadGeoJSON(geoJSON);
     }
 
     this.genParams = this.genParamComponent.tileGenerationParams;
@@ -251,7 +251,7 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private deactivateDrawingTool() {
-    this.drawnRegionGeometryForm.reset();
+    // this.drawnRegionkkkGeometryForm.reset();
     this.activateDrawingTool = false;
   }
 
@@ -259,16 +259,16 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.regionDownloadEstimation.enoughSpace$;
   }
 
-  get drawnRegionGeometryForm(): FormControl {
-    return this.state.drawnRegionGeometryForm;
+  /*get drawnRegionkkkGeometryForm(): FormControl {
+    return this.state.drawnRegionkkkGeometryForm;
   }
 
-  set drawnRegionGeometryForm(form: FormControl) {
-    this.state.drawnRegionGeometryForm = form;
-  }
+  set drawnRegionkkkGeometryForm(form: FormControl) {
+    this.state.drawnRegionkkkGeometryForm = form;
+  }*/
 
   get isDrawingMode(): boolean {
-    return this.drawnRegionGeometryForm.value !== null;
+    return true; //this.drawnRegionkkkGeometryForm.value !== null;
   }
 
   get igoMap(): IgoMap {

@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { FormControl } from '@angular/forms';
 import { TileGenerationParams, TileGenerationStrategies, TileToDownload } from '@igo2/core';
 import { Feature } from '@igo2/geo';
 import { Observable } from 'rxjs';
@@ -45,7 +44,7 @@ export class RegionEditorState {
 
     progression$: Observable<number>;
     isDownloading: boolean;
-    drawnRegionGeometryForm: FormControl = new FormControl();
+    // drawnRegionkkkGeometryForm: FormControl = new FormControl();
 
     constructor(private mapState: MapState) {}
 

@@ -27,8 +27,8 @@ export class DownloadState {
         private mapState: MapState) {
 
         this.map.ol.once('rendercomplete', () => {
-            const offlineRegionsLayer = new VectorLayer({
-                title: 'offlineRegionsLayer',
+            const offlineRegionLayer = new VectorLayer({
+                title: 'offlineRegionLayer',
                 zIndex: 2000,
                 source: new FeatureDataSource(),
                 showInLayerList: true,
@@ -45,7 +45,7 @@ export class DownloadState {
                 }
                 )
             });
-            tryBindStoreLayer(this.regionStore, offlineRegionsLayer);
+            tryBindStoreLayer(this.regionStore, offlineRegionLayer);
             tryAddLoadingStrategy(this.regionStore, new FeatureStoreLoadingStrategy({
                 motion: FeatureMotion.None
             }));

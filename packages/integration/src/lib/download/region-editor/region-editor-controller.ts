@@ -129,7 +129,7 @@ export class RegionEditorController extends RegionEditorControllerBase {
     }
 
     public clear() {
-        this.drawnRegionGeometryForm.reset();
+        /// this.drawnRegionkkkGeometryForm.reset();
         this.regionStore.clear();
         this.clearEditedRegion();
     }
