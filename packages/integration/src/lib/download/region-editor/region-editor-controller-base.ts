@@ -17,7 +17,7 @@ export class RegionEditorControllerBase {
       return this.tilesToDownload.length !== 0
       || this.regionStore.index.size !== 0;
     }
-    const regionDrawIsEmpty = false; // this.drawnRegionkkkGeometryForm.value === null;
+    const regionDrawIsEmpty = this.regionStore.empty;
     return this.tilesToDownload.length !== 0
     || this.regionStore.index.size !== 0
     || !regionDrawIsEmpty;
@@ -35,16 +35,8 @@ export class RegionEditorControllerBase {
     || !this.hasEditedRegion();
   }
 
-  /*get drawnRegionkkkGeometryForm(): FormControl {
-    return this.state.drawnRegionkkkGeometryForm;
-  }
-
-  set drawnRegionkkkGeometryForm(form: FormControl) {
-    this.state.drawnRegionkkkGeometryForm = form;
-  }*/
-
   get isDrawingMode(): boolean {
-    return true; //this.drawnRegionkkkGeometryForm.value !== null;
+    return !this.regionStore.empty;
   }
 
   get igoMap(): IgoMap {

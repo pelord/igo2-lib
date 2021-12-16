@@ -1,5 +1,5 @@
 import { ChangeDetectorRef } from '@angular/core';
-import { DownloadRegionService, RegionDBData } from '@igo2/geo';
+import { DownloadRegionService, Feature, RegionDBData } from '@igo2/geo';
 import { GeoJSONGeometry, XYZDataSource } from '@igo2/geo';
 import TileGrid from 'ol/tilegrid/TileGrid';
 import { createFromTemplate } from 'ol/tileurlfunction.js';
@@ -62,6 +62,10 @@ export class RegionEditorController extends RegionEditorControllerBase {
         } else {
             throw new AddTileError(AddTileErrors.ALREADY_SELECTED);
         }
+    }
+
+    public loadFeature(features: Feature[]) {
+        this.editedRegion.features = features;
     }
 
     public loadGeoJSON(geometry: GeoJSONGeometry) {
@@ -129,7 +133,6 @@ export class RegionEditorController extends RegionEditorControllerBase {
     }
 
     public clear() {
-        /// this.drawnRegionkkkGeometryForm.reset();
         this.regionStore.clear();
         this.clearEditedRegion();
     }

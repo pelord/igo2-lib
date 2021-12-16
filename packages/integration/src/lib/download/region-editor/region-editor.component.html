@@ -16,12 +16,18 @@
     ></igo-tile-generation-option>
   </div>
   <div *ngIf="activateDrawingTool">
-    <!-- <igo-region-draw
-      #regionDraw
-      [map]='igoMap'
-      [(regionkkkGeometryForm)]='drawnRegionkkkGeometryForm'
-      ngDefaultControl
-    ></igo-region-draw> -->
+    <igo-geometry-predefined-or-draw 
+      [drawControlIsActive$]="drawControlIsActive$"
+      [geometryTypes]="geometryTypes"
+      [predefinedRegionsStore]="predefinedRegionsStore" 
+      [currentRegionStore]="regionStore" 
+      [predefinedTypes]="predefinedTypes"
+      [minBufferMeters]="minBufferMeters"
+      [maxBufferMeters]="maxBufferMeters"
+      [selectedPredefinedType]="selectedPredefinedType"
+      [map]="mapState.map"
+      (predefinedTypeChange)="onPredefinedTypeChange($event)">
+    </igo-geometry-predefined-or-draw>
   </div>
   <igo-region-download-estimation
     #regionDownloadEstimation

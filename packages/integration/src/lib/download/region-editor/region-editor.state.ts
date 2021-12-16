@@ -43,7 +43,6 @@ export class RegionEditorState {
 
     progression$: Observable<number>;
     isDownloading: boolean;
-    // drawnRegionkkkGeometryForm: FormControl = new FormControl();
 
     constructor(private mapState: MapState) {}
 

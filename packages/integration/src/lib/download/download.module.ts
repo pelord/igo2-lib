@@ -15,7 +15,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { IgoLanguageModule } from '@igo2/core';
-import { IgoDrawingToolModule, IgoGeometryFormFieldModule } from '@igo2/geo';
+import { IgoDrawingToolModule, IgoGeometryPredefinedOrDrawModule } from '@igo2/geo';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DownloadToolComponent } from './download-tool';
 import { OfflinableLayerSelectorComponent } from './offlinable-layer-selector/offlinable-layer-selector.component';
@@ -51,7 +51,7 @@ import {
     MatTableModule,
     MatRippleModule,
     NgxSliderModule,
-    IgoGeometryFormFieldModule,
+    IgoGeometryPredefinedOrDrawModule,
     IgoDrawingToolModule,
     IgoLanguageModule,
     ReactiveFormsModule,

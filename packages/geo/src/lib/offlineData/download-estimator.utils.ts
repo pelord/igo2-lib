@@ -19,7 +19,7 @@ export function getTileOlArea(coord: [number, number], level: number, tileGrid):
 export function getPolygonOlArea(polygon) {
     const coords = [
         polygon.coordinates[0].map(
-            coord => olProj.transform(coord, 'EPSG:4326', 'EPSG:3857')
+            coord => coord
         )
     ];
     const OlPolygon = new Polygon(coords);
@@ -65,10 +65,8 @@ export function getNumberOfTileLineIntersect(
         Z: level
     };
     const tileLength = getTileLengthFast(tile, tileGrid);
-    const transP0 = olProj.transform(p0, 'EPSG:4326', 'EPSG:3857');
-    const transP1 = olProj.transform(p1, 'EPSG:4326', 'EPSG:3857');
-    const dx: number = Math.ceil(Math.abs(transP1[0] - transP0[0]) / tileLength) + 1;
-    const dy: number = Math.ceil(Math.abs(transP1[1] - transP0[1]) / tileLength) + 1;
+    const dx: number = Math.ceil(Math.abs(p1[0] - p0[0]) / tileLength) + 1;
+    const dy: number = Math.ceil(Math.abs(p1[1] - p0[1]) / tileLength) + 1;
     const nTiles = dx + dy - gcd(dx, dy);
     return nTiles;
 }

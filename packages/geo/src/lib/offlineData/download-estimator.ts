@@ -1,4 +1,5 @@
 import { LineString, Polygon } from '@turf/helpers';
+import TileGrid from 'ol/tilegrid/TileGrid';
 import { FeatureGeometry } from '../feature/shared/feature.interfaces';
 import { RegionDBData } from './db/region-db/Region.interface';
 
@@ -26,7 +27,7 @@ export class DownloadEstimator {
         genParams: TileGenerationParams,
         tileGrid
     ): DownloadSizeEstimation {
-        if (!geometries || !genParams || !tileGrid || !tilesToDownload) {
+        if (!geometries || !genParams || !tileGrid) {
             return {
                 newAllocatedSize: 0,
                 downloadSize: 0
@@ -197,7 +198,7 @@ export class DownloadEstimator {
     estimateTilesOfGeometryAtLevel(
         geometry: FeatureGeometry,
         genParams: TileGenerationParams,
-        tileGrid
+        tileGrid: TileGrid
     ): number {
         const depth = genParams.endLevel - genParams.startLevel;
         if (Number.isNaN(depth)) {
