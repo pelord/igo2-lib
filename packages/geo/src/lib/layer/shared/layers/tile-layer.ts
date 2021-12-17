@@ -19,6 +19,7 @@ import { first } from 'rxjs/operators';
 
 import { MessageService } from '@igo2/core';
 import { AuthInterceptor } from '@igo2/auth';
+import Tile from 'ol/Tile';
 export class TileLayer extends Layer {
   public dataSource:
     | OSMDataSource
