@@ -8,6 +8,7 @@ import {
 import { map } from 'rxjs/operators';
 
 import olLayer from 'ol/layer/Layer';
+import olSource from 'ol/source/Source';
 
 import { AuthInterceptor } from '@igo2/auth';
 import { SubjectStatus } from '@igo2/utils';
@@ -27,7 +28,7 @@ export abstract class Layer {
   public legendCollapsed: boolean = true;
   public firstLoadComponent: boolean = true;
   public map: IgoMap;
-  public ol: olLayer;
+  public ol: olLayer<olSource>;
   public olLoadingProblem: boolean = false;
   public status$: Subject<SubjectStatus>;
   public hasBeenVisible$: BehaviorSubject<boolean> = new BehaviorSubject(undefined);
@@ -103,8 +104,15 @@ export abstract class Layer {
   set visible(value: boolean) {
     this.ol.setVisible(value);
     this.visible$.next(value);
-    if (!this.hasBeenVisible$.value && value && this.messageService){
+    if (!this.hasBeenVisible$.value && value){
       this.hasBeenVisible$.next(value);
+    }
+    if (this.options?.messages && value) {
+      this.options?.messages
+        .filter(m => m.options?.showOnEachLayerVisibility)
+        .map(message =>
+          this.showMessage(message)
+        );
     }
   }
   get visible(): boolean {
@@ -164,7 +172,7 @@ export abstract class Layer {
     this.ol.set('_layer', this, true);
   }
 
-  protected abstract createOlLayer(): olLayer;
+  protected abstract createOlLayer(): olLayer<olSource>;
 
   setMap(igoMap: IgoMap | undefined) {
     this.map = igoMap;
@@ -177,15 +185,22 @@ export abstract class Layer {
       this.hasBeenVisible$$ = this.hasBeenVisible$.subscribe(() => {
         if (this.options.messages && this.visible) {
           this.options.messages.map(message => {
-            message.title = message.title;
-            message.text = message.text;
-            this.messageService.message(message as Message);
+            this.showMessage(message);
           });
         }
       });
     } else {
       this.layerSyncWatcher.unsubscribe();
     }
+  }
+
+  private showMessage(message: Message) {
+    if (!this.messageService) {
+      return;
+    }
+    message.title = message.title;
+    message.text = message.text;
+    this.messageService.message(message as Message);
   }
 
   private observeResolution() {

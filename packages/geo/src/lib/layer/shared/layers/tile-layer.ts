@@ -18,6 +18,7 @@ import { GeoNetworkService } from '@igo2/core';
 import { first } from 'rxjs/operators';
 
 import { MessageService } from '@igo2/core';
+import { AuthInterceptor } from '@igo2/auth';
 export class TileLayer extends Layer {
   public dataSource:
     | OSMDataSource
@@ -27,26 +28,25 @@ export class TileLayer extends Layer {
     | CartoDataSource
     | TileArcGISRestDataSource;
   public options: TileLayerOptions;
-  public ol: olLayerTile;
+  public ol: olLayerTile<olSourceTile>;
 
   private watcher: TileWatcher;
 
   constructor(
     options: TileLayerOptions,
     private geoNetwork: GeoNetworkService,
-    public messageService?: MessageService
-    ) {
+    public messageService?: MessageService,
+    public authInterceptor?: AuthInterceptor) {
     super(options, messageService);
 
     this.watcher = new TileWatcher(this);
     this.status$ = this.watcher.status$;
   }
 
-  protected createOlLayer(): olLayerTile {
+  protected createOlLayer(): olLayerTile<olSourceTile> {
     const olOptions = Object.assign({}, this.options, {
-      source: this.options.source.ol as olSourceTile
+      source: this.options.source.ol
     });
-
     const newTile = new olLayerTile(olOptions);
 
     (newTile.getSource() as any).setTileLoadFunction((tile, src) => {
@@ -55,7 +55,7 @@ export class TileLayer extends Layer {
     return newTile;
   }
 
-  private customLoader(tile: olLayerTile, src: string) {
+  private customLoader(tile, src: string) {
     const request = this.geoNetwork.get(src);
     request.pipe(first())
     .subscribe((blob) => {
