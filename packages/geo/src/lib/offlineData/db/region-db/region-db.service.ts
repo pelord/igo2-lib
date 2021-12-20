@@ -48,7 +48,7 @@ export class RegionDBService {
     dbRequest.subscribe((regionID) => {
       const regionDBData = createRegionDBDataFromRegionDate(
         regionDate,
-        regionID
+        (regionID as any).id
       );
       regionDBData$.next(regionDBData);
       regionDBData$.complete();

@@ -12,7 +12,7 @@ import { IgoErrorModule } from './request/error.module';
 
 const dbConfig: DBConfig = {
   name: 'igo2DB',
-  version: 1,
+  version: 2,
   objectStoresMeta: [{
     store: 'geoData',
     storeConfig: { keyPath: 'url', autoIncrement: false },

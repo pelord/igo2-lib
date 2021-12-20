@@ -37,7 +37,7 @@ export class TileDBService {
           let dbRequest: Observable<TileDBData>;
           if (!dbObject) {
             this._newTiles++;
-            dbRequest = this.dbService.addItem(this.dbName, tileDBData);
+            dbRequest = this.dbService.add(this.dbName, tileDBData);
           } else {
             const currentRegionID = dbObject.regionID;
             if (currentRegionID !== regionID) {
@@ -65,7 +65,7 @@ export class TileDBService {
     const deleteRequest = this.dbService.deleteByKey(this.dbName, tileDBData.url);
     deleteRequest.subscribe((isDeleted) => {
       if (isDeleted) {
-        const addRequest = this.dbService.addItem(this.dbName, tileDBData);
+        const addRequest = this.dbService.add(this.dbName, tileDBData);
         addRequest.subscribe((object) => {
           subject.next(object);
           subject.complete();
