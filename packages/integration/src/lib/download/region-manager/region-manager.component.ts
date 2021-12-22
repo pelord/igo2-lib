@@ -6,8 +6,6 @@ import { first } from 'rxjs/operators';
 import { MapState } from '../../map';
 import { DownloadState } from '../download.state';
 import { RegionManagerState } from './region-manager.state';
-import olFeature from 'ol/Feature';
-import { Geometry } from 'ol/geom';
 
 export interface DisplayRegion extends Region {
   id: number;
