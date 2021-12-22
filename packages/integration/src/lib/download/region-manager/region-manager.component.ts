@@ -6,6 +6,8 @@ import { first } from 'rxjs/operators';
 import { MapState } from '../../map';
 import { DownloadState } from '../download.state';
 import { RegionManagerState } from './region-manager.state';
+import olFeature from 'ol/Feature';
+import { Geometry } from 'ol/geom';
 
 export interface DisplayRegion extends Region {
   id: number;
@@ -57,6 +59,14 @@ export class RegionManagerComponent implements OnDestroy {
   public updateRegions() {
     this.regionDB.getAll().pipe(first())
       .subscribe((RegionDBDatas: RegionDBData[]) => {
+        RegionDBDatas.map((RegionDBData: RegionDBData) => {
+          this.downloadState.offlineRegionsStore.updateMany(RegionDBData.parentFeatureText.map(f => {
+            const offlineFeature = JSON.parse(f);
+            delete offlineFeature.ol;
+            offlineFeature.properties = {...offlineFeature.properties, ...RegionDBData.generationParams };
+            return offlineFeature;
+          }));
+          });
         const regions = this.createRegion(RegionDBDatas);
         this.regions.next(regions);
       });
@@ -82,6 +92,7 @@ export class RegionManagerComponent implements OnDestroy {
   }
 
   public deleteRegion(region) {
+    this.downloadState.offlineRegionsStore.deleteMany(region.parentFeatureText.map(f => JSON.parse(f)));
     this.buttonClicked = true;
     this.downloadManager.deleteRegionByID(region.id);
     this.unselectRegion();

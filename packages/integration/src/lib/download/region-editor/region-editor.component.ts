@@ -199,8 +199,6 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   public onDownloadClick() {
-    this.offlineRegionsStore.insertMany(this.regionStore.entities$.value);
-
     if (!this.controller.hasEditedRegion()) {
       return;
     }
@@ -212,10 +210,6 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.genParams = this.genParamComponent.tileGenerationParams;
-    const featuresToInsert: Feature[] = this.regionStore.entities$.value;
-    let featuresLabelToInsert: Feature[] = [];
-    featuresToInsert.map(featureToInsert => featureToInsert.properties = {...featureToInsert.properties, ...this.genParams });
-    this.offlineRegionsStore.insertMany(featuresToInsert.concat(featuresLabelToInsert));
     this.regionStore.clear();
 
     if (this.isDownloading$$) {
@@ -281,10 +275,6 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
 
   get downloadButtonTitle(): string{
     return this.editionStrategy.downloadButtonTitle;
-  }
-
-  get offlineRegionsStore(): FeatureStore {
-    return this.downloadState.offlineRegionsStore;
   }
 
   get regionStore(): FeatureStore {

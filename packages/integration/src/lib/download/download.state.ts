@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {
     AnyLayer, FeatureDataSource, FeatureMotion, FeatureStore,
     FeatureStoreLoadingStrategy, featureToOl, StyleService,
-    tryAddLoadingStrategy, tryBindStoreLayer, VectorLayer, Feature
+    tryAddLoadingStrategy, tryBindStoreLayer, VectorLayer, Feature, RegionDBService, RegionDBData
 } from '@igo2/geo';
 import { fromExtent } from 'ol/geom/Polygon';
 import pointOnFeature from '@turf/point-on-feature';
@@ -16,6 +16,7 @@ import OlGeoJSON from 'ol/format/GeoJSON';
 import { Polygon } from 'geojson';
 import buffer from '@turf/buffer';
 import { Geometry } from 'ol/geom';
+import { first } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root'
@@ -34,6 +35,7 @@ export class DownloadState {
     }
 
     constructor(
+        private regionDB: RegionDBService,
         private styleService: StyleService,
         private mapState: MapState) {
 
@@ -154,6 +156,18 @@ export class DownloadState {
             tryAddLoadingStrategy(this.offlineRegionsStore, new FeatureStoreLoadingStrategy({
                 motion: FeatureMotion.None
             }));
+        });
+
+        this.regionDB.getAll().pipe(first())
+        .subscribe((RegionDBDatas: RegionDBData[]) => {
+          RegionDBDatas.map((RegionDBData: RegionDBData) => {
+            this.offlineRegionsStore.updateMany(RegionDBData.parentFeatureText.map(f => {
+              const offlineFeature = JSON.parse(f);
+              delete offlineFeature.ol;
+              offlineFeature.properties = {...offlineFeature.properties, ...RegionDBData.generationParams };
+              return offlineFeature;
+            }));
+            });
         });
     }
     addNewTileToDownload(tile: TransferedTile) {
