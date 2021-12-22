@@ -1,6 +1,15 @@
 <mat-tab-group #tabGroup (selectedTabChange)="onTabChange($event)" [selectedIndex]="selectedTabIndex">
   <mat-tab label="{{ 'igo.integration.download.regionEditor.title' | translate }}">
-    <igo-region-editor #editor></igo-region-editor>
+    <igo-region-editor #editor
+    [geometryTypes]="geometryTypes"
+    [predefinedRegionsStore]="predefinedRegionsStore"
+    [allRegionsStore]="allRegionsStore"
+    [drawControlIsActive$]="drawControlIsActive$"
+    [predefinedTypes]="predefinedTypes"
+    [minBufferMeters]="minBufferMeters"
+    [maxBufferMeters]="maxBufferMeters"
+    [selectedPredefinedType]="selectedPredefinedType"
+    (predefinedTypeChange)="onPredefinedTypeChange($event)"></igo-region-editor>
   </mat-tab>
   <mat-tab label="{{ 'igo.integration.download.regionManager.title' | translate }}">
     <igo-region-manager #manager></igo-region-manager>

@@ -1,6 +1,8 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
-import { ToolComponent } from '@igo2/common';
-import { RegionDBData } from '@igo2/geo';
+import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/core';
+import { EntityStore, ToolComponent } from '@igo2/common';
+import { FeatureForPredefinedOrDrawGeometry, FeatureStore, RegionDBData } from '@igo2/geo';
+import { BehaviorSubject } from 'rxjs';
+import { MapState } from '../../map/map.state';
 import { DownloadState } from '../download.state';
 import { RegionEditorComponent } from '../region-editor/region-editor.component';
 import { RegionManagerComponent } from '../region-manager/region-manager.component';
@@ -22,12 +24,24 @@ export enum Tab {
   styleUrls: ['./download-tool.component.scss']
 })
 export class DownloadToolComponent implements OnInit, AfterViewInit {
+  @Input() geometryTypes: string[] = ['Point', 'LineString', 'Polygon'];
+  public predefinedRegionsStore: EntityStore<FeatureForPredefinedOrDrawGeometry> =
+    new EntityStore<FeatureForPredefinedOrDrawGeometry>([]);
+    public allRegionsStore: FeatureStore<FeatureForPredefinedOrDrawGeometry> =
+    new FeatureStore<FeatureForPredefinedOrDrawGeometry>([], { map: this.mapState.map });
+  public drawControlIsActive$: BehaviorSubject<boolean> = new BehaviorSubject(true);
+  @Input() predefinedTypes: string[] = ['type1', 'type2'];
+  @Input() minBufferMeters = 0
+  @Input() maxBufferMeters = 100000
+  @Input() selectedPredefinedType = this.predefinedTypes[0];
+
   @ViewChild('editor') regionEditor: RegionEditorComponent;
   @ViewChild('manager') regionManager: RegionManagerComponent;
 
   constructor(
     private state: DownloadToolState,
-    private downloadState: DownloadState
+    private downloadState: DownloadState,
+    private mapState: MapState
   ) {
     this.downloadState.rightMouseClick$.subscribe((value) => {
       if (value) {
@@ -58,6 +72,10 @@ export class DownloadToolComponent implements OnInit, AfterViewInit {
       this.selectedTabIndex = 0;
       this.regionEditor.updateRegion(region);
     });
+  }
+
+  onPredefinedTypeChange(predefinedType) {
+    console.log(predefinedType);
   }
 
   onTabChange(event) {

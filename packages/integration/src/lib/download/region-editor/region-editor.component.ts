@@ -1,12 +1,13 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatSlider } from '@angular/material/slider';
 import {
-  DownloadRegionService, FeatureGeometry, RegionDBData, TileDownloaderService, TileGenerationParams, TileToDownload
+  DownloadRegionService, FeatureForPredefinedOrDrawGeometry, FeatureGeometry,
+  FeatureStore, RegionDBData, TileDownloaderService, TileGenerationParams, TileToDownload
 } from '@igo2/geo';
 import { LanguageService, MessageService } from '@igo2/core';
 import { Feature, IgoMap } from '@igo2/geo';
-import { Observable, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { map, skip } from 'rxjs/operators';
 import { MapState } from '../../map/map.state';
 import { DownloadState } from '../download.state';
@@ -18,7 +19,7 @@ import { RegionDownloadEstimationComponent } from './region-download-estimation/
 import { RegionEditorController } from './region-editor-controller';
 import { AddTileError, AddTileErrors } from './region-editor-utils';
 import { EditedRegion, RegionEditorState } from './region-editor.state';
-
+import { EntityStore } from '@igo2/common';
 
 @Component({
   selector: 'igo-region-editor',
@@ -26,17 +27,26 @@ import { EditedRegion, RegionEditorState } from './region-editor.state';
   styleUrls: ['./region-editor.component.scss']
 })
 export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
+  @Input() geometryTypes: string[];
+  @Input() predefinedRegionsStore: EntityStore<FeatureForPredefinedOrDrawGeometry>;
+  @Input() allRegionsStore: FeatureStore<FeatureForPredefinedOrDrawGeometry>;
+  @Input() drawControlIsActive$: BehaviorSubject<boolean>;
+  @Input() predefinedTypes: string[];
+  @Input() minBufferMeters: number;
+  @Input() maxBufferMeters: number;
+  @Input() selectedPredefinedType: string;
   @ViewChild('depthSlider') slider: MatSlider;
   @ViewChild('progressBar') progressBar: MatProgressBar;
   @ViewChild('genParam') genParamComponent: TileGenerationOptionComponent;
   @ViewChild('regionDraw') regionDrawComponent: RegionDrawComponent;
   @ViewChild('regionDownloadEstimation') regionDownloadEstimation: RegionDownloadEstimationComponent;
 
+  @Output() predefinedTypeChange: EventEmitter<string> = new EventEmitter<string>();
+
   private controller: RegionEditorController;
   public updateEstimation$: Subject<void> = new Subject();
 
   private _progression: number = 0;
-  activateDrawingTool: boolean = true;
 
   isDownloading$: Observable<boolean>;
   isDownloading$$: Subscription;
@@ -83,16 +93,6 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
           return Math.round(value * 100);
         }));
     }
-  /*  this.drawnRegionkkGeometryForm.valueChanges.subscribe((value) => {
-      if (!value) {
-        return;
-      }
-      this.geometries = value ? [value] : [];
-      this.controller.setTileGridAndTemplateUrl();
-      this.parentLevel = this.map.getZoom();
-      this.cdRef.detectChanges();
-      this.genParams = this.genParamComponent.tileGenerationParams;
-    });*/
   }
 
   private initController() {
@@ -107,6 +107,15 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
     this.regionStore.entities$.subscribe((entities) => {
       this.updateEstimation$.next();
       console.log('entities', entities);
+      if (!entities || !entities.length) {
+        return;
+      }
+      this.geometries = entities.map(e => e.geometry);
+      this.controller.setTileGridAndTemplateUrl();
+      this.parentLevel = this.map.getZoom();
+      this.cdRef.detectChanges();
+      this.genParams = this.genParamComponent.tileGenerationParams;
+      this.updateEstimation$.next();
     });
     if (!this.editedTilesFeature) {
       this.regionStore.updateMany(this.editedTilesFeature);
@@ -190,7 +199,8 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   public onDownloadClick() {
-    // todo this.offlineRegionsStore.insertMany(this.regionStore.entities$.value);
+    this.offlineRegionsStore.insertMany(this.regionStore.entities$.value);
+
     if (!this.controller.hasEditedRegion()) {
       return;
     }
@@ -198,11 +208,15 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.isDrawingMode) {
       this.controller.setTileGridAndTemplateUrl();
       this.cdRef.detectChanges();
-      // const geoJSON = this.drawnRegionkkkGeometryForm.value;
-      // this.controller.loadGeoJSON(geoJSON);
+      this.controller.loadFeature(this.regionStore.entities$.value);
     }
 
     this.genParams = this.genParamComponent.tileGenerationParams;
+    const featuresToInsert: Feature[] = this.regionStore.entities$.value;
+    let featuresLabelToInsert: Feature[] = [];
+    featuresToInsert.map(featureToInsert => featureToInsert.properties = {...featureToInsert.properties, ...this.genParams });
+    this.offlineRegionsStore.insertMany(featuresToInsert.concat(featuresLabelToInsert));
+    this.regionStore.clear();
 
     if (this.isDownloading$$) {
       this.isDownloading$$.unsubscribe();
@@ -223,7 +237,6 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private clear() {
-    this.activateDrawingTool = true;
     this.controller.clear();
     this.genParamComponent.tileGenerationParams = this.genParams;
   }
@@ -251,47 +264,38 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private deactivateDrawingTool() {
-    // this.drawnRegionkkkGeometryForm.reset();
-    this.activateDrawingTool = false;
+    this.regionStore.clear();
   }
 
-  get enoughSpace$() {
+  get enoughSpace$(): BehaviorSubject<boolean> {
     return this.regionDownloadEstimation.enoughSpace$;
   }
 
-  /*get drawnRegionkkkGeometryForm(): FormControl {
-    return this.state.drawnRegionkkkGeometryForm;
-  }
-
-  set drawnRegionkkkGeometryForm(form: FormControl) {
-    this.state.drawnRegionkkkGeometryForm = form;
-  }*/
-
   get isDrawingMode(): boolean {
-    return true; //this.drawnRegionkkkGeometryForm.value !== null;
+    return !this.regionStore.empty;
   }
 
   get igoMap(): IgoMap {
     return this.state.map;
   }
 
-  get downloadButtonTitle() {
+  get downloadButtonTitle(): string{
     return this.editionStrategy.downloadButtonTitle;
   }
 
-  get offlineRegionsStore() {
+  get offlineRegionsStore(): FeatureStore {
     return this.downloadState.offlineRegionsStore;
   }
 
-  get regionStore() {
+  get regionStore(): FeatureStore {
     return this.downloadState.regionStore;
   }
 
-  private get map() {
+  private get map(): IgoMap {
     return this.downloadState.map;
   }
 
-  set editedRegion(editedRegion) {
+  set editedRegion(editedRegion: EditedRegion) {
     this.state.editedRegion = editedRegion;
   }
 

@@ -15,7 +15,7 @@
       [parentLevel]="parentLevel"
     ></igo-tile-generation-option>
   </div>
-  <div *ngIf="activateDrawingTool">
+
     <igo-geometry-predefined-or-draw 
       [drawControlIsActive$]="drawControlIsActive$"
       [geometryTypes]="geometryTypes"
@@ -26,9 +26,8 @@
       [maxBufferMeters]="maxBufferMeters"
       [selectedPredefinedType]="selectedPredefinedType"
       [map]="mapState.map"
-      (predefinedTypeChange)="onPredefinedTypeChange($event)">
+      (predefinedTypeChange)="predefinedTypeChange.emit($event)">
     </igo-geometry-predefined-or-draw>
-  </div>
   <igo-region-download-estimation
     #regionDownloadEstimation
     [updateEstimation$]="updateEstimation$"
