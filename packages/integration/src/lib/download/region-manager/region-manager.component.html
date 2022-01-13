@@ -3,12 +3,13 @@
     <ng-container matColumnDef="edit">
         <mat-header-cell *matHeaderCellDef></mat-header-cell>
         <mat-cell *matCellDef="let region">
-            <button mat-icon-button color="primary"  *ngIf="region.status !== 'Expired'" (click)="editRegion(region)">
+            <!-- <button mat-icon-button color="primary"  *ngIf="region.status !== 'Expired'" (click)="editRegion(region)">
                 <mat-icon>{{'igo.integration.download.regionManager.columns.buttons.edit' | translate}}</mat-icon>
-            </button>
+            </button> -->
 
             <button mat-icon-button color="primary"  *ngIf="region.status === 'Expired'" (click)="editRegion(region)">
-                <mat-icon>{{'igo.integration.download.regionManager.columns.buttons.update' | translate}}</mat-icon>
+                [matTooltip]="'igo.integration.download.regionManager.columns.buttons.update' | translate" color="warn">
+                <mat-icon svgIcon="refresh"></mat-icon>
             </button>
         </mat-cell>
     </ng-container>
@@ -17,8 +18,10 @@
     <ng-container matColumnDef="delete">
         <mat-header-cell *matHeaderCellDef></mat-header-cell>
         <mat-cell *matCellDef="let region">
-            <button mat-icon-button color="primary" [disabled]="disableDeleteButton(region)" (click)="deleteRegion(region)">
-                <mat-icon>{{'igo.integration.download.regionManager.columns.buttons.delete' | translate}}</mat-icon>
+            <button mat-icon-button tooltip-position="below" matTooltipShowDelay="500"
+                [matTooltip]="'igo.integration.download.regionManager.columns.buttons.delete' | translate" color="warn"
+                [disabled]="disableDeleteButton(region)" (click)="deleteRegion(region)">
+                <mat-icon svgIcon="delete"></mat-icon>
             </button>
         </mat-cell>
     </ng-container>

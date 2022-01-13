@@ -8,7 +8,7 @@ import { TileDBService } from './db/tile-db/tile-db.service';
   providedIn: 'root'
 })
 export class GeoNetworkService {
-  readonly pingURL = window.location.origin;
+  readonly pingURL = window.location.href;
   private networkOnline: boolean = true;
   private pingServer$: Subscription;
   constructor(
