@@ -129,7 +129,7 @@ export class RegionDBAdminService {
 
       const downloadDate: Date = region.timestamp;
       const currentDate = new Date();
-      if (currentDate.getTime() - downloadDate.getTime() >= this.expirationInterval) {
+      if (currentDate.getTime() - downloadDate.getTime() >= region.expirationInterval || this.expirationInterval) {
         if (region.status !== RegionStatus.Expired) {
           region.status = RegionStatus.Expired;
           (cursor as any).update(region);

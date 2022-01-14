@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AnyLayer, IgoMap, TileLayer, VectorTileLayer } from '@igo2/geo';
+import { IgoMap, TileLayer, VectorTileLayer } from '@igo2/geo';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
 
@@ -13,7 +13,7 @@ export class OfflinableLayerSelectorComponent implements OnInit, OnDestroy {
   @Input() map: IgoMap;
   public form: FormGroup;
 
-  public offlinableLayers$: BehaviorSubject<AnyLayer[]> = new BehaviorSubject([]);
+  public offlinableLayers$: BehaviorSubject<(VectorTileLayer | TileLayer)[]> = new BehaviorSubject([]);
   private offlinableLayers$$: Subscription;
 
   @Output() selectedOfflinableLayers = new EventEmitter<VectorTileLayer | TileLayer[]>();
@@ -32,7 +32,7 @@ export class OfflinableLayerSelectorComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.offlinableLayers$$ = this.map.layers$.subscribe((layers) => {
-      this.offlinableLayers$.next(layers.filter((layer: VectorTileLayer | TileLayer ) => layer.offlinable) as AnyLayer[]);
+      this.offlinableLayers$.next((layers as (VectorTileLayer | TileLayer)[]).filter((layer) => layer.offlineOptions?.available));
     });
   }
 

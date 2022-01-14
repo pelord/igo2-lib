@@ -20,6 +20,7 @@ import { MessageService } from '@igo2/core';
 import { AuthInterceptor } from '@igo2/auth';
 import Tile from 'ol/Tile';
 import { GeoNetworkService } from '../../../offlineData/geo-network.service';
+import { OfflineOptions } from './offline-layer.interface';
 export class TileLayer extends Layer {
   public dataSource:
     | OSMDataSource
@@ -33,8 +34,11 @@ export class TileLayer extends Layer {
 
   private watcher: TileWatcher;
 
-  get offlinable(): boolean {
-    return this.options.offlinable || false;
+  get offlineOptions(): OfflineOptions {
+    if (this.options.offlineOptions && !this.options.offlineOptions.available) {
+      this.options.offlineOptions.available = false;
+    }
+    return this.options.offlineOptions;
   }
 
   constructor(

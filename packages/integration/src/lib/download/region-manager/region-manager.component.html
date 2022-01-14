@@ -7,8 +7,8 @@
                 <mat-icon>{{'igo.integration.download.regionManager.columns.buttons.edit' | translate}}</mat-icon>
             </button> -->
 
-            <button mat-icon-button color="primary"  *ngIf="region.status === 'Expired'" (click)="editRegion(region)">
-                [matTooltip]="'igo.integration.download.regionManager.columns.buttons.update' | translate" color="warn">
+            <button mat-icon-button color="primary"  *ngIf="region.status === 'Expired'" (click)="editRegion(region)"
+                [matTooltip]="'igo.integration.download.regionManager.columns.buttons.update' | translate">
                 <mat-icon svgIcon="refresh"></mat-icon>
             </button>
         </mat-cell>

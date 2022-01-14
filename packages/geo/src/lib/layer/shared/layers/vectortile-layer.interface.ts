@@ -10,6 +10,7 @@ import { MVTDataSourceOptions } from '../../../datasource/shared/datasources/mvt
 import { StyleByAttribute, MapboxStyle } from '../vector-style.interface';
 import RenderFeature from 'ol/render/Feature';
 import Feature from 'ol/Feature';
+import { OfflineOptions } from './offline-layer.interface';
 
 export interface VectorTileLayerOptions extends LayerOptions {
   style?: olStyle | olStyle[] | ((arg0: RenderFeature | Feature<any>, arg1: number) => void | olStyle | olStyle[]);
@@ -22,5 +23,5 @@ export interface VectorTileLayerOptions extends LayerOptions {
   styleByAttribute?: StyleByAttribute;
   hoverStyle?: StyleByAttribute;
   mapboxStyle ?: MapboxStyle;
-  offlinable?: boolean;
+  offlineOptions?: OfflineOptions;
 }

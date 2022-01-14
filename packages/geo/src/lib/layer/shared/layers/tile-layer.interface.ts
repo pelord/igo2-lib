@@ -16,6 +16,7 @@ import { XYZDataSourceOptions } from '../../../datasource/shared/datasources/xyz
 import { CartoDataSourceOptions } from '../../../datasource/shared/datasources/carto-datasource.interface';
 import { TileArcGISRestDataSourceOptions } from '../../../datasource/shared/datasources/tilearcgisrest-datasource.interface';
 import { TileDebugDataSourceOptions } from '../../../datasource/shared/datasources/tiledebug-datasource.interface';
+import { OfflineOptions } from './offline-layer.interface';
 
 export interface TileLayerOptions extends LayerOptions {
   source?:
@@ -33,5 +34,5 @@ export interface TileLayerOptions extends LayerOptions {
     | CartoDataSourceOptions
     | TileArcGISRestDataSourceOptions;
   ol?: olLayerTile<olSourceTile>;
-  offlinable?: boolean;
+  offlineOptions?: OfflineOptions;
 }
