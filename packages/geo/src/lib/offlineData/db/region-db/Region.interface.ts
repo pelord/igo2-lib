@@ -7,7 +7,6 @@ export interface Region {
   parentFeatureText: string[];
   numberOfTiles: number;
   generationParams: TileGenerationParams;
-  expirationInterval?: number;
 }
 
 export interface RegionDate extends Region {

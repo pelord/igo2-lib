@@ -11,19 +11,20 @@ import { RegionDBData, RegionStatus } from './Region.interface';
   providedIn: 'root'
 })
 export class RegionDBAdminService {
-  private static readonly ONE_HOUR = 1000 * 60 * 60;
-  private static readonly ONE_DAY = 24 * RegionDBAdminService.ONE_HOUR;
-  private readonly expirationInterval = 30 * RegionDBAdminService.ONE_DAY;
-  // private readonly expirationInterval = 60 * 1000;
+  private static readonly ONE_SECOND = 1000;
+  private static readonly ONE_MINUTE = RegionDBAdminService.ONE_SECOND * 60;
+  private static readonly ONE_HOUR = RegionDBAdminService.ONE_MINUTE * 60;
+  private static readonly ONE_DAY = RegionDBAdminService.ONE_HOUR * 24;
+  private static readonly ONE_MONTH = RegionDBAdminService.ONE_DAY * 30;
+  private readonly expirationInterval = RegionDBAdminService.ONE_MONTH;
 
   constructor(
     private regionDB: RegionDBService,
     private tileDB: TileDBService
   ) {
-    // interval(1000).subscribe(() => {
-    interval(RegionDBAdminService.ONE_HOUR).subscribe(() => {
-        this.checkExpirations();
-      });
+    interval(RegionDBAdminService.ONE_MINUTE * 5).subscribe(() => {
+      this.checkExpirations();
+    });
   }
 
   updateStatus(region: RegionDBData, newStatus: RegionStatus) {
@@ -129,7 +130,7 @@ export class RegionDBAdminService {
 
       const downloadDate: Date = region.timestamp;
       const currentDate = new Date();
-      if (currentDate.getTime() - downloadDate.getTime() >= region.expirationInterval || this.expirationInterval) {
+      if (currentDate.getTime() - downloadDate.getTime() >= this.expirationInterval) {
         if (region.status !== RegionStatus.Expired) {
           region.status = RegionStatus.Expired;
           (cursor as any).update(region);
