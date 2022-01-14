@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/core';
-import { EntityStore, ToolComponent } from '@igo2/common';
-import { FeatureForPredefinedOrDrawGeometry, FeatureStore, RegionDBData } from '@igo2/geo';
+import { ToolComponent } from '@igo2/common';
+import { DrawEntityStore, DrawFeatureStore, RegionDBData } from '@igo2/geo';
 import { BehaviorSubject } from 'rxjs';
 import { MapState } from '../../map/map.state';
 import { DownloadState } from '../download.state';
@@ -25,10 +25,8 @@ export enum Tab {
 })
 export class DownloadToolComponent implements OnInit, AfterViewInit {
   @Input() geometryTypes: string[] = ['Point', 'LineString', 'Polygon'];
-  public predefinedRegionsStore: EntityStore<FeatureForPredefinedOrDrawGeometry> =
-    new EntityStore<FeatureForPredefinedOrDrawGeometry>([]);
-    public allRegionsStore: FeatureStore<FeatureForPredefinedOrDrawGeometry> =
-    new FeatureStore<FeatureForPredefinedOrDrawGeometry>([], { map: this.mapState.map });
+  public predefinedRegionsStore: DrawEntityStore = new DrawEntityStore([]);
+    public allRegionsStore: DrawFeatureStore = new DrawFeatureStore([], { map: this.mapState.map });
   public drawControlIsActive$: BehaviorSubject<boolean> = new BehaviorSubject(true);
   @Input() predefinedTypes: string[] = ['type1', 'type2'];
   @Input() minBufferMeters = 0

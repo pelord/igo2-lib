@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import {
     FeatureDataSource, FeatureMotion, FeatureStore,
     FeatureStoreLoadingStrategy, featureToOl, StyleService,
-    tryAddLoadingStrategy, tryBindStoreLayer, VectorLayer, Feature, RegionDBService, RegionDBData, VectorTileLayer, TileLayer
+    tryAddLoadingStrategy, tryBindStoreLayer, VectorLayer, Feature,
+    RegionDBService, RegionDBData, VectorTileLayer, TileLayer, DrawFeatureStore
 } from '@igo2/geo';
 import { fromExtent } from 'ol/geom/Polygon';
 import pointOnFeature from '@turf/point-on-feature';
@@ -25,7 +26,7 @@ export class DownloadState {
     readonly selectedOfflinableLayers$: BehaviorSubject<(VectorTileLayer | TileLayer)[]> = new BehaviorSubject([]);
     readonly addNewTile$: BehaviorSubject<TransferedTile> = new BehaviorSubject(undefined);
     private _openedWithMouse: boolean = false;
-    public regionStore: FeatureStore = new FeatureStore([], { map: this.map });
+    public regionStore: DrawFeatureStore = new DrawFeatureStore([], { map: this.map });
     public offlineRegionsStore: FeatureStore = new FeatureStore([], { map: this.map });
     readonly rightMouseClick$: Subject<boolean> = new Subject();
 

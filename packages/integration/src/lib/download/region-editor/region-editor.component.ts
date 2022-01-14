@@ -2,8 +2,8 @@ import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnDes
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatSlider } from '@angular/material/slider';
 import {
-  DownloadRegionService, FeatureForPredefinedOrDrawGeometry, FeatureGeometry,
-  FeatureStore, RegionDBData, TileDownloaderService, TileGenerationParams, TileToDownload
+  DownloadRegionService, DrawEntityStore, DrawFeatureStore, FeatureGeometry,
+  RegionDBData, TileDownloaderService, TileGenerationParams, TileToDownload
 } from '@igo2/geo';
 import { LanguageService, MessageService } from '@igo2/core';
 import { Feature, IgoMap } from '@igo2/geo';
@@ -19,7 +19,7 @@ import { RegionDownloadEstimationComponent } from './region-download-estimation/
 import { RegionEditorController } from './region-editor-controller';
 import { AddTileError, AddTileErrors } from './region-editor-utils';
 import { EditedRegion, RegionEditorState } from './region-editor.state';
-import { EntityStore } from '@igo2/common';
+
 
 @Component({
   selector: 'igo-region-editor',
@@ -28,8 +28,8 @@ import { EntityStore } from '@igo2/common';
 })
 export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() geometryTypes: string[];
-  @Input() predefinedRegionsStore: EntityStore<FeatureForPredefinedOrDrawGeometry>;
-  @Input() allRegionsStore: FeatureStore<FeatureForPredefinedOrDrawGeometry>;
+  @Input() predefinedRegionsStore: DrawEntityStore;
+  @Input() allRegionsStore: DrawFeatureStore;
   @Input() drawControlIsActive$: BehaviorSubject<boolean>;
   @Input() predefinedTypes: string[];
   @Input() minBufferMeters: number;
@@ -227,6 +227,7 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
           this.clear();
         }
       });
+    this.regionStore.reset$.next();
     this.controller.downloadEditedRegion(this.downloadService);
   }
 
@@ -277,7 +278,7 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.editionStrategy.downloadButtonTitle;
   }
 
-  get regionStore(): FeatureStore {
+  get regionStore(): DrawFeatureStore {
     return this.downloadState.regionStore;
   }
 

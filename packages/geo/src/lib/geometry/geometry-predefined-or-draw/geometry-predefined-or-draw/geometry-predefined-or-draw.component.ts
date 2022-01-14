@@ -12,7 +12,6 @@ import { FormControl } from '@angular/forms';
 import { VectorLayer } from '../../../layer';
 
 import { SpatialType } from '../shared/geometry-predefined-or-draw.enum';
-import { EntityStore } from '@igo2/common';
 import { IgoMap } from '../../../map/shared/map';
 import { FeatureForPredefinedOrDrawGeometry } from '../shared/geometry-predefined-or-draw.interface';
 import { FeatureDataSource } from '../../../datasource/shared/datasources/feature-datasource';
@@ -21,8 +20,9 @@ import { tryBindStoreLayer } from '../../../feature/shared/feature.utils';
 import { FeatureStoreLoadingStrategy } from '../../../feature/shared/strategies/loading';
 import { FeatureMotion } from '../../../feature/shared/feature.enums';
 import { tryAddLoadingStrategy } from '../../../feature/shared/strategies.utils';
-import { FeatureStore } from '../../../feature/shared/store';
 import { BehaviorSubject, Subject } from 'rxjs';
+import { DrawFeatureStore } from '../geometry-draw/geometry-draw.component';
+import { DrawEntityStore } from '../geometry-predefined-list/geometry-predefined-list.component';
 
 @Component({
   selector: 'igo-geometry-predefined-or-draw',
@@ -34,8 +34,8 @@ export class GeometryPredefinedOrDrawTypeComponent implements OnInit, OnDestroy 
 
   @Input() drawControlIsActive$: BehaviorSubject<Boolean> = new BehaviorSubject(true);
   @Input() geometryTypes: string[] = ['Point', 'LineString', 'Polygon'];
-  @Input() predefinedRegionsStore: EntityStore<FeatureForPredefinedOrDrawGeometry>
-  @Input() currentRegionStore: FeatureStore<FeatureForPredefinedOrDrawGeometry>
+  @Input() predefinedRegionsStore: DrawEntityStore
+  @Input() currentRegionStore: DrawFeatureStore
   @Input() predefinedTypes: string[] = [];
   @Input() minBufferMeters: number = 0;
   @Input() maxBufferMeters: number = 100000;

@@ -11,9 +11,8 @@ import {
 } from '@angular/core';
 import { BehaviorSubject, combineLatest, Subject, Subscription } from 'rxjs';
 import { FormControl, Validators } from '@angular/forms';
-import { Feature, FEATURE, FeatureGeometry, FeatureMotion, FeatureStore, featureToOl, moveToOlFeatures } from '../../../feature';
+import { Feature, FEATURE, FeatureGeometry, FeatureMotion, featureToOl, moveToOlFeatures } from '../../../feature';
 import { MeasureLengthUnit } from '../../../measure/shared';
-import { EntityStore } from '@igo2/common';
 import { LanguageService, MessageService } from '@igo2/core';
 import buffer from '@turf/buffer';
 import { IgoMap } from '../../../map/shared/map';
@@ -21,7 +20,11 @@ import { IgoMap } from '../../../map/shared/map';
 import { Geometry } from 'ol/geom';
 import OlGeoJSON from 'ol/format/GeoJSON';
 import { FeatureForPredefinedOrDrawGeometry } from '../shared/geometry-predefined-or-draw.interface';
+import { DrawFeatureStore } from '../geometry-draw/geometry-draw.component';
+import { EntityStore } from '@igo2/common';
 
+export class DrawEntityStore extends EntityStore<Feature | FeatureForPredefinedOrDrawGeometry> {
+}
 
 @Component({
   selector: 'igo-geometry-predefined-list',
@@ -34,8 +37,8 @@ export class GeometryPredefinedListComponent implements OnInit, OnDestroy {
   @Input() predefinedTypes: string[] = [];
   @Input() minBufferMeters: number = 0;
   @Input() maxBufferMeters: number = 100000;
-  @Input() predefinedRegionsStore: EntityStore<FeatureForPredefinedOrDrawGeometry>;
-  @Input() currentRegionStore: FeatureStore<FeatureForPredefinedOrDrawGeometry>;
+  @Input() predefinedRegionsStore: DrawEntityStore;
+  @Input() currentRegionStore: DrawFeatureStore;
   @Input() map: IgoMap;
   @Input()
   get selectedPredefinedType(): string {

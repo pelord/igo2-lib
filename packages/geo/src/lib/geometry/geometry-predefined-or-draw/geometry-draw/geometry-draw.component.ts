@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { IgoMap } from '../../../map';
 import { FormControl, Validators } from '@angular/forms';
-import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, Subject, Subscription } from 'rxjs';
 import type { default as OlGeometryType } from 'ol/geom/GeometryType';
 import type { default as OlGeometry } from 'ol/geom/Geometry';
 import { GeoJSONGeometry } from '../../../geometry/shared/geometry.interfaces';
@@ -20,20 +20,21 @@ import { MeasureLengthUnit } from '../../../measure';
 import { MessageService, LanguageService } from '@igo2/core';
 import { distinctUntilChanged } from 'rxjs/operators';
 import { SpatialType } from '../shared/geometry-predefined-or-draw.enum';
-import { FeatureStore } from '../../../feature/shared/store';
 import { FeatureForPredefinedOrDrawGeometry } from '../shared/geometry-predefined-or-draw.interface';
 import buffer from '@turf/buffer';
 import { featureToOl, moveToOlFeatures } from '../../../feature/shared/feature.utils';
 import { FEATURE, FeatureMotion } from '../../../feature/shared/feature.enums';
 import { Geometry } from 'ol/geom';
 import OlGeoJSON from 'ol/format/GeoJSON';
-import { FeatureGeometry } from './../../../feature/shared/feature.interfaces';
+import { Feature, FeatureGeometry } from './../../../feature/shared/feature.interfaces';
 
 import { uuid } from '@igo2/utils';
 import { createOverlayMarkerStyle } from '../../../overlay/shared/overlay-marker-style.utils';
-/**
- * Spatial-Filter-Item (search parameters)
- */
+import { FeatureStore } from '../../../feature/shared/store';
+
+export class DrawFeatureStore extends FeatureStore<Feature | FeatureForPredefinedOrDrawGeometry> {
+    public reset$: Subject<void> = new Subject();
+}
 @Component({
   selector: 'igo-geometry-draw',
   templateUrl: './geometry-draw.component.html',
@@ -47,7 +48,7 @@ export class GeometryDrawComponent implements OnDestroy, OnInit {
   @Input() minBufferMeters: number = 0;
   @Input() maxBufferMeters: number = 100000;
   @Input() map: IgoMap;
-  @Input() currentRegionStore: FeatureStore<FeatureForPredefinedOrDrawGeometry>;
+  @Input() currentRegionStore: DrawFeatureStore;
   @Input()
   get activeDrawType(): SpatialType {
     return this._activeDrawType;
@@ -148,6 +149,12 @@ export class GeometryDrawComponent implements OnDestroy, OnInit {
     private languageService: LanguageService) { }
 
   ngOnInit() {
+    this.currentRegionStore.reset$.subscribe(() => {
+      this.currentRegionStore.clear();
+      this.currentRegionStore.clearLayer();
+      this.geometryformControl.reset();
+    });
+
     this.drawStyle$.next(this.drawStyle);
     this.overlayStyle$.next(this.overlayStyle);
 
