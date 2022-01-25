@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DBMode, NgxIndexedDBService } from 'ngx-indexed-db';
-import { Observable, Subject } from 'rxjs';
+import { concat, Observable, Subject, zip } from 'rxjs';
 import { Region, RegionDate, RegionDBData } from './Region.interface';
 
 function createRegionDateFromRegion(region: Region): RegionDate {
@@ -57,6 +57,18 @@ export class RegionDBService {
     return regionDBData$;
   }
 
+  // todo PAS BON
+  adds(regions: Region[]) {
+    return concat(...regions.map((region, i) => this.add(region)));
+  }
+  // todo PAS BON
+  adds1(regions: Region[]): Observable<RegionDBData>[] {
+    return regions.map((region, i) => this.add(region));
+  }
+  // todo PAS BON
+  adds2(regions: Region[]) {
+    return zip(...regions.map((region, i) => this.add(region)));
+  }
   getByID(id: number): Observable<RegionDBData> {
     return this.dbService.getByKey(this.dbName, id);
   }

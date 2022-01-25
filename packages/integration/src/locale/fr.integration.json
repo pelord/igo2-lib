@@ -19,7 +19,8 @@
         "about": "À propos",
         "spatialFilter": "Filtre spatial",
         "download":"Téléchargement",
-        "advancedMap": "Outils avancés"
+        "advancedMap": "Outils avancés",
+        "closestFeature": "Entités à proximité"
       },
       "searchResultsTool": {
         "noResults": "Aucun résultat",

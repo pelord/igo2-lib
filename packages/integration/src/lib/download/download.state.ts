@@ -45,7 +45,7 @@ export class DownloadState {
                 title: 'offlineRegionLayer',
                 zIndex: 2000,
                 source: new FeatureDataSource(),
-                showInLayerList: true,
+                showInLayerList: false,
                 workspace: {
                     enabled: true,
                 },
@@ -67,7 +67,7 @@ export class DownloadState {
                 title: 'offlineRegionsLayer',
                 zIndex: 2000,
                 source: new FeatureDataSource(),
-                showInLayerList: true,
+                showInLayerList: false,
                 workspace: {
                     enabled: true,
                 },
@@ -162,12 +162,13 @@ export class DownloadState {
         this.regionDB.getAll().pipe(first())
         .subscribe((RegionDBDatas: RegionDBData[]) => {
           RegionDBDatas.map((RegionDBData: RegionDBData) => {
-            this.offlineRegionsStore.updateMany(RegionDBData.parentFeatureText.map(f => {
-              const offlineFeature = JSON.parse(f);
-              delete offlineFeature.ol;
-              offlineFeature.properties = {...offlineFeature.properties, ...RegionDBData.generationParams };
-              return offlineFeature;
-            }));
+              const featuresFromIndexedDB = RegionDBData.parentFeatureText.map(f => {
+                const offlineFeature = JSON.parse(f);
+                delete offlineFeature.ol;
+                offlineFeature.properties = {...offlineFeature.properties, ...RegionDBData.generationParams };
+                return offlineFeature;
+              });
+            this.offlineRegionsStore.updateMany(featuresFromIndexedDB);
             });
         });
     }

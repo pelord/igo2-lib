@@ -1,0 +1,20 @@
+<div class="buffer-unit"> 
+  
+  <mat-form-field appearance="outline" class="measure-field" floatLabel="always">
+    <mat-label>Rayon de recherche (mètres)</mat-label>
+    <input type="number" [(ngModel)]="maxDistance" matInput placeholder="{{'igo.geo.geometryPredefinedOrDraw.buffer' | translate}}">
+    </mat-form-field>
+
+  
+    <!-- <mat-form-field class="unit-field">
+      <mat-select
+      [value]="measureUnit$.value"
+      (selectionChange)="onMeasureUnitChange($event.value)">
+      <mat-option *ngFor="let measureUnit of measureUnits" [value]="measureUnit">
+          {{('igo.geo.measure.' + measureUnit) | translate}}
+      </mat-option>
+      </mat-select>
+    </mat-form-field> -->
+</div>
+<igo-oyl-center-coordinates [maxDistance$]="maxDistance$"></igo-oyl-center-coordinates>
+<mat-divider class="advanced-tool-line"></mat-divider>

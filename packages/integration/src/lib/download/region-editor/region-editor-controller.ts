@@ -1,6 +1,8 @@
 import { ChangeDetectorRef } from '@angular/core';
-import { DownloadRegionService, Feature, RegionDBData } from '@igo2/geo';
-import { GeoJSONGeometry, XYZDataSource } from '@igo2/geo';
+import {
+    DownloadRegionService, Feature, MVTDataSource, MVTDataSourceOptions,
+    RegionDBData, TileLayer, VectorTileLayer, XYZDataSourceOptions, GeoJSONGeometry, XYZDataSource
+} from '@igo2/geo';
 import TileGrid from 'ol/tilegrid/TileGrid';
 import { createFromTemplate } from 'ol/tileurlfunction.js';
 import { DownloadState } from '../download.state';
@@ -110,6 +112,27 @@ export class RegionEditorController extends RegionEditorControllerBase {
     }
 
     public setTileGridAndTemplateUrl() {
+        const layers = this.downloadState.selectedOfflinableLayers$.value;
+        if (!layers || layers.length === 0) { return; }
+        const igoLayer = this.downloadState.selectedOfflinableLayers$.value[0];
+        let process = false;
+        let dataSourceOptions;
+        switch (igoLayer.dataSource.constructor) {
+            case XYZDataSource:
+                dataSourceOptions = igoLayer.dataSource.options as XYZDataSourceOptions;
+                process = (igoLayer as TileLayer).offlineOptions.available ? true : false;
+                break;
+            case MVTDataSource:
+                dataSourceOptions = igoLayer.dataSource.options as MVTDataSourceOptions;
+                process = (igoLayer as VectorTileLayer).offlineOptions.available ? true : false;
+                break;
+        }
+        if (!process) {
+            return;
+        }
+        this.templateUrl = dataSourceOptions.url;
+        this.tileGrid = (igoLayer.ol.getSource() as any).getTileGrid();
+  /*
         const baseLayer = this.igoMap.getBaseLayers();
         baseLayer.forEach((layer) => {
           if (!layer.visible) {
@@ -121,6 +144,7 @@ export class RegionEditorController extends RegionEditorControllerBase {
           this.templateUrl = layer.dataSource.options.url;
           this.tileGrid = (layer.ol.getSource() as any).getTileGrid();
         });
+        */
     }
 
     // TODO

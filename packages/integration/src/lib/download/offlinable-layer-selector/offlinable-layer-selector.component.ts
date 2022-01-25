@@ -40,6 +40,10 @@ export class OfflinableLayerSelectorComponent implements OnInit, OnDestroy {
     this.offlinableLayers$$.unsubscribe();
   }
 
+  layerChange(event) {
+    this.layers = [event.value];
+  }
+
   public getLayerTitleById(id): string {
     return this.map.getLayerById(id).title;
   }

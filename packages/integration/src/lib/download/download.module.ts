@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSliderModule } from '@angular/material/slider';
@@ -35,7 +36,7 @@ import {
 import {
   ParentTileGenSliderComponent
 } from './tile-generation-option/tile-generation-sliders/parent-tile-gen-slider/parent-tile-gen-slider.component';
-
+import {MatStepperModule} from '@angular/material/stepper';
 @NgModule({
   imports: [
     BrowserAnimationsModule,
@@ -44,12 +45,14 @@ import {
     MatSelectModule,
     MatFormFieldModule,
     MatIconModule,
+    MatRadioModule,
     MatOptionModule,
     MatSliderModule,
     MatTooltipModule,
     MatInputModule,
     MatButtonModule,
     MatProgressBarModule,
+    MatStepperModule,
     MatTabsModule,
     FormsModule,
     MatTableModule,

@@ -106,7 +106,6 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit() {
     this.regionStore.entities$.subscribe((entities) => {
       this.updateEstimation$.next();
-      console.log('entities', entities);
       if (!entities || !entities.length) {
         return;
       }
@@ -228,12 +227,13 @@ export class RegionEditorComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       });
     this.regionStore.reset$.next();
+    console.log('step 1');
     this.controller.downloadEditedRegion(this.downloadService);
   }
 
   private clear() {
     this.controller.clear();
-    this.genParamComponent.tileGenerationParams = this.genParams;
+ //   todo check this.genParamComponent.tileGenerationParams = this.genParams;
   }
 
   public onCancelClick() {

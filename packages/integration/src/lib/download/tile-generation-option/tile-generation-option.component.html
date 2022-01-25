@@ -1,4 +1,4 @@
-<mat-form-field>
+<!-- <mat-form-field>
   <mat-label>
     {{ 'igo.integration.download.generationOption.generationStrategy' | translate }}
   </mat-label>
@@ -12,24 +12,24 @@
       {{'igo.integration.download.generationOption.strategies.' + strategy.toLowerCase() | translate}}
     </mat-option>
   </mat-select>
-</mat-form-field>
+</mat-form-field> -->
 <container-element [ngSwitch]="strategy">
-  <igo-child-tile-gen-slider *ngSwitchCase="'Child'"
+  <!-- <igo-child-tile-gen-slider *ngSwitchCase="'Child'"
     #genSlider
     (valueChange)="onSliderChange($event)"
     [disabled]="disabled"
     [parentLevel]="parentLevel"
-  ></igo-child-tile-gen-slider>
+  ></igo-child-tile-gen-slider> -->
   <igo-middle-tile-gen-slider *ngSwitchCase="'Middle'"
     #genSlider
     (valueChange)="onSliderChange($event)"
     [disabled]="disabled"
     [parentLevel]="parentLevel"
   ></igo-middle-tile-gen-slider>
-  <igo-parent-tile-gen-slider *ngSwitchCase="'Parent'"
+  <!-- <igo-parent-tile-gen-slider *ngSwitchCase="'Parent'"
     #genSlider
     (valueChange)="onSliderChange($event)"
     [disabled]="disabled"
     [parentLevel]="parentLevel"
-  ></igo-parent-tile-gen-slider> 
+  ></igo-parent-tile-gen-slider>  -->
 </container-element>

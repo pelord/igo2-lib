@@ -19,7 +19,8 @@
         "about": "About",
         "spatialFilter": "Spatial Filter",
         "download": "Download",
-        "advancedMap": "Advanced map tools"
+        "advancedMap": "Advanced map tools",
+        "closestFeature": "Closest feature tool"
       },
       "searchResultsTool": {
         "noResults": "No results",

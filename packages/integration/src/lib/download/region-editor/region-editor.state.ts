@@ -25,10 +25,10 @@ function newEditedRegion(): EditedRegion {
         tileGrid: undefined,
         templateUrl: undefined,
         genParams: {
-            startLevel: undefined,
-            parentLevel: undefined,
-            endLevel: undefined,
-            genMethod: TileGenerationStrategies.PARENT
+            startLevel: 6,
+            parentLevel: 6,
+            endLevel: 8,
+            genMethod: TileGenerationStrategies.MIDDLE
         },
         features: new Array()
     };

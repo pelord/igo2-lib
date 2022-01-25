@@ -1,60 +1,69 @@
-<igo-offlinable-layer-selector (selectedOfflinableLayers)="onSelectedOfflinableLayers($event)" [map]="mapState.map"></igo-offlinable-layer-selector>
+<mat-stepper orientation="vertical">
+  <mat-step [completed]="false">
+    <ng-template matStepLabel>Définir le nom de la région </ng-template>
+    <ng-template matStepContent>
+      <mat-form-field>
+        <mat-label>{{'igo.integration.download.regionEditor.regionName' | translate}}</mat-label>
+        <input matInput [(ngModel)]="regionName">
+      </mat-form-field>
+      <button mat-button matStepperNext>Suivant</button>
+    </ng-template>
+  </mat-step>
+  <mat-step [completed]="false">
+    <ng-template matStepLabel>Définir la couche à télécharger</ng-template>
+    <ng-template matStepContent>
+      <igo-offlinable-layer-selector (selectedOfflinableLayers)="onSelectedOfflinableLayers($event)"
+        [map]="mapState.map"></igo-offlinable-layer-selector>
+      <button mat-button matStepperPrevious>Précédent</button>
+      <button mat-button matStepperNext>Suivant</button>
+    </ng-template>
+  </mat-step>
+  <mat-step [completed]="false">
+    <ng-template matStepLabel>Définir le territoire à télécharger</ng-template>
 
-<mat-form-field>
-  <mat-label>{{'igo.integration.download.regionEditor.regionName' | translate}}</mat-label>
-  <input matInput [(ngModel)]="regionName">
-</mat-form-field>
+    <div>
+      <igo-geometry-predefined-or-draw [drawControlIsActive$]="drawControlIsActive$" [geometryTypes]="geometryTypes"
+        [predefinedRegionsStore]="predefinedRegionsStore" [currentRegionStore]="regionStore"
+        [predefinedTypes]="predefinedTypes" [minBufferMeters]="minBufferMeters" [maxBufferMeters]="maxBufferMeters"
+        [selectedPredefinedType]="selectedPredefinedType" [map]="mapState.map"
+        (predefinedTypeChange)="predefinedTypeChange.emit($event)">
+      </igo-geometry-predefined-or-draw>
 
-<div>
-  <br>
-  <div>
-    <igo-tile-generation-option 
-      #genParam
-      (valueChange)="onGenerationParamsChange($event)"
-      [disabled]="disableGenerationParamsComponent"
-      [parentLevel]="parentLevel"
-    ></igo-tile-generation-option>
-  </div>
+      <br>
 
-    <igo-geometry-predefined-or-draw 
-      [drawControlIsActive$]="drawControlIsActive$"
-      [geometryTypes]="geometryTypes"
-      [predefinedRegionsStore]="predefinedRegionsStore" 
-      [currentRegionStore]="regionStore" 
-      [predefinedTypes]="predefinedTypes"
-      [minBufferMeters]="minBufferMeters"
-      [maxBufferMeters]="maxBufferMeters"
-      [selectedPredefinedType]="selectedPredefinedType"
-      [map]="mapState.map"
-      (predefinedTypeChange)="predefinedTypeChange.emit($event)">
-    </igo-geometry-predefined-or-draw>
-  <igo-region-download-estimation
-    #regionDownloadEstimation
-    [updateEstimation$]="updateEstimation$"
-    [tilesToDownload]='tilesToDownload'
-    [geometries]='geometries'
-    [genParams]='genParams'
-    [tileGrid]='tileGrid'
-    [mode]='editionStrategy'
-  ></igo-region-download-estimation>
-  <div *ngIf="isDownloading$ | async">
-    <br>
-    <mat-label>{{'igo.integration.download.regionEditor.progression' | translate}}</mat-label>
-    <mat-progress-bar
-      #progressBar
-      mode="determinate"
-      [value]="progression$ | async"
-    ></mat-progress-bar>
-  </div>
-  <div class="button-row">
-    <button 
-      mat-button
-      #download
-      (click)="onDownloadClick()"
-      [disabled]="
-        disableDownloadButton
-        || (enoughSpace$ | async) === false"
-      >{{ downloadButtonTitle | translate }}</button>
-    <button mat-button #cancel (click)="onCancelClick()">{{'igo.integration.download.regionEditor.buttons.cancel' | translate}}</button>
-  <div>
-</div>
+      <igo-tile-generation-option #genParam [map]="mapState.map" (valueChange)="onGenerationParamsChange($event)"
+        [disabled]="disableGenerationParamsComponent" [parentLevel]="parentLevel">
+      </igo-tile-generation-option>
+
+
+      <igo-region-download-estimation #regionDownloadEstimation [updateEstimation$]="updateEstimation$"
+        [tilesToDownload]='tilesToDownload' [geometries]='geometries' [genParams]='genParams' [tileGrid]='tileGrid'
+        [mode]='editionStrategy'></igo-region-download-estimation>
+      <button mat-button matStepperPrevious>Précédent</button>
+      <button mat-button matStepperNext>Suivant</button>
+    </div>
+  </mat-step>
+
+  <mat-step [completed]="false">
+    <ng-template matStepLabel>Effectuer le téléchargement</ng-template>
+    <ng-template matStepContent>
+      <div *ngIf="isDownloading$ | async">
+        <br>
+        <mat-label>{{'igo.integration.download.regionEditor.progression' | translate}}</mat-label>
+        <mat-progress-bar #progressBar mode="determinate" [value]="progression$ | async"></mat-progress-bar>
+      </div>
+
+      <div class="button-row">
+        <button mat-button #download (click)="onDownloadClick()" [disabled]="
+          disableDownloadButton
+          || (enoughSpace$ | async) === false">{{ downloadButtonTitle | translate }}</button>
+        <button mat-button #cancel (click)="onCancelClick()">{{'igo.integration.download.regionEditor.buttons.cancel' |
+          translate}}</button>
+      </div>
+
+
+      <button mat-button matStepperPrevious>Précédent</button>
+
+    </ng-template>
+  </mat-step>
+</mat-stepper>

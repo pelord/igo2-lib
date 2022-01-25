@@ -135,6 +135,7 @@ export class TileDownloaderService {
     tileGrid,
     templateUrl: string
   ) {
+    console.log('step 5');
     if (!this.network.isOnline()) {
       return;
     }

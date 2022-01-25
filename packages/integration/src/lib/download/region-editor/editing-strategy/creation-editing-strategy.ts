@@ -15,6 +15,7 @@ export class CreationEditionStrategy extends EditionStrategy {
         if (editedRegion.parentUrls.length === 0) {
             const featuresText = editedRegion.features.map(feature => JSON.stringify(feature));
             const geometries = editedRegion.features.map(feature => feature.geometry);
+            console.log('step 3');
             regionDownloader.downloadRegionFromFeatures(
                 featuresText,
                 geometries,

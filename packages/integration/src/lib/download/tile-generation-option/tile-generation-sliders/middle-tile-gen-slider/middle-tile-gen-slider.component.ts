@@ -12,14 +12,14 @@ export class MiddleTileGenSliderComponent extends TileGenerationSliderComponent 
   maxValue: number = 8;
 
   protected updateLevels() {
-    this.minValue = this._parentLevel;
-    this.maxValue = this._parentLevel + 2;
+    this.minValue = this._parentLevel || 6;
+    this.maxValue = this._parentLevel + 2 || 8;
   }
 
   get sliderOptions(): Options {
     return {
       floor: 2,
-      ceil: 17,
+      ceil: 20,
       disabled: this.disabled
     };
   }

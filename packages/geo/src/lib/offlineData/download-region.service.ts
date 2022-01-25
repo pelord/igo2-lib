@@ -1,7 +1,13 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { Observable, Subject, Subscription, zip } from 'rxjs';
+import { combineLatest, Observable, Subject, Subscription, zip } from 'rxjs';
 import { map, skip, takeUntil } from 'rxjs/operators';
+import { MVTDataSource } from '../datasource/shared/datasources/mvt-datasource';
+import { MVTDataSourceOptions } from '../datasource/shared/datasources/mvt-datasource.interface';
+import { XYZDataSource } from '../datasource/shared/datasources/xyz-datasource';
+import { XYZDataSourceOptions } from '../datasource/shared/datasources/xyz-datasource.interface';
 import { FeatureGeometry } from '../feature/shared/feature.interfaces';
+import { TileLayer } from '../layer/shared/layers/tile-layer';
+import { VectorTileLayer } from '../layer/shared/layers/vectortile-layer';
 import { RegionDBAdminService } from './db/region-db/region-db-admin.service';
 import { RegionDBService } from './db/region-db/region-db.service';
 import { Region, RegionDBData, RegionStatus } from './db/region-db/Region.interface';
@@ -114,6 +120,7 @@ export class DownloadRegionService implements OnDestroy {
     tileGrid,
     templateUrl: string
   ) {
+    console.log('step 4');
     if (this.isDownloading$$) {
       this.isDownloading$$.unsubscribe();
     }
@@ -147,6 +154,159 @@ export class DownloadRegionService implements OnDestroy {
           this.updateDownloadedRegionStatus(regionDBData);
       });
     });
+  }
+
+  downloadRegionFromFeaturesPASBON(
+    featuresText: string[],
+    geometries: FeatureGeometry[],
+    regionName: string,
+    generationParams: TileGenerationParams,
+    tileGrid,
+    templateUrl: string,
+    selectedOfflinableLayers: (VectorTileLayer | TileLayer)[]
+  ) {
+    console.log('step 4');
+    if (this.isDownloading$$) {
+      this.isDownloading$$.unsubscribe();
+    }
+    const parentUrls = new Array();
+    const parentFeatureText = featuresText;
+    const numberOfTiles = undefined;
+
+    const region: Region = {
+      name: regionName,
+      status: RegionStatus.Downloading,
+      parentUrls,
+      generationParams,
+      numberOfTiles,
+      parentFeatureText
+    };
+
+    const originalRegion = {...region};
+    const regions :Region[] = [];
+
+    selectedOfflinableLayers.map((igoLayer, i) => {
+      let process = false;
+      let dataSourceOptions;
+      switch (igoLayer.dataSource.constructor) {
+        case XYZDataSource:
+          dataSourceOptions = igoLayer.dataSource.options as XYZDataSourceOptions;
+          process = (igoLayer as TileLayer).offlineOptions.available ? true : false;
+          break;
+        case MVTDataSource:
+          dataSourceOptions = igoLayer.dataSource.options as MVTDataSourceOptions;
+          process = (igoLayer as VectorTileLayer).offlineOptions.available ? true : false;
+          break;
+      }
+      if (!process) {
+        return;
+      }
+      region.name = `${originalRegion.name} (${igoLayer.title})`;
+      regions.push({...region});
+    });
+    console.log(regions);
+
+    combineLatest(this.regionDB.adds1(regions)).subscribe((regionsDBData: RegionDBData[]) => {
+      console.log('regionsDBData', regionsDBData);
+      for (let regionDBData of regionsDBData) {
+     // regionsDBData.map(regionDBData => {
+        const layerPos = regions.indexOf(regions.find(region => region.name === { ...regionDBData }.name));
+        console.log('regionDBData', layerPos, selectedOfflinableLayers[layerPos], { ...regionDBData });
+        const tiles = this.tileDownloader.downloadFromFeatures(
+          geometries,
+          { ...regionDBData }.id,
+          generationParams,
+          (selectedOfflinableLayers[layerPos].ol.getSource() as any).getTileGrid(),
+          (selectedOfflinableLayers[layerPos] as any).dataSource.options.url
+        );
+      };
+    });
+
+  /*  this.regionDB.adds(regions).pipe(
+      // map our observable of a post to a new observable of user
+      mergeMap((regionDBData: RegionDBData) => {
+        this.currentDownloadRegion = { ...regionDBData };
+        const layerPos = regions.indexOf(regions.find(region => region.name === { ...regionDBData }.name));
+        console.log('regionDBData', layerPos, selectedOfflinableLayers[layerPos], { ...regionDBData });
+
+        const tiles = this.tileDownloader.downloadFromFeatures(
+          geometries,
+          { ...regionDBData }.id,
+          generationParams,
+          // tileGrid,
+          // templateUrl
+          (selectedOfflinableLayers[layerPos].ol.getSource() as any).getTileGrid(),
+          (selectedOfflinableLayers[layerPos] as any).dataSource.options.url
+        );
+        console.log(tiles);
+        return this.tileDownloader.isDownloading$.pipe(
+          skipWhile((isDownloading: boolean) => isDownloading),
+          tap(() => this.updateDownloadedRegionStatus({ ...regionDBData }))
+        /*  (isDownloading) => {
+            if (isDownloading) {
+              return;
+            }
+            this.updateDownloadedRegionStatus({ ...regionDBData });
+          });
+      }
+      )).subscribe(() => {
+      console.log('fin tap');
+    });*/
+
+   /* this.regionDB.adds2(regions).subscribe((regionsDBData: RegionDBData[]) => {
+      regionsDBData.map((regionDBData,i) => {
+        setTimeout(() => {
+          this.currentDownloadRegion = { ...regionDBData };
+          const layerPos = regions.indexOf(regions.find(region => region.name === { ...regionDBData }.name));
+          console.log('regionDBData', layerPos, selectedOfflinableLayers[layerPos], { ...regionDBData });
+
+          const tiles = this.tileDownloader.downloadFromFeatures(
+            geometries,
+            { ...regionDBData }.id,
+            generationParams,
+            // tileGrid,
+            // templateUrl
+            (selectedOfflinableLayers[layerPos].ol.getSource() as any).getTileGrid(),
+            (selectedOfflinableLayers[layerPos] as any).dataSource.options.url
+
+          );
+          this.isDownloading$$ = this.tileDownloader.isDownloading$.subscribe(
+            (isDownloading) => {
+              if (isDownloading) {
+                return;
+              }
+              this.updateDownloadedRegionStatus({ ...regionDBData });
+            });
+
+        }, 2500*i);
+
+      });
+    });*/
+
+/*
+    this.regionDB.adds(regions).subscribe((regionDBData: RegionDBData) => {
+      this.currentDownloadRegion = {...regionDBData};
+      const layerPos = regions.indexOf(regions.find(region => region.name === {...regionDBData}.name));
+      console.log('regionDBData',layerPos,selectedOfflinableLayers[layerPos] , {...regionDBData});
+
+      const tiles = this.tileDownloader.downloadFromFeatures(
+        geometries,
+        {...regionDBData}.id,
+        generationParams,
+        // tileGrid,
+        // templateUrl
+        (selectedOfflinableLayers[layerPos].ol.getSource() as any).getTileGrid(),
+        (selectedOfflinableLayers[layerPos] as any).dataSource.options.url
+
+      );
+      this.isDownloading$$ = this.tileDownloader.isDownloading$.subscribe(
+        (isDownloading) => {
+          if (isDownloading) {
+            return;
+          }
+          this.updateDownloadedRegionStatus({...regionDBData});
+      });
+    });*/
   }
 
   private updateRegionDBData(

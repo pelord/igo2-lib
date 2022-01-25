@@ -1,0 +1,53 @@
+.nameOfTool{
+    text-align: center;
+    font-weight: bold;
+    font-size: small;
+    margin: 15px 10px 0px;
+}
+
+.advanced-tool-line {
+  height: 2px;
+  background-color: gray;
+}
+
+textarea { resize: none; };
+
+mat-form-field  { padding: 10px 15px;  };
+mat-form-field.coordinates  { width: 120px; };
+mat-form-field.coordinates2  { width: 120px; padding: 0px 10px 0px 3px };
+mat-form-field.igo-input-container { width: 60%; padding: 0px 15px; };
+
+.igo-form-button-group { padding: 0px 10px; margin: 0px 10px };
+
+.center-toggle { padding: 10px 15px 35px; };
+
+mat-slide-toggle {
+    font-size: small;
+  }
+.igo-zoom {
+  padding: 0px 15px;
+}
+
+.buffer-unit, .radius-unit {
+  display: flex;
+  width: 100%;
+  margin-left: 2px;
+  padding: 5px;
+}
+
+.radius, .buffer {
+  display: flex;
+  flex-flow: column nowrap;
+  width: 110%;
+}
+
+.unit-field {
+  width: 110px;
+  margin-left: 30px;
+}
+.measure-field {
+  // pointer-events: none;
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
+}

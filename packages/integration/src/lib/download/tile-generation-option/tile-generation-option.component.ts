@@ -1,7 +1,6 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatSelect } from '@angular/material/select';
-
-import { TileGenerationParams, TileGenerationStrategies } from '@igo2/geo';
+import { IgoMap, TileGenerationParams, TileGenerationStrategies } from '@igo2/geo';
 import { SliderGenerationParams, TileGenerationSliderComponent } from './tile-generation-sliders/tile-generation-slider.component';
 
 
@@ -10,15 +9,20 @@ import { SliderGenerationParams, TileGenerationSliderComponent } from './tile-ge
   templateUrl: './tile-generation-option.component.html',
   styleUrls: ['./tile-generation-option.component.scss']
 })
-export class TileGenerationOptionComponent {
+export class TileGenerationOptionComponent implements OnInit {
   @Output() valueChange: EventEmitter<TileGenerationParams> = new EventEmitter();
 
   private _tileGenerationParams: TileGenerationParams = {
-    startLevel: undefined,
-    parentLevel: undefined,
-    endLevel: undefined,
-    genMethod: TileGenerationStrategies.PARENT
+    startLevel: 6,
+    parentLevel: 6,
+    endLevel: 13,
+    genMethod: TileGenerationStrategies.MIDDLE
   };
+
+
+  @Input() map: IgoMap;
+  @Input() minZoom: number = 2;
+  @Input() maxZoom: number = 20;
 
   @Input() disabled: boolean = false;
   @Input()
@@ -49,6 +53,9 @@ export class TileGenerationOptionComponent {
   }
 
   constructor( private cdRef: ChangeDetectorRef ) { }
+  ngOnInit(): void {
+    this.parentLevel = 6;
+  }
 
   private get sliderGenerationParams() {
     return {
@@ -85,6 +92,9 @@ export class TileGenerationOptionComponent {
   }
 
   onSliderChange(sliderGenerationParams: SliderGenerationParams) {
+    if (sliderGenerationParams.startLevel !== this.map.viewController.getZoom()) {
+      this.map.viewController.zoomTo(sliderGenerationParams.startLevel);
+    }
     this.updateSliderParams(sliderGenerationParams);
     this.emitChanges();
   }
