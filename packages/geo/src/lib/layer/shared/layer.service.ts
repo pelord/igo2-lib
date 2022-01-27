@@ -131,7 +131,7 @@ export class LayerService {
   }
 
   private createTileLayer(layerOptions: TileLayerOptions): TileLayer {
-    return new TileLayer(layerOptions, this.messageService, this.geoNetwork, this.messageService);
+    return new TileLayer(layerOptions, this.messageService, this.geoNetwork, this.authInterceptor);
   }
 
   private createVectorLayer(layerOptions: VectorLayerOptions): VectorLayer {

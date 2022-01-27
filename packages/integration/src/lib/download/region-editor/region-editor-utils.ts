@@ -1,6 +1,7 @@
 import { Feature, FEATURE, FeatureStore, GeoJSONGeometry } from '@igo2/geo';
 import { uuid } from '@igo2/utils';
 import OlFeature from 'ol/Feature';
+import type { default as OlGeometry } from 'ol/geom/Geometry';
 import * as olformat from 'ol/format';
 import { fromExtent } from 'ol/geom/Polygon';
 import * as olProj from 'ol/proj';
@@ -32,18 +33,16 @@ export function getTileFeature(
 
   const polygonGeometry = fromExtent(tileGrid.getTileCoordExtent(coord));
 
-  const feature: OlFeature = new OlFeature(polygonGeometry);
+  const feature: OlFeature<OlGeometry> = new OlFeature(polygonGeometry);
 
   const projectionIn = 'EPSG:4326';
   const projectionOut = 'EPSG:4326';
-
+// TODO CHeck proj
   const featuresText: string = new olformat.GeoJSON().writeFeature(
       feature,
       {
           dataProjection: projectionOut,
-          featureProjection: projectionIn,
-          featureType: 'feature',
-          featureNS: 'http://example.com/feature'
+          featureProjection: projectionIn
       }
   );
 

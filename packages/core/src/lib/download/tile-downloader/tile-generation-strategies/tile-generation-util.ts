@@ -4,6 +4,7 @@ import intersect from '@turf/intersect';
 import lineIntersect from '@turf/line-intersect';
 import { LineString, Polygon } from 'geojson';
 import OlFeature from 'ol/Feature';
+import type { default as OlGeometry } from 'ol/geom/Geometry';
 import * as olformat from 'ol/format';
 import { fromExtent } from 'ol/geom/Polygon';
 import { Tile } from '../../Tile.interface';
@@ -54,10 +55,10 @@ export function getNumberOfTreeNodes(deltaHeight: number) {
   return (Math.pow(4, deltaHeight + 1) - 1) / 3;
 }
 
-// TODO fix proj
+// TODO PEL fix proj
 export function getTileGeometry(tile: Tile, tileGrid): Polygon {
   const tileGeometry = fromExtent(tileGrid.getTileCoordExtent([tile.Z, tile.X, tile.Y]));
-  const feature: OlFeature = new OlFeature(tileGeometry);
+  const feature: OlFeature<OlGeometry> = new OlFeature(tileGeometry);
 
   const projectionIn = 'EPSG:4326';
   const projectionOut = 'EPSG:4326';
@@ -66,9 +67,7 @@ export function getTileGeometry(tile: Tile, tileGrid): Polygon {
     feature,
     {
       dataProjection: projectionOut,
-      featureProjection: projectionIn,
-      featureType: 'feature',
-      featureNS: 'http://example.com/feature'
+      featureProjection: projectionIn
     }
   );
   return JSON.parse(featureText).geometry;

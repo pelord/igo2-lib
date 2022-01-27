@@ -23,7 +23,8 @@ export class RegionEditorController extends RegionEditorControllerBase {
             return;
         }
         const urlGen = createFromTemplate(templateUrl, tileGrid);
-        const url = urlGen(coord, 0, 0);
+        // todo check projection const url = urlGen(coord, 0, 0);
+        const url = urlGen(coord, 0, undefined);
         const z = coord[0];
         const first: boolean = this.parentTileUrls.length === 0;
         const parentLevel = this.genParams.parentLevel;
@@ -113,7 +114,7 @@ export class RegionEditorController extends RegionEditorControllerBase {
             return;
           }
           this.templateUrl = layer.dataSource.options.url;
-          this.tileGrid = layer.ol.getSource().tileGrid;
+          this.tileGrid = (layer.ol.getSource() as any).getTileGrid();
         });
     }
 
