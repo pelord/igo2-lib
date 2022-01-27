@@ -16,7 +16,6 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { IgoLanguageModule } from '@igo2/core';
 import { IgoDrawingToolModule, IgoGeometryFormFieldModule } from '@igo2/geo';
-import { MatCarouselModule } from '@ngbmodule/material-carousel';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DownloadToolComponent } from './download-tool';
 import { RegionDrawComponent } from './region-draw/region-draw.component';
@@ -38,7 +37,6 @@ import {
   imports: [
     BrowserAnimationsModule,
     CommonModule,
-    MatCarouselModule,
     MatCardModule,
     MatSelectModule,
     MatFormFieldModule,
