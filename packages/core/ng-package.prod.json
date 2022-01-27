@@ -5,9 +5,9 @@
     "entryFile": "src/public_api.ts",
     "umdModuleIds": {
       "@igo2/utils" : "utils",
-      "angular2-notifications" : "ng2notify",
-      "@ngx-translate/core" : "ngxt-core"
+      "@ngx-translate/core" : "ngxt-core",
+      "ngx-toastr": "ngxToastr"
     }
   },
-  "whitelistedNonPeerDependencies": ["@ngx-translate", "angular2-notifications"]
+  "allowedNonPeerDependencies": ["@ngx-translate"]
 }

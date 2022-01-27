@@ -7,6 +7,7 @@ export interface MapViewOptions {
   geolocate?: boolean;
   buffer?: Buffer;
   alwaysTracking?: boolean;
+  autoRefreshGeolocate?: boolean;
   constrainRotation?: boolean | number;
   enableRotation?: boolean;
   extent?: MapExtent;
@@ -43,7 +44,7 @@ export interface MapControlsOptions {
 export interface MapScaleLineOptions {
   className?: string;
   minWidth?: number;
-  target?: Element;
+  target?: string | HTMLElement;
   units?: string;
   bar?: boolean;
   steps?: number;

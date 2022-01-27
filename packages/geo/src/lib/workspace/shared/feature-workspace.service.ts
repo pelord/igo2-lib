@@ -27,7 +27,9 @@ import { SourceFieldsOptionsParams, FeatureDataSource } from '../../datasource';
 import { FeatureWorkspace } from './feature-workspace';
 import { skipWhile, take } from 'rxjs/operators';
 import { StorageService } from '@igo2/core';
-import { getRowsInMapExtent, getSelectedOnly, setRowsInMapExtent, setSelectedOnly } from './workspace.utils';
+
+import olFeature from 'ol/Feature';
+import type { default as OlGeometry } from 'ol/geom/Geometry';
 
 @Injectable({
   providedIn: 'root'
@@ -103,7 +105,7 @@ export class FeatureWorkspaceService {
     return store;
   }
 
-  private createTableTemplate(workspace: FeatureWorkspace,  layer: VectorLayer): EntityTableTemplate {
+  private createTableTemplate(workspace: FeatureWorkspace, layer: VectorLayer): EntityTableTemplate {
     const fields = layer.dataSource.options.sourceFields || [];
 
     if (fields.length === 0) {
@@ -111,11 +113,12 @@ export class FeatureWorkspaceService {
         skipWhile(val => val.length === 0),
         take(1)
       ).subscribe(entities => {
-        const columnsFromFeatures = (entities[0] as Feature).ol.getKeys()
+        const ol = (entities[0] as Feature).ol as olFeature<OlGeometry>;
+        const columnsFromFeatures = ol.getKeys()
         .filter(
           col => !col.startsWith('_') &&
           col !== 'geometry' &&
-          col !== (entities[0] as Feature).ol.getGeometryName() &&
+          col !== ol.getGeometryName() &&
           !col.match(/boundedby/gi))
         .map(key => {
           return {

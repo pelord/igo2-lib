@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { IgoMap, MapService, ProjectionService } from '@igo2/geo';
+// import { BehaviorSubject } from 'rxjs';
 
 /**
  * Service that holds the state of the map module
@@ -10,6 +11,7 @@ import { IgoMap, MapService, ProjectionService } from '@igo2/geo';
 })
 export class MapState {
 
+  // public mapCenter$ = new BehaviorSubject<boolean>(false);
   get showAllLegendsValue(): boolean {
     return this._legendToolShowAll;
   }
@@ -27,7 +29,7 @@ export class MapState {
 
   constructor(
     private mapService: MapService,
-    private projectionService: ProjectionService  // Don't remove this or it'll never be injected
+    private projectionService: ProjectionService // Don't remove this or it'll never be injected
   ) {
     this._map = new IgoMap({
       controls: {
