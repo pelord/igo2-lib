@@ -24,7 +24,9 @@ export interface DrawControlOptions {
   drawingLayerSource?: OlVectorSource<OlGeometry>;
   drawingLayer?: OlVectorLayer<OlVectorSource<OlGeometry>>;
   drawingLayerStyle?: OlStyle.Style | ((olFeature: OlFeature<OlGeometry>) => OlStyle.Style);
-  interactionStyle?: OlStyle.Style | ((olFeature: OlFeature<OlGeometry>) => OlStyle.Style);
+  interactionStyle?: OlStyle.Style | ((olFeature: OlFeature<OlGeometry>) => OlStyle.Style)|
+  ((olFeature: OlFeature<OlGeometry>, resolution: number) => OlStyle.Style);
+
   maxPoints?: number;
 }
 
@@ -63,7 +65,7 @@ export class DrawControl {
   freehand$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   private keyDown$$: Subscription;
-
+  //private olInteractionStyle: OlStyle.Style;
   private olGeometryType: typeof OlGeometryType | undefined | string;
   private olMap: OlMap;
   private olDrawingLayer: OlVectorLayer<OlVectorSource<OlGeometry>>;
@@ -73,6 +75,7 @@ export class DrawControl {
   private onDrawStartKey: EventsKey;
   private onDrawEndKey: EventsKey;
   private onDrawKey: EventsKey;
+
 
   private mousePosition: [number, number];
 
@@ -94,6 +97,7 @@ export class DrawControl {
   constructor(private options: DrawControlOptions) {
     this.olDrawingLayer = options.drawingLayer ? options.drawingLayer : this.createOlInnerOverlayLayer();
     this.olGeometryType = this.options.geometryType;
+    //this.InteractionStyle= this.options.interactionStyle;
   }
 
   /**

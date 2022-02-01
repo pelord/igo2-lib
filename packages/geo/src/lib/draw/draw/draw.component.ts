@@ -4,6 +4,7 @@ import {
   OnInit,
   OnDestroy,
   ChangeDetectionStrategy,
+  EventEmitter,
   Output
 } from '@angular/core';
 
@@ -113,7 +114,10 @@ export class DrawComponent implements OnInit, OnDestroy {
 
   public radiusFormControl = new FormControl();
   public measureUnit: MeasureLengthUnit = MeasureLengthUnit.Meters;
-
+  public freehandDrawCompIsActive= false;
+  public radiusMeters;
+  @Output() freehandControl = new EventEmitter<boolean>();
+  private defaultDrawStyleRadius: number;
   /**
    * Available measure units for the measure type given
    * @internal
@@ -163,13 +167,32 @@ export class DrawComponent implements OnInit, OnDestroy {
    * @param strokeWidth the stroke width
    * @returns a Draw Control
    */
+
   createDrawControl(fillColor?: string, strokeColor?: string, strokeWidth?: number) {
     const drawControl = new DrawControl({
+
       geometryType: undefined,
       drawingLayerSource: this.olDrawingLayerSource,
       drawingLayerStyle: new OlStyle.Style({}),
-      interactionStyle: createInteractionStyle(fillColor, strokeColor, strokeWidth),
-    });
+      interactionStyle: this.freehandDrawCompIsActive?
+      createInteractionStyle(fillColor, strokeColor, strokeWidth):
+      (feature: OlFeature<OlGeometry>, resolution: number) => {
+        const geom = feature.getGeometry() as OlPoint;
+        const coordinates = olproj.transform(geom.getCoordinates(), this.map.projection, 'EPSG:4326');
+        return new OlStyle.Style ({
+          image: new OlStyle.Circle ({
+            radius: this.radiusMeters / (Math.cos((Math.PI / 180) * coordinates[1])) / resolution,
+            stroke: new OlStyle.Stroke({
+              color: 'rgba(143,7,7,1)',
+              width: 1
+            }),
+            fill: new OlStyle.Fill({
+              color: 'rgba(255,255,255,0.4)'
+            })
+          })
+        });
+      },
+  });
 
     return drawControl;
   }
@@ -517,8 +540,14 @@ export class DrawComponent implements OnInit, OnDestroy {
     this.dialog.open(DrawShorcutsComponent);
   }
 
+  onfreehandDrawIsActiveChange(){
+    this.freehandDrawCompIsActive=!this.freehandDrawCompIsActive;
+    this.drawControl.freehand$.next(this.freehandDrawCompIsActive);
+  }
+
   isCircle() {
     return this.drawControl.getGeometryType() === this.geometryType.Circle;
+
   }
 
   isPoint() {
@@ -526,9 +555,11 @@ export class DrawComponent implements OnInit, OnDestroy {
   }
 
   changeRadius() {
-    let radiusMeters;
+    var radiusMeters;
     if (this.radiusFormControl.value) {
-      this.measureUnit === MeasureLengthUnit.Meters ? radiusMeters = this.radiusFormControl.value : radiusMeters = this.radiusFormControl.value * 1000;
+      this.measureUnit === MeasureLengthUnit.Meters ?
+      radiusMeters = this.radiusFormControl.value :
+      radiusMeters = this.radiusFormControl.value * 1000;
     } else {
       radiusMeters = undefined;
     }
@@ -540,10 +571,9 @@ export class DrawComponent implements OnInit, OnDestroy {
 
       this.radiusFormControl.setValue(undefined);
     }
+    // insert the style to the components
 
-    if (radiusMeters > 0 ) {
-      console.log(radiusMeters);
-      radiusMeters = this.PointStyle;
+    if (radiusMeters) {
       this.PointStyle = (feature: OlFeature<OlGeometry>, resolution: number) => {
         const geom = feature.getGeometry() as OlPoint;
         const coordinates = olproj.transform(geom.getCoordinates(), this.map.projection, 'EPSG:4326');
@@ -563,8 +593,7 @@ export class DrawComponent implements OnInit, OnDestroy {
 
       this.drawControl.setInteractionStyle(this.PointStyle);
     }
-    else
-  }
+}
 
   onMeasureUnitChange(selectedMeasureUnit: MeasureLengthUnit) {
     if (selectedMeasureUnit === this.measureUnit) {

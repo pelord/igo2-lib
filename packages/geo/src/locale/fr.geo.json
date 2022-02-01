@@ -666,6 +666,7 @@
       },
       "draw": {
         "abort": "Annuler le dessin en cours",
+        "insertValueRayon": "Utiliser un rayon prédéfini",
         "cancelColorPicker": "Annuler",
         "Circle": "Cercle",
         "colorPicker": "Cliquer pour ouvrir le sélecteur de couleurs",
@@ -683,7 +684,7 @@
         "noLabel": "Aucune étiquette",
         "Point": "Point",
         "Polygon": "Polygone",
-        "radius": "Rayon",
+        "radius": "Entrer une valeur de rayon",
         "shortcuts": "Raccourcis clavier",
         "stroke": "Contour",
         "styleSelect": "Sélectionner le style",
