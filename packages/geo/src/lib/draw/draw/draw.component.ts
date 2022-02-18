@@ -90,8 +90,8 @@ export class DrawComponent implements OnInit, OnDestroy {
 
   @Input() store: FeatureStore<FeatureWithDraw>; // Drawing store
 
-  public draw$: BehaviorSubject<Draw> = new BehaviorSubject({}); // Observable of draw
-
+  //public draw$: BehaviorSubject<Draw> = new BehaviorSubject({}); // Observable of draw
+ // public draw$: BehaviorSubject<number> = new BehaviorSubject(null)
   public PointStyle: OlStyle.Style | ((feature, resolution) => OlStyle.Style);
 
   private olDrawingLayerSource = new OlVectorSource();
@@ -112,10 +112,13 @@ export class DrawComponent implements OnInit, OnDestroy {
   public icons: Array<string>;
   public icon: string;
 
+  public radius: number;
   public radiusFormControl = new FormControl();
   public measureUnit: MeasureLengthUnit = MeasureLengthUnit.Meters;
   public freehandDrawCompIsActive= false;
-  public radiusMeters;
+  //public formValueDraw;
+
+
   @Output() freehandControl = new EventEmitter<boolean>();
   private defaultDrawStyleRadius: number;
   /**
@@ -174,24 +177,9 @@ export class DrawComponent implements OnInit, OnDestroy {
       geometryType: undefined,
       drawingLayerSource: this.olDrawingLayerSource,
       drawingLayerStyle: new OlStyle.Style({}),
-      interactionStyle: this.freehandDrawCompIsActive?
+      interactionStyle: !this.freehandDrawCompIsActive?
       createInteractionStyle(fillColor, strokeColor, strokeWidth):
-      (feature: OlFeature<OlGeometry>, resolution: number) => {
-        const geom = feature.getGeometry() as OlPoint;
-        const coordinates = olproj.transform(geom.getCoordinates(), this.map.projection, 'EPSG:4326');
-        return new OlStyle.Style ({
-          image: new OlStyle.Circle ({
-            radius: this.radiusMeters / (Math.cos((Math.PI / 180) * coordinates[1])) / resolution,
-            stroke: new OlStyle.Stroke({
-              color: 'rgba(143,7,7,1)',
-              width: 1
-            }),
-            fill: new OlStyle.Fill({
-              color: 'rgba(255,255,255,0.4)'
-            })
-          })
-        });
-      },
+      olInteractionStyle,
   });
 
     return drawControl;
@@ -555,44 +543,52 @@ export class DrawComponent implements OnInit, OnDestroy {
   }
 
   changeRadius() {
-    var radiusMeters;
+    var formValueDraw;
     if (this.radiusFormControl.value) {
       this.measureUnit === MeasureLengthUnit.Meters ?
-      radiusMeters = this.radiusFormControl.value :
-      radiusMeters = this.radiusFormControl.value * 1000;
+      formValueDraw = this.radiusFormControl.value :
+      formValueDraw = this.radiusFormControl.value * 1000;
     } else {
-      radiusMeters = undefined;
+      formValueDraw = undefined;
     }
-    console.log(radiusMeters);
-
-    if (radiusMeters >= 100000 || radiusMeters < 0) {
-      this.messageService.alert(this.languageService.translate.instant('igo.geo.spatialFilter.radiusAlert'),
-        this.languageService.translate.instant('igo.geo.spatialFilter.warning'));
-
-      this.radiusFormControl.setValue(undefined);
+    if (this.geometryType.Circle){
+      if (!this.freehandDrawCompIsActive){ //converts to false the freehand to use a formvalue
+        if (this.radiusFormControl.value <0 ||
+          (this.measureUnit === MeasureLengthUnit.Meters && this.radiusFormControl.value>=100000) ||
+          (this.measureUnit === MeasureLengthUnit.Kilometers && this.radiusFormControl.value >= 100)){
+            this.messageService.alert(this.languageService.translate.instant ('igo.geo.spatialFilter.radiusAlert'),
+            this.languageService.translate.instant('igo.geo.spatialFilter.warning'));
+            this.radius = 3000;
+            this.measureUnit === MeasureLengthUnit.Meters ?
+              this.radiusFormControl.setValue(this.radius):
+            this.radiusFormControl.setValue(this.radius / 1000);
+            this.draw$.next(this.radius);
+            return;
+          }
+      } else{
+        if (formValueDraw){
+          if (formValueDraw >= 100000 || formValueDraw < 0) {
+            this.messageService.alert(this.languageService.translate.instant('igo.geo.spatialFilter.radiusAlert'),
+              this.languageService.translate.instant('igo.geo.spatialFilter.warning'));
+            this.radiusFormControl.setValue(undefined);
+            return;
+          }
+          if (formValueDraw !== this.radiusFormControl.value){
+            this.radiusFormControl.setValue(formValueDraw);
+            return;
+          }
+        }
+      }
+      if (this.measureUnit === MeasureLengthUnit.Meters){
+        this.radius = this.radiusFormControl.value;
+        this.draw$.next(this.radius);
+      } else {
+        this.radius = this.radiusFormControl.value * 1000;
+        this.draw$.next(this.radius *1000);
+      }
+      this.drawControl.setInteractionStyle(this.PointStyle)
     }
-    // insert the style to the components
 
-    if (radiusMeters) {
-      this.PointStyle = (feature: OlFeature<OlGeometry>, resolution: number) => {
-        const geom = feature.getGeometry() as OlPoint;
-        const coordinates = olproj.transform(geom.getCoordinates(), this.map.projection, 'EPSG:4326');
-        return new OlStyle.Style ({
-          image: new OlStyle.Circle ({
-            radius: radiusMeters / (Math.cos((Math.PI / 180) * coordinates[1])) / resolution,
-            stroke: new OlStyle.Stroke({
-              color: 'rgba(143,7,7,1)',
-              width: 1
-            }),
-            fill: new OlStyle.Fill({
-              color: 'rgba(255,255,255,0.4)'
-            })
-          })
-        });
-      };
-
-      this.drawControl.setInteractionStyle(this.PointStyle);
-    }
 }
 
   onMeasureUnitChange(selectedMeasureUnit: MeasureLengthUnit) {
@@ -600,7 +596,9 @@ export class DrawComponent implements OnInit, OnDestroy {
       return;
     } else {
       this.measureUnit = selectedMeasureUnit;
-      this.measureUnit === MeasureLengthUnit.Meters ? this.radiusFormControl.setValue(this.radiusFormControl.value * 1000) : this.radiusFormControl.setValue(this.radiusFormControl.value / 1000);
+      this.measureUnit === MeasureLengthUnit.Meters ?
+      this.radiusFormControl.setValue(this.radiusFormControl.value * 1000) :
+      this.radiusFormControl.setValue(this.radiusFormControl.value / 1000);
           }
   }
 

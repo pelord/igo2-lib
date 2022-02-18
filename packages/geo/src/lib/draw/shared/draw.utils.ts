@@ -108,3 +108,5 @@ export function createOlTooltipDrawAtPoint(olPoint: OlPoint): OlOverlay {
 
   return olTooltip;
 }
+
+

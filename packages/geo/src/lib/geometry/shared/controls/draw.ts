@@ -24,9 +24,7 @@ export interface DrawControlOptions {
   drawingLayerSource?: OlVectorSource<OlGeometry>;
   drawingLayer?: OlVectorLayer<OlVectorSource<OlGeometry>>;
   drawingLayerStyle?: OlStyle.Style | ((olFeature: OlFeature<OlGeometry>) => OlStyle.Style);
-  interactionStyle?: OlStyle.Style | ((olFeature: OlFeature<OlGeometry>) => OlStyle.Style)|
-  ((olFeature: OlFeature<OlGeometry>, resolution: number) => OlStyle.Style);
-
+  interactionStyle?: OlStyle.Style | ((olFeature: OlFeature<OlGeometry>) => OlStyle.Style);
   maxPoints?: number;
 }
 
@@ -65,7 +63,7 @@ export class DrawControl {
   freehand$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   private keyDown$$: Subscription;
-  //private olInteractionStyle: OlStyle.Style;
+  private olInteractionStyle: OlStyle.Style;
   private olGeometryType: typeof OlGeometryType | undefined | string;
   private olMap: OlMap;
   private olDrawingLayer: OlVectorLayer<OlVectorSource<OlGeometry>>;
@@ -75,7 +73,6 @@ export class DrawControl {
   private onDrawStartKey: EventsKey;
   private onDrawEndKey: EventsKey;
   private onDrawKey: EventsKey;
-
 
   private mousePosition: [number, number];
 
@@ -97,9 +94,8 @@ export class DrawControl {
   constructor(private options: DrawControlOptions) {
     this.olDrawingLayer = options.drawingLayer ? options.drawingLayer : this.createOlInnerOverlayLayer();
     this.olGeometryType = this.options.geometryType;
-    //this.InteractionStyle= this.options.interactionStyle;
+    this.InteractionStyle= this.options.interactionStyle;
   }
-
   /**
    * Add or remove this control to/from a map.
    * @param map OL Map
@@ -192,7 +188,7 @@ export class DrawControl {
         type: this.olGeometryType,
         source: this.getSource(),
         stopClick: true,
-        style: this.options.interactionStyle,
+        style: this.options.olInteractionStyle,
         maxPoints: this.options.maxPoints,
         freehand: false,
         freehandCondition: () => false
