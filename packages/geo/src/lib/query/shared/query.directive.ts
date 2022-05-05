@@ -8,7 +8,7 @@ import {
   Self
 } from '@angular/core';
 
-import { Subscription, Observable, of, zip } from 'rxjs';
+import { Subscription, Observable, of, zip, from } from 'rxjs';
 import { unByKey } from 'ol/Observable';
 
 import OlFeature from 'ol/Feature';
@@ -32,6 +32,8 @@ import { ctrlKeyDown } from '../../map/shared/map.utils';
 import { OlDragSelectInteraction } from '../../feature/shared/strategies/selection';
 import { VectorLayer } from '../../layer/shared/layers/vector-layer';
 import { QueryableDataSourceOptions } from './query.interfaces';
+import { MVTDataSource } from '../../datasource';
+import { uuid } from '@igo2/utils';
 
 /**
  * This directive makes a map queryable with a click of with a drag box.
@@ -193,13 +195,21 @@ export class QueryDirective implements AfterViewInit, OnDestroy {
     event: MapBrowserPointerEvent<any>
   ): Observable<Feature[]> {
     const clickedFeatures = [];
+    const mvtLayers = []
+    const mvtLayersPromises = []
 
     if (event.type === 'singleclick') {
       this.map.ol.forEachFeatureAtPixel(
         event.pixel,
-        (featureOL: OlFeature<OlGeometry>, layerOL: any) => {
+        (featureOLAtPixel: OlFeature<OlGeometry>, layerOL: any) => {
+          let featureOL = featureOLAtPixel
           const layer = this.map.getLayerById(layerOL.values_._layer.id);
           if ((layer.dataSource.options as QueryableDataSourceOptions).queryFormatAsWms) {
+            return;
+          }
+          if (layer.dataSource instanceof MVTDataSource) {
+            mvtLayers.push(layer);
+            mvtLayersPromises.push(layer.ol.getFeatures(event.pixel));
             return;
           }
           if (featureOL) {
@@ -273,6 +283,29 @@ export class QueryDirective implements AfterViewInit, OnDestroy {
           });
         });
     }
+
+
+
+    return from(Promise.all(mvtLayersPromises).then((features) => {
+      const mvtFeatures = [].concat.apply([], features);
+      
+      mvtFeatures.map((mvtFeature,i) => {
+        const layer = mvtLayers[i];
+
+        const newFeature = renderFeatureFromOl(mvtFeature, this.map.projection, layer.ol);
+        newFeature.meta = {
+          id: layer.ol.values_._layer.id + '.' + newFeature.meta.id,
+          sourceTitle: layer.ol.values_.title,
+          alias: this.queryService.getAllowedFieldsAndAlias(layer),
+          title: this.queryService.getQueryTitle(newFeature, layer) || newFeature.meta.title
+      };
+      clickedFeatures.push(newFeature)
+      })
+
+      console.log('clickedFeatures', clickedFeatures)
+      return clickedFeatures as Feature[];
+
+  }));
 
 
     return of(clickedFeatures);
