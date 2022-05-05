@@ -33,7 +33,6 @@ import { OlDragSelectInteraction } from '../../feature/shared/strategies/selecti
 import { VectorLayer } from '../../layer/shared/layers/vector-layer';
 import { QueryableDataSourceOptions } from './query.interfaces';
 import { MVTDataSource } from '../../datasource';
-import { uuid } from '@igo2/utils';
 
 /**
  * This directive makes a map queryable with a click of with a drag box.
