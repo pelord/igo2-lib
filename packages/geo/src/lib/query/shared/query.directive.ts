@@ -194,14 +194,14 @@ export class QueryDirective implements AfterViewInit, OnDestroy {
     event: MapBrowserPointerEvent<any>
   ): Observable<Feature[]> {
     const clickedFeatures = [];
-    const mvtLayers = []
-    const mvtLayersPromises = []
+    const mvtLayers = [];
+    const mvtLayersPromises = [];
 
     if (event.type === 'singleclick') {
       this.map.ol.forEachFeatureAtPixel(
         event.pixel,
         (featureOLAtPixel: OlFeature<OlGeometry>, layerOL: any) => {
-          let featureOL = featureOLAtPixel
+          let featureOL = featureOLAtPixel;
           const layer = this.map.getLayerById(layerOL.values_._layer.id);
           if ((layer.dataSource.options as QueryableDataSourceOptions).queryFormatAsWms) {
             return;
@@ -283,11 +283,9 @@ export class QueryDirective implements AfterViewInit, OnDestroy {
         });
     }
 
-
-
     return from(Promise.all(mvtLayersPromises).then((features) => {
       const mvtFeatures = [].concat.apply([], features);
-      
+
       mvtFeatures.map((mvtFeature,i) => {
         const layer = mvtLayers[i];
 
@@ -298,12 +296,9 @@ export class QueryDirective implements AfterViewInit, OnDestroy {
           alias: this.queryService.getAllowedFieldsAndAlias(layer),
           title: this.queryService.getQueryTitle(newFeature, layer) || newFeature.meta.title
       };
-      clickedFeatures.push(newFeature)
-      })
-
-      console.log('clickedFeatures', clickedFeatures)
+      clickedFeatures.push(newFeature);
+      });
       return clickedFeatures as Feature[];
-
   }));
 
 
