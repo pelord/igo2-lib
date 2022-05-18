@@ -407,6 +407,7 @@ export class DrawComponent implements OnInit, OnDestroy {
     this.addFeatureToStore(olGeometry, radius);
     this.clearLabelsOfOlGeometry(olGeometry);
     this.store.layer.ol.getSource().refresh();
+    console.log('here');
   }
 
   private onModifyDraw(olGeometry) {
@@ -633,18 +634,47 @@ export class DrawComponent implements OnInit, OnDestroy {
    */
 
   onFontChange(labelsAreShown: boolean, size: string, style: FontType) {
-    this.drawStyleService.setFontSize(size);
-    this.drawStyleService.setFontStyle(style);
-    let counter = 0;
+    // const olGeometry = featureToOl(
+    //   this.selectedFeatures$.value[0],
+    //   this.map.ol.getView().getProjection().getCode()
+    // );
+
     this.store.layer.ol.setStyle((feature, resolution) => {
-      console.log(counter++);
-      return this.drawStyleService.createDrawingLayerStyle(
-        feature,
-        resolution,
-        labelsAreShown
-      );
+      if (
+        this.selectedFeatures$.value.some((e) => e.meta.id === feature.getId())
+      ) {
+        this.drawStyleService.setFontSize(size);
+        this.drawStyleService.setFontStyle(style);
+        let returnValue = this.drawStyleService.createIndividualDrawingStyle(
+          feature,
+          resolution,
+          labelsAreShown,
+          size,
+          style
+        );
+        console.log(feature);
+        console.log(this.selectedFeatures$.value[0]);
+        return returnValue;
+      } else {
+        return this.drawStyleService.createDrawingLayerStyle(
+          feature,
+          resolution,
+          labelsAreShown
+        );
+      }
     });
-    this.createDrawControl();
+
+    // Need a way to store the font independently from each other
+
+    // this.drawStyleService.setFontSize(size);
+    // this.drawStyleService.setFontStyle(style);
+    // this.store.layer.ol.setStyle((feature, resolution) => {
+    //   return this.drawStyleService.createDrawingLayerStyle(
+    //     feature,
+    //     resolution,
+    //     labelsAreShown
+    //   );
+    // });
   }
 
   get allFontStyles(): string[] {
@@ -652,8 +682,46 @@ export class DrawComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Figure out how use only one feature in setStyle
-   *
-   *
+   * Create a function that update the style of the feature
+   * Implement function that uses the previous funtion and updates them according to the entities (check onModifyDraw)
+   * Update the map (I think)
    */
+
+  private updateFontSizeAndStyle(
+    olGeometry: OlFeature<OlGeometry>,
+    size: string,
+    style: FontType
+  ) {
+    olGeometry.setProperties(
+      {
+        font_: `${size}px ${style}`
+      },
+      true
+    );
+  }
+
+  private OnModifyFont(
+    olGeometry: OlFeature<OlGeometry>,
+    fontSize: string,
+    fontStyle: FontType
+  ) {
+    const entities = this.store.all();
+
+    entities.forEach((entity) => {
+      const entityId = entity.properties.id;
+
+      const olGeometryId = olGeometry.getId();
+
+      console.log(olGeometry);
+
+      console.log(entityId);
+      console.log(olGeometryId);
+
+      if (entityId === olGeometryId) {
+        this.updateFontSizeAndStyle(olGeometry, fontSize, fontStyle);
+        this.onSelectDraw(olGeometry, olGeometry.get('draw'));
+        // this.replaceFeatureInStore(entity, olGeometry.getGeometry());
+      }
+    });
+  }
 }
