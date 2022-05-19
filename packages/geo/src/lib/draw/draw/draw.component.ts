@@ -638,31 +638,59 @@ export class DrawComponent implements OnInit, OnDestroy {
     //   this.selectedFeatures$.value[0],
     //   this.map.ol.getView().getProjection().getCode()
     // );
+    if (this.selectedFeatures$.value.length > 0) {
+      this.store.layer.ol.setStyle((feature, resolution) => {
+        if (
+          this.selectedFeatures$.value.some(
+            (e) => e.meta.id === feature.getId()
+          )
+        ) {
+          this.drawStyleService.setFontSize(size);
+          this.drawStyleService.setFontStyle(style);
+          let returnValue = this.drawStyleService.createIndividualDrawingStyle(
+            feature,
+            resolution,
+            labelsAreShown,
+            size,
+            style
+          );
+          console.log(feature);
+          console.log(this.selectedFeatures$.value[0]);
+          return returnValue;
+        } else {
+          return this.drawStyleService.createDrawingLayerStyle(
+            feature,
+            resolution,
+            labelsAreShown
+          );
+        }
+      });
+    }
 
-    this.store.layer.ol.setStyle((feature, resolution) => {
-      if (
-        this.selectedFeatures$.value.some((e) => e.meta.id === feature.getId())
-      ) {
-        this.drawStyleService.setFontSize(size);
-        this.drawStyleService.setFontStyle(style);
-        let returnValue = this.drawStyleService.createIndividualDrawingStyle(
-          feature,
-          resolution,
-          labelsAreShown,
-          size,
-          style
-        );
-        console.log(feature);
-        console.log(this.selectedFeatures$.value[0]);
-        return returnValue;
-      } else {
-        return this.drawStyleService.createDrawingLayerStyle(
-          feature,
-          resolution,
-          labelsAreShown
-        );
-      }
-    });
+    // this.store.layer.ol.setStyle((feature, resolution) => {
+    //   if (
+    //     this.selectedFeatures$.value.some((e) => e.meta.id === feature.getId())
+    //   ) {
+    //     this.drawStyleService.setFontSize(size);
+    //     this.drawStyleService.setFontStyle(style);
+    //     let returnValue = this.drawStyleService.createIndividualDrawingStyle(
+    //       feature,
+    //       resolution,
+    //       labelsAreShown,
+    //       size,
+    //       style
+    //     );
+    //     console.log(feature);
+    //     console.log(this.selectedFeatures$.value[0]);
+    //     return returnValue;
+    //   } else {
+    //     return this.drawStyleService.createDrawingLayerStyle(
+    //       feature,
+    //       resolution,
+    //       labelsAreShown
+    //     );
+    //   }
+    // });
 
     // Need a way to store the font independently from each other
 
