@@ -31,7 +31,7 @@
         "nextButton": "Suivant"
       },
       "paginator": {
-        "elementsLowercase": "éléments",
+        "elementsLowercase": "élément(s)",
         "elementsUppercase": "Éléments",
         "firstPageLabel": "Première page",
         "itemsPerPageLabel": "Entités par page:",

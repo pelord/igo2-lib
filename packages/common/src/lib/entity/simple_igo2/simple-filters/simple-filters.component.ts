@@ -1,6 +1,6 @@
 import { FeatureCollection } from 'geojson';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { SimpleFilter, TypeOptions, Option } from './simple-filters.interface';
 import { ConfigService } from '@igo2/core';
 import { map } from 'rxjs/operators';
@@ -14,9 +14,11 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./simple-filters.component.scss']
 })
 export class SimpleFiltersComponent implements OnInit, OnDestroy {
-  public terrAPIBaseURL: string = "https://geoegl.msp.gouv.qc.ca/apis/terrapi/"; // base URL of the terrAPI API
+  @Output() filterSelection: EventEmitter<object> = new EventEmitter();
+
+	public terrAPIBaseURL: string = "https://geoegl.msp.gouv.qc.ca/apis/terrapi/"; // base URL of the terrAPI API
+	public terrAPITypes: Array<string>; // an array of strings containing the types available from terrAPI
   public simpleFiltersConfig: Array<SimpleFilter>; // simpleFilters config input by the user in the config file
-	public terrAPITypes: Array<string>;
   public allTypesOptions: Array<TypeOptions> = []; // array that contains all the options for each filter
   public filteredTypesOptions: Array<TypeOptions> = []; // array that contains the filtered options for each filter
 
@@ -24,9 +26,7 @@ export class SimpleFiltersComponent implements OnInit, OnDestroy {
   public previousFiltersFormGroupValue: object; // object representing the previous value held in each control
   public filtersFormGroupValueChange$$: Subscription; // subscription to form group value changes
 
-  constructor(private configService: ConfigService,
-    private http: HttpClient,
-    private formBuilder: FormBuilder) {}
+  constructor(private configService: ConfigService, private http: HttpClient, private formBuilder: FormBuilder) {}
 
   // getter of the form group controls
   get controls(): {[key: string]: AbstractControl} {
@@ -36,36 +36,35 @@ export class SimpleFiltersComponent implements OnInit, OnDestroy {
   public async ngOnInit(): Promise<void> {
     // get the simpleFilters config input by the user in the config file
     this.simpleFiltersConfig = this.configService.getConfig('simpleFilters');
-		console.log(this.simpleFiltersConfig);
-
-		// get all types from terrAPI
-		await this.getTypesFromTerrAPI().then((terrAPITypes: Array<string>) => {
-			this.terrAPITypes = terrAPITypes;
-		});
 
     // create a form group used to hold various controls
     this.filtersFormGroup = this.formBuilder.group({});
 
+		// get all the types from terrAPI
+		await this.getTypesFromTerrAPI().then((terrAPITypes: Array<string>) => {
+			this.terrAPITypes = terrAPITypes;
+		});
+
     // for each filter input by the user...
     for (let filter of this.simpleFiltersConfig) {
-      if (filter.type && this.terrAPITypes.includes(filter.type)) {
+      if (filter.type) {
         // ...get the options from terrAPI and push them in the array containing all the options and add a control in the form group
         await this.getOptionsOfFilter(filter).then((typeOptions: TypeOptions) => {
           this.allTypesOptions.push(typeOptions);
+					this.filtersFormGroup.addControl(typeOptions.type, this.formBuilder.control(''));
         });
       }
-			this.filtersFormGroup.addControl(filter.type, this.formBuilder.control(''));
     }
     // deep-copy the array containing all the options to the one that will contain the filtered options (same at the start)
     this.filteredTypesOptions = JSON.parse(JSON.stringify(this.allTypesOptions));
-		console.log(this.filteredTypesOptions);
 
     // set previous value of the form group (each control value is an empty string at the start)
     this.previousFiltersFormGroupValue = this.filtersFormGroup.value;
 
-    // when the user types in a field, filter the options of the filter
+    // when the user types in a field, filter the options of the filter and emit the value of the filters
     this.filtersFormGroupValueChange$$ = this.filtersFormGroup.valueChanges.subscribe((spatialFiltersFormCurrentValue: object) => {
       this.filterOptions(spatialFiltersFormCurrentValue);
+			this.filterSelection.emit(this.filtersFormGroup.value);
     });
   }
 
@@ -89,28 +88,41 @@ export class SimpleFiltersComponent implements OnInit, OnDestroy {
    * @returns The options for the given filter in the TypeOptions format
    */
   private async getOptionsOfFilter(filter: SimpleFilter): Promise<TypeOptions> {
-    // get options from terrAPI
-    const featureCollection: FeatureCollection = await this.getOptionsFromTerrAPI(true, filter.type);
+    let typeOptions: TypeOptions;
 
-    // when options (feature collection) are returned...
-    if (featureCollection) {
-      let options: Array<Option> = [];
-      featureCollection.features.forEach(feature => {
-        // ...push type, code and name of each option
-        options.push({type: filter.type, code: feature.properties.code, nom: feature.properties.nom});
+		// if type is included in terrAPI...
+		if (this.terrAPITypes.includes(filter.type)) {
+			// ...get options from terrAPI
+    	await this.getOptionsFromTerrAPI(true, filter.type).then((featureCollection: FeatureCollection) => {
+        let options: Array<Option> = [];
+      	featureCollection.features.forEach(feature => {
+        	// ...push type, code and name of each option
+        	options.push({type: filter.type, code: feature.properties.code, nom: feature.properties.nom});
+      	});
+      	typeOptions = {type: filter.type, description: filter.description, options: options};
       });
-      const typeOptions: TypeOptions = {type: filter.type, description: filter.description, options: options};
+    	// when options (feature collection) are returned...
 
-      return typeOptions;
-    };
-  }
+		// if type is not included in terrAPI...
+  	} else {
+			// ... don't add the options
+			typeOptions = {type: filter.type, description: filter.description};
+		}
 
+		return typeOptions;
+	}
+
+	/**
+   * @description Get an array containg all the types from terrAPI
+   * @returns An array of strings containing the types of terrAPI
+   */
 	private async getTypesFromTerrAPI(): Promise<Array<string>> {
-		//construct the URL
+		// construct the URL
 		const url: string = this.terrAPIBaseURL + "types";
 
 		let response: Array<string>;
 
+		// make the call to terrAPI and return the the types
 		await this.http.get<Array<string>>(url).pipe(map((terrAPITypes: Array<string>) => {
 			response = terrAPITypes;
 			return terrAPITypes;
@@ -149,7 +161,7 @@ export class SimpleFiltersComponent implements OnInit, OnDestroy {
    * @returns A string representing the label of a filter
    */
   public getLabel(controlName: string): string {
-    // find the correct description
+    // find and return the correct description
     return this.simpleFiltersConfig.find((filter: SimpleFilter) => filter.type === controlName).description;;
   }
 
@@ -173,18 +185,15 @@ export class SimpleFiltersComponent implements OnInit, OnDestroy {
     // for every type of filter...
     for (let typeOptions of this.filteredTypesOptions) {
       // ...if the selected option type is not equal to the filter type
-      if (selectedOption.type !== typeOptions.type) {
+      if (selectedOption.type !== typeOptions.type && typeOptions.options) {
         // extract types and code
         const sourceType: string = selectedOption.type;
         const sourceCode: string = selectedOption.code;
         const targetType: string = typeOptions.type;
 
         // get options from terrAPI
-        const featureCollection = await this.getOptionsFromTerrAPI(false, sourceType, sourceCode, targetType);
-
-        // when options are returned...
-        if (featureCollection) {
-          let options: Array<Option> = [];
+        await this.getOptionsFromTerrAPI(false, sourceType, sourceCode, targetType).then((featureCollection: FeatureCollection) => {
+					let options: Array<Option> = [];
 
           // ...push new options in arrays and replace old options
           featureCollection.features.forEach(feature => {
@@ -192,7 +201,7 @@ export class SimpleFiltersComponent implements OnInit, OnDestroy {
           });
 
           typeOptions.options = options;
-        }
+				});
       }
     }
     this.allTypesOptions = JSON.parse(JSON.stringify(this.filteredTypesOptions));
@@ -213,10 +222,12 @@ export class SimpleFiltersComponent implements OnInit, OnDestroy {
         const options: Array<Option> = this.allTypesOptions.find((typeOptions: TypeOptions) =>
           typeOptions.type === control
         ).options;
-        const filteredOptions: Array<Option> = options.filter((option: Option) =>
-          option.nom.toLowerCase().includes(currentControlValue.toLowerCase())
-        );
-        this.filteredTypesOptions.find((typeOptions: TypeOptions) => typeOptions.type === control).options = filteredOptions;
+				if (options) {
+					const filteredOptions: Array<Option> = options.filter((option: Option) =>
+          	option.nom.toLowerCase().includes(currentControlValue.toLowerCase())
+					);
+        	this.filteredTypesOptions.find((typeOptions: TypeOptions) => typeOptions.type === control).options = filteredOptions;
+				}
       }
     }
     this.previousFiltersFormGroupValue = currentFormGroupValue;

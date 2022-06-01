@@ -23,7 +23,7 @@
               {{ option.nom }}
             </mat-option>
           </mat-autocomplete>
-          <mat-icon
+          <mat-icon *ngIf="getOptions(control.key)"
             matSuffix
             color="primary"
             [svgIcon]="auto.isOpen ? 'chevron-up' : 'chevron-down'">

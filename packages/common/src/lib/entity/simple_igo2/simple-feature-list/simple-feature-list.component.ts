@@ -14,10 +14,13 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 export class SimpleFeatureListComponent implements OnInit, OnChanges, OnDestroy {
   @Input() entityStore: EntityStore; // a store that contains all the entities
   @Input() clickedEntities: Array<Feature>; // an array that contains the entities clicked in the map
+  @Input() simpleFiltersValue: object; // an object containing the value of the filters
   @Output() listSelection = new EventEmitter(); // an event emitter that outputs the entity selected in the list
 
   public entities: Array<Feature>; // an array containing all the entities in the store
   public entitiesToShow: Array<Feature>; // an array containing the entities currently shown
+  public filteredEntities$: BehaviorSubject<Array<Feature>> = new BehaviorSubject([]); // an observable of an array of filtered entities
+  public filteredEntities$$: Subscription; // subscription to filtered list
   public entityIsSelected: boolean; // a boolean stating whether an entity has been selected in the list or not
 
   public simpleFeatureListConfig: SimpleFeatureList; // the simpleFeatureList config input by the user
@@ -95,30 +98,53 @@ export class SimpleFeatureListComponent implements OnInit, OnChanges, OnDestroy 
       // slice the entities to show the current ones
       this.entitiesToShow = this.entities.slice(this.elementsLowerBound - 1, this.elementsUpperBound);
     });
+
+    this.filteredEntities$$ = this.filteredEntities$.subscribe((filteredEntities: Array<Feature>) => {
+      this.entitiesToShow = filteredEntities;
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {
     // if the most recent change is a click on entities on the map...
-    if (!changes.clickedEntities.firstChange) {
-      // change selected state to false for all entities
-      this.entityStore.state.updateAll({selected: false});
-      // get array of clicked entities
-      const clickedEntities: Array<Feature> = changes.clickedEntities.currentValue as Array<Feature>;
-      // if an entity or entities have been clicked...
-      if (clickedEntities?.length > 0 && clickedEntities !== undefined) {
-        // ...show current entities in list
-        this.entityStore.state.updateMany(clickedEntities, {selected: true});
-        this.entitiesToShow = clickedEntities;
-      // ...else show all entities in list
-      } else {
-        this.entitiesToShow = this.entityStore.entities$.getValue() as Array<Feature>;
-        this.currentPageNumber$.next(this.currentPageNumber$.getValue());
+    if (changes.clickedEntities) {
+      if (!changes.clickedEntities.firstChange) {
+        // change selected state to false for all entities
+        this.entityStore.state.updateAll({selected: false});
+        // get array of clicked entities
+        const clickedEntities: Array<Feature> = changes.clickedEntities.currentValue as Array<Feature>;
+        // if an entity or entities have been clicked...
+        if (clickedEntities?.length > 0 && clickedEntities !== undefined) {
+          // ...show current entities in list
+          this.entityStore.state.updateMany(clickedEntities, {selected: true});
+          this.entitiesToShow = clickedEntities;
+        // ...else show all entities in list
+        } else {
+          this.entitiesToShow = this.entityStore.entities$.getValue() as Array<Feature>;
+          this.currentPageNumber$.next(this.currentPageNumber$.getValue());
+        }
+      }
+      // if the most recent change is a filter change...
+    } else if (changes.simpleFiltersValue) {
+      if (!changes.simpleFiltersValue.firstChange) {
+        const currentFiltersValue: object = changes.simpleFiltersValue.currentValue;
+        let nonNullFiltersValue: Array<object> = [];
+
+        for (let filter in currentFiltersValue) {
+          const currentFilterValue: any = currentFiltersValue[filter];
+          if (currentFilterValue !== "" && currentFilterValue !== null) {
+            const filterValue: object = {};
+            filterValue[filter] = currentFilterValue;
+            nonNullFiltersValue.push(filterValue);
+          }
+        }
+        this.filterEntities(nonNullFiltersValue);
       }
     }
   }
 
   ngOnDestroy() {
     this.currentPageNumber$$.unsubscribe();
+    this.filteredEntities$$.unsubscribe();
   }
 
   /**
@@ -271,5 +297,41 @@ export class SimpleFeatureListComponent implements OnInit, OnChanges, OnDestroy 
   onPageChange(currentPageNumber: number) {
     // update the current page number
     this.currentPageNumber$.next(currentPageNumber);
+  }
+
+  /**
+   * @description Filter entities according to non null filter values
+   * @param currentNonNullFiltersValue An array of objects containing the non null filter values
+   */
+  filterEntities(currentNonNullFiltersValue: Array<object>) {
+    // if there is/are non null filter value(s)...
+    if (currentNonNullFiltersValue.length) {
+      let filteredEntities: Array<Feature> = [];
+      // .. for each filter value...
+      for (let currentFilterValue of currentNonNullFiltersValue) {
+        const currentFilterValueKeys: Array<string> = Object.keys(currentFilterValue);
+        for (let currentFilterValueKey of currentFilterValueKeys) {
+          const currentFilterValueValue: any = currentFilterValue[currentFilterValueKey];
+          // if the filter value is of type string (attribute filter)...
+          if (typeof currentFilterValueValue === 'string') {
+            for (let entity of this.entities) {
+              const entityProperties: Array<string> = Object.keys(entity.properties);
+              if (entityProperties.includes(currentFilterValueKey)) {
+                if (entity.properties[currentFilterValueKey].toLowerCase().includes(currentFilterValueValue.toLowerCase())) {
+                  filteredEntities.push(entity);
+                }
+              }
+            }
+            // if the filter value is of type object (spatial filter)...
+          } else {
+
+          }
+        }
+      }
+      this.filteredEntities$.next(filteredEntities);
+    // if there is not any non null fi
+    } else {
+      this.entitiesToShow = this.entities;
+    }
   }
 }
