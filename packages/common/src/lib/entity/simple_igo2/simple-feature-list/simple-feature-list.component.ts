@@ -17,10 +17,11 @@ export class SimpleFeatureListComponent implements OnInit, OnChanges, OnDestroy 
   @Input() simpleFiltersValue: object; // an object containing the value of the filters
   @Output() listSelection = new EventEmitter(); // an event emitter that outputs the entity selected in the list
 
-  public entities: Array<Feature>; // an array containing all the entities in the store
-  public entitiesToShow: Array<Feature>; // an array containing the entities currently shown
-  public filteredEntities$: BehaviorSubject<Array<Feature>> = new BehaviorSubject([]); // an observable of an array of filtered entities
-  public filteredEntities$$: Subscription; // subscription to filtered list
+  public entitiesAll: Array<Feature>; // an array containing all the entities in the store
+  public entitiesList: Array<Feature>; // an array containing all the entities in the list
+  public entitiesShown: Array<Feature>; // an array containing the entities currently shown
+  public entitiesList$: BehaviorSubject<Array<Feature>> = new BehaviorSubject([]); // an observable of an array of filtered entities
+  public entitiesList$$: Subscription; // subscription to filtered list
   public entityIsSelected: boolean; // a boolean stating whether an entity has been selected in the list or not
 
   public simpleFeatureListConfig: SimpleFeatureList; // the simpleFeatureList config input by the user
@@ -44,7 +45,8 @@ export class SimpleFeatureListComponent implements OnInit, OnChanges, OnDestroy 
 
   ngOnInit(): void {
     // get the entities from the layer/store
-    this.entities = this.entityStore.entities$.getValue() as Array<Feature>;
+    this.entitiesAll = this.entityStore.entities$.getValue() as Array<Feature>;
+    this.entitiesList = this.entityStore.entities$.getValue() as Array<Feature>;
 
     // get the config input by the user
     this.simpleFeatureListConfig = this.configService.getConfig('simpleFeatureList');
@@ -55,13 +57,8 @@ export class SimpleFeatureListComponent implements OnInit, OnChanges, OnDestroy 
     // get the sorting config and sort the entities accordingly (sort ascending by default)
     this.sortBy = this.simpleFeatureListConfig.sortBy;
     if (this.sortBy) {
-      if (this.sortBy.order === undefined || this.sortBy.order === 'ascending') {
-        this.entities.sort((a, b) => (a['properties'][this.sortBy.attributeName] > b['properties'][this.sortBy.attributeName]) ? 1 :
-        ((b['properties'][this.sortBy.attributeName] > a['properties'][this.sortBy.attributeName]) ? -1 : 0));
-      } else if (this.sortBy.order === 'descending') {
-        this.entities.sort((a, b) => (a['properties'][this.sortBy.attributeName] > b['properties'][this.sortBy.attributeName]) ? -1 :
-        ((b['properties'][this.sortBy.attributeName] > a['properties'][this.sortBy.attributeName]) ? 1 : 0));
-      }
+      this.sortEntities(this.entitiesAll);
+      this.sortEntities(this.entitiesList);
     }
 
     // get the formatting configs for URLs and emails (not formatted by default)
@@ -78,29 +75,26 @@ export class SimpleFeatureListComponent implements OnInit, OnChanges, OnDestroy 
         this.paginator.showFirstLastPageButtons : true;
       this.showPreviousNextPageButtons = this.paginator.showPreviousNextPageButtons !== undefined ?
         this.paginator.showPreviousNextPageButtons : true;
-      // slice entities accroding to page size
-      this.entitiesToShow = this.entities.slice(0, this.pageSize);
-      // calculate number of pages and indexes
-      this.numberOfPages = Math.ceil(this.entities.length / this.pageSize);
-      this.elementsLowerBound = 1;
-      this.elementsUpperBound = this.pageSize > this.entities.length ? this.entities.length : this.pageSize;
+      this.entitiesList$.next(this.entitiesList);
     } else {
-      this.entitiesToShow = this.entities;
+      this.entitiesShown = this.entitiesList;
     }
 
     // subscribe to the current page number
     this.currentPageNumber$$ = this.currentPageNumber$.subscribe((currentPageNumber: number) => {
       // calculate the new lower and upper bounds to display
       this.elementsLowerBound = (currentPageNumber - 1) * this.pageSize + 1;
-      this.elementsUpperBound = currentPageNumber * this.pageSize > this.entities.length ? this.entities.length :
+      this.elementsUpperBound = currentPageNumber * this.pageSize > this.entitiesList.length ? this.entitiesList.length :
         currentPageNumber * this.pageSize;
 
       // slice the entities to show the current ones
-      this.entitiesToShow = this.entities.slice(this.elementsLowerBound - 1, this.elementsUpperBound);
+      this.entitiesShown = this.entitiesList.slice(this.elementsLowerBound - 1, this.elementsUpperBound);
     });
 
-    this.filteredEntities$$ = this.filteredEntities$.subscribe((filteredEntities: Array<Feature>) => {
-      this.entitiesToShow = filteredEntities;
+    this.entitiesList$$ = this.entitiesList$.subscribe((entitiesList: Array<Feature>) => {
+      this.entitiesList = entitiesList;
+      this.numberOfPages = Math.ceil(this.entitiesList.length / this.pageSize);
+      this.currentPageNumber$.next(1);
     });
   }
 
@@ -116,11 +110,10 @@ export class SimpleFeatureListComponent implements OnInit, OnChanges, OnDestroy 
         if (clickedEntities?.length > 0 && clickedEntities !== undefined) {
           // ...show current entities in list
           this.entityStore.state.updateMany(clickedEntities, {selected: true});
-          this.entitiesToShow = clickedEntities;
+          this.entitiesList$.next(clickedEntities);
         // ...else show all entities in list
         } else {
-          this.entitiesToShow = this.entityStore.entities$.getValue() as Array<Feature>;
-          this.currentPageNumber$.next(this.currentPageNumber$.getValue());
+          this.entitiesList$.next(this.entitiesAll);
         }
       }
       // if the most recent change is a filter change...
@@ -144,7 +137,21 @@ export class SimpleFeatureListComponent implements OnInit, OnChanges, OnDestroy 
 
   ngOnDestroy() {
     this.currentPageNumber$$.unsubscribe();
-    this.filteredEntities$$.unsubscribe();
+    this.entitiesList$$.unsubscribe();
+  }
+
+  /**
+   * @description Sort entities according to an attribute
+   * @param entities The entities to sort
+   */
+  sortEntities(entities: Array<Feature>) {
+    if (this.sortBy.order === undefined || this.sortBy.order === 'ascending') {
+      entities.sort((a, b) => (a['properties'][this.sortBy.attributeName] > b['properties'][this.sortBy.attributeName]) ? 1 :
+      ((b['properties'][this.sortBy.attributeName] > a['properties'][this.sortBy.attributeName]) ? -1 : 0));
+    } else if (this.sortBy.order === 'descending') {
+      entities.sort((a, b) => (a['properties'][this.sortBy.attributeName] > b['properties'][this.sortBy.attributeName]) ? -1 :
+      ((b['properties'][this.sortBy.attributeName] > a['properties'][this.sortBy.attributeName]) ? 1 : 0));
+    }
   }
 
   /**
@@ -268,7 +275,7 @@ export class SimpleFeatureListComponent implements OnInit, OnChanges, OnDestroy 
    * @param entity
    */
   selectEntity(entity: Feature) {
-    this.entitiesToShow = [entity];
+    this.entitiesList$.next([entity]);
     this.entityIsSelected = true;
 
     // update the store and emit the entity to parent
@@ -284,7 +291,7 @@ export class SimpleFeatureListComponent implements OnInit, OnChanges, OnDestroy 
    */
   unselectEntity(entity: Feature) {
     // show all entities
-    this.entitiesToShow = this.entityStore.entities$.getValue() as Array<Feature>;
+    this.entitiesList$.next(this.entitiesAll);
     this.entityIsSelected = false;
     this.currentPageNumber$.next(this.currentPageNumber$.getValue());
     this.entityStore.state.updateAll({selected: false});
@@ -314,7 +321,7 @@ export class SimpleFeatureListComponent implements OnInit, OnChanges, OnDestroy 
           const currentFilterValueValue: any = currentFilterValue[currentFilterValueKey];
           // if the filter value is of type string (attribute filter)...
           if (typeof currentFilterValueValue === 'string') {
-            for (let entity of this.entities) {
+            for (let entity of this.entitiesAll) {
               const entityProperties: Array<string> = Object.keys(entity.properties);
               if (entityProperties.includes(currentFilterValueKey)) {
                 if (entity.properties[currentFilterValueKey].toLowerCase().includes(currentFilterValueValue.toLowerCase())) {
@@ -328,10 +335,10 @@ export class SimpleFeatureListComponent implements OnInit, OnChanges, OnDestroy 
           }
         }
       }
-      this.filteredEntities$.next(filteredEntities);
+      this.entitiesList$.next(filteredEntities);
     // if there is not any non null fi
     } else {
-      this.entitiesToShow = this.entities;
+      this.entitiesList$.next(this.entitiesAll);
     }
   }
 }
