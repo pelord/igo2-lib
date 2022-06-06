@@ -65,7 +65,7 @@ export class SimpleFeatureListComponent implements OnInit, OnChanges, OnDestroy 
     this.formatURL = this.simpleFeatureListConfig.formatURL !== undefined ? this.simpleFeatureListConfig.formatURL : false;
     this.formatEmail = this.simpleFeatureListConfig.formatEmail !== undefined ? this.simpleFeatureListConfig.formatEmail : false;
 
-    // get the paginator config, including the page size, the buttons options and calculate the number of pages to use
+    // if it exist, get the paginator config, including the page size, the buttons options and calculate the number of pages to use
     this.paginator = this.simpleFeatureListConfig.paginator;
     if (this.paginator) {
       // 5 elements displayed by default
@@ -76,6 +76,7 @@ export class SimpleFeatureListComponent implements OnInit, OnChanges, OnDestroy 
       this.showPreviousNextPageButtons = this.paginator.showPreviousNextPageButtons !== undefined ?
         this.paginator.showPreviousNextPageButtons : true;
       this.entitiesList$.next(this.entitiesList);
+    // if the paginator config does not exist, all the entities are shown
     } else {
       this.entitiesShown = this.entitiesList;
     }
@@ -91,9 +92,13 @@ export class SimpleFeatureListComponent implements OnInit, OnChanges, OnDestroy 
       this.entitiesShown = this.entitiesList.slice(this.elementsLowerBound - 1, this.elementsUpperBound);
     });
 
+    // subscribe to the current entities list
     this.entitiesList$$ = this.entitiesList$.subscribe((entitiesList: Array<Feature>) => {
+      // replace the entities list
       this.entitiesList = entitiesList;
+      // calculate new number of pages
       this.numberOfPages = Math.ceil(this.entitiesList.length / this.pageSize);
+      // return to first page
       this.currentPageNumber$.next(1);
     });
   }
@@ -122,9 +127,12 @@ export class SimpleFeatureListComponent implements OnInit, OnChanges, OnDestroy 
         const currentFiltersValue: object = changes.simpleFiltersValue.currentValue;
         let nonNullFiltersValue: Array<object> = [];
 
+        // for each filter value...
         for (let filter in currentFiltersValue) {
           const currentFilterValue: any = currentFiltersValue[filter];
+          // ...if the filter value is not null...
           if (currentFilterValue !== "" && currentFilterValue !== null) {
+            // ...push the filter value in an array, then filter the entiites
             const filterValue: object = {};
             filterValue[filter] = currentFilterValue;
             nonNullFiltersValue.push(filterValue);
@@ -331,12 +339,12 @@ export class SimpleFeatureListComponent implements OnInit, OnChanges, OnDestroy 
             }
             // if the filter value is of type object (spatial filter)...
           } else {
-
+            // TODO
           }
         }
       }
       this.entitiesList$.next(filteredEntities);
-    // if there is not any non null fi
+    // if there is not any non null filter values, reset entities lsit
     } else {
       this.entitiesList$.next(this.entitiesAll);
     }

@@ -1,5 +1,5 @@
 <div class="paginator">
-  <button *ngIf="showFirstLastPageButtons"
+  <button *ngIf="showFirstLastPageButtons && numberOfPages > 1"
     class="navigationButton"
 		mat-icon-button
     color="primary"
@@ -11,7 +11,7 @@
     (click)="goToFirstPage()">
     <mat-icon svgIcon="page-first"></mat-icon>
   </button>
-  <button *ngIf="showPreviousNextPageButtons"
+  <button *ngIf="showPreviousNextPageButtons && numberOfPages > 1"
 		class="navigationButton"
     mat-icon-button
     color="primary"
@@ -30,7 +30,7 @@
     (click)="goToPage($event)">
     {{ i + 1 }}
   </span>
-  <button *ngIf="showPreviousNextPageButtons"
+  <button *ngIf="showPreviousNextPageButtons && numberOfPages > 1"
 		class="navigationButton"
     mat-icon-button
     color="primary"
@@ -42,7 +42,7 @@
     (click)="goToNextPage()">
     <mat-icon svgIcon="chevron-right"></mat-icon>
   </button>
-  <button *ngIf="showFirstLastPageButtons"
+  <button *ngIf="showFirstLastPageButtons && numberOfPages > 1"
 		class="navigationButton"
     mat-icon-button
     color="primary"

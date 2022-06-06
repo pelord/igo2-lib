@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, OnDestroy, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
 
 @Component({
@@ -6,7 +6,7 @@ import { BehaviorSubject, Subscription } from 'rxjs';
   templateUrl: './simple-feature-list-paginator.component.html',
   styleUrls: ['./simple-feature-list-paginator.component.scss']
 })
-export class SimpleFeatureListPaginatorComponent implements OnInit, OnDestroy {
+export class SimpleFeatureListPaginatorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() pageSize: number; // the number of elements per page
   @Input() numberOfPages: number; // the calculated number of pages necessary to display all the elements
   @Input() showFirstLastPageButtons: boolean; // boolean representing whether to display the First page and Last page buttons or not
@@ -39,6 +39,15 @@ export class SimpleFeatureListPaginatorComponent implements OnInit, OnDestroy {
       // emit the current page number to parent component
       this.pageChange.emit(currentPageNumber);
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    // if number of pages changes...
+    if (!changes.numberOfPages?.firstChange) {
+      // update number of pages and reset page number
+      this.numberOfPages = changes.numberOfPages.currentValue;
+      this.currentPageNumber$.next(1);
+    }
   }
 
   ngOnDestroy() {
