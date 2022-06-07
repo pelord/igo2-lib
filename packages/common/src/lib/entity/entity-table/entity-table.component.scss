@@ -6,14 +6,11 @@
 
 
 :host.table-compact {
-    height: auto ;
-    max-height: 150px !important;
-    overflow: auto !important;
+    overflow: auto;
 
     tr.mat-header-row,
      ::ng-deep .mat-checkbox .mat-checkbox-ripple {
         height: 36px;
-        // position: relative;
     }
     tr.mat-row,
      ::ng-deep .mat-checkbox .mat-checkbox-ripple {

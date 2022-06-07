@@ -99,6 +99,7 @@ export class DrawComponent implements OnInit, OnDestroy {
     selectionCheckbox: true,
     sort: true,
     fixedHeader: true,
+    tableHeight: 'auto',
     columns: [
       {
         name: 'Drawing',
@@ -141,6 +142,10 @@ export class DrawComponent implements OnInit, OnDestroy {
   public form: FormGroup;
   public icons: Array<string>;
   public icon: string;
+
+  private numberOfDrawings: number;
+
+  // public numberOfDrawings: number;
 
   constructor(
     private languageService: LanguageService,
@@ -332,6 +337,12 @@ export class DrawComponent implements OnInit, OnDestroy {
           } else {
             this.onSelectDraw(olGeometry, label);
           }
+
+          // Activates
+          this.updateHeightTable();
+          // this.numberOfDrawings = this.store.count$.getValue();
+          // this.numberOfDrawings > 1 ? this.tableTemplate.tableHeight = '23vh':
+          // this.tableTemplate.tableHeight = 'auto';
         }
         // deletes the feature
         else {
@@ -551,6 +562,7 @@ export class DrawComponent implements OnInit, OnDestroy {
         }
       });
     });
+    this.updateHeightTable();
   }
 
   /**
@@ -807,7 +819,11 @@ export class DrawComponent implements OnInit, OnDestroy {
   }
 
   updateHeightTable() {
-    return this.store.count$.getValue() > 5 ? '150px' : 'auto';
+
+    // Check the amount of rows as a possible alternative
+
+    this.numberOfDrawings = this.store.count$.getValue();
+    this.numberOfDrawings > 6 ? this.tableTemplate.tableHeight = '23vh': this.tableTemplate.tableHeight = 'auto';
   }
 
   // Helper methods
