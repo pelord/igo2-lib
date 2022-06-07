@@ -600,6 +600,25 @@ export class DrawComponent implements OnInit, OnDestroy {
   // User changes properties of a drawing element
 
   /**
+   * Display the current layer with the current store and the current layerSource
+   */
+
+  private onLayerChange(currStore, currLayer, currLayerSource){
+    
+    // Setting the inputted variables
+
+    this.stores.push(currStore);
+    this.drawingLayers.push(currLayer);
+    this.drawingLayerSources.push(currLayerSource);
+    
+    this.store = currStore;
+    this.olDrawingLayer = currLayer;
+    this.olDrawingLayerSource = currLayerSource;
+
+    // initStore or something like that
+  }  
+
+  /**
    * Called when the user changes the color in a color picker
    * @param labelsAreShown wheter the labels are shown or not
    * @param isAnIcon wheter the feature is an icon or not
