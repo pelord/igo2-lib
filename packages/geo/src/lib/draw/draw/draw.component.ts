@@ -123,6 +123,8 @@ export class DrawComponent implements OnInit, OnDestroy {
   @Input() store: FeatureStore<FeatureWithDraw>; // Drawing store
 
   private stores: FeatureStore<FeatureWithDraw>[];
+  private drawingLayers: VectorLayer[];
+  private drawingLayerSources;
 
   public draw$: BehaviorSubject<Draw> = new BehaviorSubject({}); // Observable of draw
 
@@ -333,6 +335,7 @@ export class DrawComponent implements OnInit, OnDestroy {
           // if event was fired at draw end
           if (isDrawEnd) {
             this.onDrawEnd(olGeometry);
+            console.log(this.store);
             // if event was fired at select
           } else {
             this.onSelectDraw(olGeometry, label);
