@@ -122,6 +122,8 @@ export class DrawComponent implements OnInit, OnDestroy {
   @Input() map: IgoMap; // Map to draw on
   @Input() store: FeatureStore<FeatureWithDraw>; // Drawing store
 
+  private stores: FeatureStore<FeatureWithDraw>[];
+
   public draw$: BehaviorSubject<Draw> = new BehaviorSubject({}); // Observable of draw
 
   private olDrawingLayerSource = new OlVectorSource();
@@ -144,8 +146,6 @@ export class DrawComponent implements OnInit, OnDestroy {
   public icon: string;
 
   private numberOfDrawings: number;
-
-  // public numberOfDrawings: number;
 
   constructor(
     private languageService: LanguageService,
