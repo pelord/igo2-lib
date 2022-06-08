@@ -43,6 +43,18 @@
 
   <div>
     <button
+    mat-icon-button
+    color="warn"
+    tooltip-position="below"
+    matTooltipShowDelay="500"
+    [matTooltip]="'igo.geo.draw.delete' | translate"
+    (click)="createLayer('test')"
+  >
+  </button>
+  </div>
+
+  <div>
+    <button
       *ngIf="store.count$.getValue() > 0"
       class="deleteBtn"
       mat-icon-button

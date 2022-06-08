@@ -218,61 +218,68 @@ export class DrawComponent implements OnInit, OnDestroy {
   /**
    * Store initialization, including drawing layer creation
    */
-  private initStore() {
-    this.map.removeLayer(this.olDrawingLayer);
+
+  // Reminder: private
+  public initStore(newId?: string) {
+    // this.map.removeLayer(this.olDrawingLayer);
 
     // this.map.addLayer()
-    this.olDrawingLayer = new VectorLayer({
-      isIgoInternalLayer: true,
-      id: 'igo-draw-layer',
-      title: this.languageService.translate.instant('igo.geo.draw.drawing'),
-      zIndex: 200,
-      source: new FeatureDataSource(),
-      style: (feature, resolution) => {
-        return this.drawStyleService.createIndividualElementStyle(
-          feature,
-          resolution,
-          this.labelsAreShown,
-          feature.get('fontStyle'),
-          feature.get('drawingStyle').fill,
-          feature.get('drawingStyle').stroke,
-          feature.get('offsetX'),
-          feature.get('offsetY'),
-          this.icon
-        );
-      },
-      showInLayerList: true,
-      exportable: true,
-      browsable: false,
-      workspace: {
-        enabled: false
-      }
-    });
-    tryBindStoreLayer(this.store, this.olDrawingLayer);
+    // this.olDrawingLayer = new VectorLayer({
+    //   isIgoInternalLayer: true,
+    //   id: newId? newId : 'igo-draw-layer',
+    //   title: this.languageService.translate.instant('igo.geo.draw.drawing'),
+    //   zIndex: 200,
+    //   source: new FeatureDataSource(),
+    //   style: (feature, resolution) => {
+    //     return this.drawStyleService.createIndividualElementStyle(
+    //       feature,
+    //       resolution,
+    //       this.labelsAreShown,
+    //       feature.get('fontStyle'),
+    //       feature.get('drawingStyle').fill,
+    //       feature.get('drawingStyle').stroke,
+    //       feature.get('offsetX'),
+    //       feature.get('offsetY'),
+    //       this.icon
+    //     );
+    //   },
+    //   showInLayerList: true,
+    //   exportable: true,
+    //   browsable: false,
+    //   workspace: {
+    //     enabled: false
+    //   }
+    // });
+    // console.log(this.olDrawingLayer);
+    // tryBindStoreLayer(this.store, this.olDrawingLayer);
 
-    tryAddLoadingStrategy(
-      this.store,
-      new FeatureStoreLoadingStrategy({
-        motion: FeatureMotion.None
-      })
-    );
+    // tryAddLoadingStrategy(
+    //   this.store,
+    //   new FeatureStoreLoadingStrategy({
+    //     motion: FeatureMotion.None
+    //   })
+    // );
 
-    tryAddSelectionStrategy(
-      this.store,
-      new FeatureStoreSelectionStrategy({
-        map: this.map,
-        motion: FeatureMotion.None,
-        many: true
-      })
-    );
-    this.store.layer.visible = true;
-    this.store.source.ol.on(
-      'removefeature',
-      (event: OlVectorSourceEvent<OlGeometry>) => {
-        const olGeometry = event.feature.getGeometry();
-        this.clearLabelsOfOlGeometry(olGeometry);
-      }
-    );
+    // tryAddSelectionStrategy(
+    //   this.store,
+    //   new FeatureStoreSelectionStrategy({
+    //     map: this.map,
+    //     motion: FeatureMotion.None,
+    //     many: true
+    //   })
+    // );
+    // this.store.layer.visible = true;
+    // this.store.source.ol.on(
+    //   'removefeature',
+    //   (event: OlVectorSourceEvent<OlGeometry>) => {
+    //     const olGeometry = event.feature.getGeometry();
+    //     this.clearLabelsOfOlGeometry(olGeometry);
+    //   }
+    // );
+
+    this.createLayer();
+
+    // When changing between layers
 
     this.subscriptions$$.push(
       this.store.stateView
@@ -603,7 +610,7 @@ export class DrawComponent implements OnInit, OnDestroy {
    * Display the current layer with the current store and the current layerSource
    */
 
-  private onLayerChange(currStore, currLayer, currLayerSource){
+  public onLayerChange(currStore?, currLayer?, currLayerSource?){
     
     // Setting the inputted variables
 
@@ -611,12 +618,75 @@ export class DrawComponent implements OnInit, OnDestroy {
     this.drawingLayers.push(currLayer);
     this.drawingLayerSources.push(currLayerSource);
     
-    this.store = currStore;
-    this.olDrawingLayer = currLayer;
-    this.olDrawingLayerSource = currLayerSource;
+    // this.store = currStore;
+    // this.olDrawingLayer = currLayer;
+    // this.olDrawingLayerSource = currLayerSource;
 
+    // this.initStore("test");
+    // console.log();
     // initStore or something like that
-  }  
+  }
+  
+  public createLayer(newId?){
+    // this.map.removeLayer(this.olDrawingLayer);
+    console.log(this.map);
+    this.olDrawingLayer = new VectorLayer({
+      isIgoInternalLayer: true,
+      id: newId ? newId:'igo-draw-layer',
+      title: this.languageService.translate.instant('igo.geo.draw.drawing'),
+      zIndex: 200,
+      source: new FeatureDataSource(),
+      style: (feature, resolution) => {
+        return this.drawStyleService.createIndividualElementStyle(
+          feature,
+          resolution,
+          this.labelsAreShown,
+          feature.get('fontStyle'),
+          feature.get('drawingStyle').fill,
+          feature.get('drawingStyle').stroke,
+          feature.get('offsetX'),
+          feature.get('offsetY'),
+          this.icon
+        );
+      },
+      showInLayerList: true,
+      exportable: true,
+      browsable: false,
+      workspace: {
+        enabled: false
+      }
+    });
+    console.log(this.olDrawingLayer);
+    this.map.addLayer(this.olDrawingLayer);
+    console.log(this.map);
+
+    tryBindStoreLayer(this.store, this.olDrawingLayer);
+
+    tryAddLoadingStrategy(
+      this.store,
+      new FeatureStoreLoadingStrategy({
+        motion: FeatureMotion.None
+      })
+    );
+
+    tryAddSelectionStrategy(
+      this.store,
+      new FeatureStoreSelectionStrategy({
+        map: this.map,
+        motion: FeatureMotion.None,
+        many: true
+      })
+    );
+    this.store.layer.visible = true;
+    this.store.source.ol.on(
+      'removefeature',
+      (event: OlVectorSourceEvent<OlGeometry>) => {
+        const olGeometry = event.feature.getGeometry();
+        this.clearLabelsOfOlGeometry(olGeometry);
+      }
+    );
+  }
+
 
   /**
    * Called when the user changes the color in a color picker
