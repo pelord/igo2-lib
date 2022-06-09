@@ -122,9 +122,11 @@ export class DrawComponent implements OnInit, OnDestroy {
   @Input() map: IgoMap; // Map to draw on
   @Input() store: FeatureStore<FeatureWithDraw>; // Drawing store
 
+  private layerWithStore = new Map<string,FeatureStore<FeatureWithDraw>>();
   private stores: FeatureStore<FeatureWithDraw>[];
   private drawingLayers: VectorLayer[];
-  private drawingLayerSources;
+  private layerCounterID: number = 0;
+  public activeLayer: string;
 
   public draw$: BehaviorSubject<Draw> = new BehaviorSubject({}); // Observable of draw
 
@@ -220,64 +222,8 @@ export class DrawComponent implements OnInit, OnDestroy {
    */
 
   // Reminder: private
-  public initStore(newId?: string) {
-    // this.map.removeLayer(this.olDrawingLayer);
-
-    // this.map.addLayer()
-    // this.olDrawingLayer = new VectorLayer({
-    //   isIgoInternalLayer: true,
-    //   id: newId? newId : 'igo-draw-layer',
-    //   title: this.languageService.translate.instant('igo.geo.draw.drawing'),
-    //   zIndex: 200,
-    //   source: new FeatureDataSource(),
-    //   style: (feature, resolution) => {
-    //     return this.drawStyleService.createIndividualElementStyle(
-    //       feature,
-    //       resolution,
-    //       this.labelsAreShown,
-    //       feature.get('fontStyle'),
-    //       feature.get('drawingStyle').fill,
-    //       feature.get('drawingStyle').stroke,
-    //       feature.get('offsetX'),
-    //       feature.get('offsetY'),
-    //       this.icon
-    //     );
-    //   },
-    //   showInLayerList: true,
-    //   exportable: true,
-    //   browsable: false,
-    //   workspace: {
-    //     enabled: false
-    //   }
-    // });
-    // console.log(this.olDrawingLayer);
-    // tryBindStoreLayer(this.store, this.olDrawingLayer);
-
-    // tryAddLoadingStrategy(
-    //   this.store,
-    //   new FeatureStoreLoadingStrategy({
-    //     motion: FeatureMotion.None
-    //   })
-    // );
-
-    // tryAddSelectionStrategy(
-    //   this.store,
-    //   new FeatureStoreSelectionStrategy({
-    //     map: this.map,
-    //     motion: FeatureMotion.None,
-    //     many: true
-    //   })
-    // );
-    // this.store.layer.visible = true;
-    // this.store.source.ol.on(
-    //   'removefeature',
-    //   (event: OlVectorSourceEvent<OlGeometry>) => {
-    //     const olGeometry = event.feature.getGeometry();
-    //     this.clearLabelsOfOlGeometry(olGeometry);
-    //   }
-    // );
-
-    this.createLayer();
+  public initStore(newTitle?: string) {
+    this.createLayer(newTitle);
 
     // When changing between layers
 
@@ -610,30 +556,22 @@ export class DrawComponent implements OnInit, OnDestroy {
    * Display the current layer with the current store and the current layerSource
    */
 
-  public onLayerChange(currStore?, currLayer?, currLayerSource?){
+  public onLayerChange(currLayer){
     
     // Setting the inputted variables
 
-    this.stores.push(currStore);
-    this.drawingLayers.push(currLayer);
-    this.drawingLayerSources.push(currLayerSource);
-    
-    // this.store = currStore;
+    console.log(currLayer);
     // this.olDrawingLayer = currLayer;
-    // this.olDrawingLayerSource = currLayerSource;
-
-    // this.initStore("test");
-    // console.log();
-    // initStore or something like that
+    // this.store = this.layerWithStore.get(currLayer.id);
   }
   
-  public createLayer(newId?){
+  public createLayer(newTitle?){
     // this.map.removeLayer(this.olDrawingLayer);
     console.log(this.map);
     this.olDrawingLayer = new VectorLayer({
       isIgoInternalLayer: true,
-      id: newId ? newId:'igo-draw-layer',
-      title: this.languageService.translate.instant('igo.geo.draw.drawing'),
+      id: 'igo-draw-layer' + this.layerCounterID++,
+      title: newTitle ? newTitle:this.languageService.translate.instant('igo.geo.draw.drawing'),
       zIndex: 200,
       source: new FeatureDataSource(),
       style: (feature, resolution) => {
@@ -685,6 +623,9 @@ export class DrawComponent implements OnInit, OnDestroy {
         this.clearLabelsOfOlGeometry(olGeometry);
       }
     );
+
+    this.layerWithStore.set(this.olDrawingLayer.id, this.store);
+    console.log(this.layerWithStore);
   }
 
 
@@ -908,6 +849,10 @@ export class DrawComponent implements OnInit, OnDestroy {
 
   get allFontStyles(): string[] {
     return Object.values(FontType);
+  }
+
+  get allLayers(){
+    return this.map.layers;
   }
 
   updateHeightTable() {

@@ -42,15 +42,21 @@
   </div>
 
   <div>
-    <button
-    mat-icon-button
-    color="warn"
-    tooltip-position="below"
-    matTooltipShowDelay="500"
-    [matTooltip]="'igo.geo.draw.delete' | translate"
-    (click)="createLayer('test')"
+    <mat-select
+    #currLayer
+    (value)="activeLayer"
+    (selectionChange)="onLayerChange(currLayer.value)"
   >
-  </button>
+    <mat-option
+      *ngFor="let layer of allLayers"
+      [value]="layer"
+    >
+      {{ layer.title }}
+    </mat-option>
+  </mat-select>
+
+  <button (click)="initStore()">
+    </button>
   </div>
 
   <div>
