@@ -42,21 +42,14 @@
   </div>
 
   <div>
-    <mat-select
-    #currLayer
-    (value)="activeLayer"
-    (selectionChange)="onLayerChange(currLayer.value)"
-  >
-    <mat-option
-      *ngFor="let layer of allLayers"
-      [value]="layer"
-    >
-      {{ layer.title }}
-    </mat-option>
-  </mat-select>
+    <mat-form-field class="example-full-width">
+      <input
+        #input
+        matInput
+        placeholder="{{ 'igo.geo.draw.dialogTitle' | translate }}">
+    </mat-form-field>
 
-  <button (click)="initStore()">
-    </button>
+    <button mat-raised-button (click)="ngOnInit(input.value)">Create Layer</button>
   </div>
 
   <div>

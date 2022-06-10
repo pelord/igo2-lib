@@ -1,5 +1,8 @@
 import { Feature } from '../../feature/shared/feature.interfaces';
 import { IgoMap } from '../../map/shared/map';
+import { DrawControl } from '../../geometry/shared/controls/draw';
+import { FeatureStore } from '../../feature';
+
 
 export interface DrawOptions {
   icons?: string[];
@@ -33,3 +36,8 @@ export interface FeatureWithDrawProperties {
 export interface FeatureStoreDrawStrategyOptions {
   map: IgoMap;
 }
+
+export interface StoreAndDrawControl {
+  store: FeatureStore<FeatureWithDraw>; 
+  drawControl: DrawControl
+};

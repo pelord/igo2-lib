@@ -24,7 +24,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { FontType, GeometryType } from '../shared/draw.enum';
 import { IgoMap } from '../../map/shared/map';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { Draw, FeatureWithDraw } from '../shared/draw.interface';
+import { Draw, FeatureWithDraw, StoreAndDrawControl } from '../shared/draw.interface';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { VectorSourceEvent as OlVectorSourceEvent } from 'ol/source/Vector';
 import { VectorLayer } from '../../layer/shared/layers/vector-layer';
@@ -122,9 +122,8 @@ export class DrawComponent implements OnInit, OnDestroy {
   @Input() map: IgoMap; // Map to draw on
   @Input() store: FeatureStore<FeatureWithDraw>; // Drawing store
 
-  private layerWithStore = new Map<string,FeatureStore<FeatureWithDraw>>();
-  private stores: FeatureStore<FeatureWithDraw>[];
-  private drawingLayers: VectorLayer[];
+
+  private layerWithStore = new Map<string, StoreAndDrawControl>();
   private layerCounterID: number = 0;
   public activeLayer: string;
 
@@ -171,8 +170,8 @@ export class DrawComponent implements OnInit, OnDestroy {
   }
 
   // Initialize the store that will contain the entities and create the Draw control
-  ngOnInit() {
-    this.initStore();
+  ngOnInit(newTitle?: string) {
+    this.initStore(newTitle);
     this.drawControl = this.createDrawControl(
       this.fillColor,
       this.strokeColor,
@@ -180,6 +179,16 @@ export class DrawComponent implements OnInit, OnDestroy {
     );
     this.drawControl.setGeometryType(this.geometryType.Point as any);
     this.toggleDrawControl();
+
+    // Adds to the Map (data struc)
+    let currStoreAndCurrDControl = {
+      store: this.store,
+      drawControl: this.drawControl
+    }
+    this.layerWithStore.set(this.olDrawingLayer.id, currStoreAndCurrDControl);
+    // console.log(this.layerWithStore);
+
+    this.onLayerChange(this.olDrawingLayer);
   }
 
   /**
@@ -288,7 +297,6 @@ export class DrawComponent implements OnInit, OnDestroy {
           // if event was fired at draw end
           if (isDrawEnd) {
             this.onDrawEnd(olGeometry);
-            console.log(this.store);
             // if event was fired at select
           } else {
             this.onSelectDraw(olGeometry, label);
@@ -560,14 +568,30 @@ export class DrawComponent implements OnInit, OnDestroy {
     
     // Setting the inputted variables
 
-    console.log(currLayer);
-    // this.olDrawingLayer = currLayer;
-    // this.store = this.layerWithStore.get(currLayer.id);
+    // console.log(currLayer);
+    // console.log(JSON.stringify(this.olDrawingLayerSource) === JSON.stringify(currLayer.dataSource.ol));
+    // console.log(this.olDrawingLayerSource);
+    // console.log(currLayer.dataSource.ol);
+    // console.log(this.drawControl.olDrawingLayerSource);
+    // console.log(this.layerWithStore.get(currLayer.id));
+    this.olDrawingLayer = currLayer;
+    let storeAndDrawControl = this.layerWithStore.get(currLayer.id);
+    console.log(this.store);
+    // this.store = storeAndDrawControl.store;
+    this.store.layer = currLayer;
+    this.store.source.ol = new OlVectorSource();
+    this.store.layer.ol.getSource().refresh();
+
+    console.log(this.store);
+    this.drawControl = storeAndDrawControl.drawControl;
+    this.olDrawingLayerSource = storeAndDrawControl.drawControl.olDrawingLayerSource; 
+
+    // this.olDrawingLayerSource = currLayer.olDrawingLayerSource
   }
   
   public createLayer(newTitle?){
     // this.map.removeLayer(this.olDrawingLayer);
-    console.log(this.map);
+    // console.log(this.map);
     this.olDrawingLayer = new VectorLayer({
       isIgoInternalLayer: true,
       id: 'igo-draw-layer' + this.layerCounterID++,
@@ -594,9 +618,9 @@ export class DrawComponent implements OnInit, OnDestroy {
         enabled: false
       }
     });
-    console.log(this.olDrawingLayer);
+    // console.log(this.olDrawingLayer);
     this.map.addLayer(this.olDrawingLayer);
-    console.log(this.map);
+    // console.log(this.map);
 
     tryBindStoreLayer(this.store, this.olDrawingLayer);
 
@@ -624,8 +648,8 @@ export class DrawComponent implements OnInit, OnDestroy {
       }
     );
 
-    this.layerWithStore.set(this.olDrawingLayer.id, this.store);
-    console.log(this.layerWithStore);
+
+
   }
 
 
