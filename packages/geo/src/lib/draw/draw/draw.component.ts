@@ -120,7 +120,16 @@ export class DrawComponent implements OnInit, OnDestroy {
   @Output() fontSize: string;
   @Output() fontStyle: string;
   @Input() map: IgoMap; // Map to draw on
-  @Input() store: FeatureStore<FeatureWithDraw>; // Drawing store
+  // @Input() store: FeatureStore<FeatureWithDraw>; // Drawing store
+
+  @Input()
+  get store(): FeatureStore<FeatureWithDraw>{
+    return this._store;
+  }
+  set store(store: FeatureStore<FeatureWithDraw>){
+    this._store = store;
+  }
+  private _store;
 
 
   private layerWithStore = new Map<string, StoreAndDrawControl>();
@@ -170,7 +179,7 @@ export class DrawComponent implements OnInit, OnDestroy {
   }
 
   // Initialize the store that will contain the entities and create the Draw control
-  ngOnInit(newTitle?: string) {
+  ngOnInit(newTitle?: string, isInitStore?: boolean) {
     this.initStore(newTitle);
     this.drawControl = this.createDrawControl(
       this.fillColor,
@@ -180,6 +189,7 @@ export class DrawComponent implements OnInit, OnDestroy {
     this.drawControl.setGeometryType(this.geometryType.Point as any);
     this.toggleDrawControl();
 
+    this.store = new FeatureStore<FeatureWithDraw>([], {map: this.map});
     // Adds to the Map (data struc)
     let currStoreAndCurrDControl = {
       store: this.store,
@@ -189,6 +199,7 @@ export class DrawComponent implements OnInit, OnDestroy {
     // console.log(this.layerWithStore);
 
     this.onLayerChange(this.olDrawingLayer);
+    console.log(this.map.layers);
   }
 
   /**
@@ -568,25 +579,13 @@ export class DrawComponent implements OnInit, OnDestroy {
     
     // Setting the inputted variables
 
-    // console.log(currLayer);
-    // console.log(JSON.stringify(this.olDrawingLayerSource) === JSON.stringify(currLayer.dataSource.ol));
-    // console.log(this.olDrawingLayerSource);
-    // console.log(currLayer.dataSource.ol);
-    // console.log(this.drawControl.olDrawingLayerSource);
-    // console.log(this.layerWithStore.get(currLayer.id));
     this.olDrawingLayer = currLayer;
     let storeAndDrawControl = this.layerWithStore.get(currLayer.id);
-    console.log(this.store);
-    // this.store = storeAndDrawControl.store;
     this.store.layer = currLayer;
     this.store.source.ol = new OlVectorSource();
     this.store.layer.ol.getSource().refresh();
-
-    console.log(this.store);
     this.drawControl = storeAndDrawControl.drawControl;
     this.olDrawingLayerSource = storeAndDrawControl.drawControl.olDrawingLayerSource; 
-
-    // this.olDrawingLayerSource = currLayer.olDrawingLayerSource
   }
   
   public createLayer(newTitle?){
@@ -619,7 +618,7 @@ export class DrawComponent implements OnInit, OnDestroy {
       }
     });
     // console.log(this.olDrawingLayer);
-    this.map.addLayer(this.olDrawingLayer);
+    // this.map.addLayer(this.olDrawingLayer);
     // console.log(this.map);
 
     tryBindStoreLayer(this.store, this.olDrawingLayer);
@@ -647,9 +646,6 @@ export class DrawComponent implements OnInit, OnDestroy {
         this.clearLabelsOfOlGeometry(olGeometry);
       }
     );
-
-
-
   }
 
 
