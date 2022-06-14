@@ -23,11 +23,10 @@ import { VectorLayer } from '../../layer';
 import { GeoWorkspaceOptions } from '../../layer/shared/layers/layer.interface';
 import { IgoMap } from '../../map';
 import { SourceFieldsOptionsParams, FeatureDataSource, RelationOptions } from '../../datasource';
-import { getCommonVectorSelectedStyle} from '../../utils';
 
 import { FeatureWorkspace } from './feature-workspace';
 import { skipWhile, take } from 'rxjs/operators';
-import { ConfigService, StorageService } from '@igo2/core';
+import { StorageService } from '@igo2/core';
 
 import olFeature from 'ol/Feature';
 import type { default as OlGeometry } from 'ol/geom/Geometry';
@@ -43,7 +42,7 @@ export class FeatureWorkspaceService {
 
   public ws$ = new BehaviorSubject<string>(undefined);
 
-  constructor(private storageService: StorageService, private configService: ConfigService) {}
+  constructor(private storageService: StorageService) {}
 
   createWorkspace(layer: VectorLayer, map: IgoMap): FeatureWorkspace {
     if (layer.options.workspace?.enabled === false || layer.dataSource.options.edition) {
@@ -82,15 +81,11 @@ export class FeatureWorkspaceService {
     const inMapExtentStrategy = new FeatureStoreInMapExtentStrategy({});
     const inMapResolutionStrategy = new FeatureStoreInMapResolutionStrategy({});
     const selectedRecordStrategy = new EntityStoreFilterSelectionStrategy({});
-    const confQueryOverlayStyle= this.configService.getConfig('queryOverlayStyle');
-
     const selectionStrategy = new FeatureStoreSelectionStrategy({
       layer: new VectorLayer({
         zIndex: 300,
         source: new FeatureDataSource(),
-        style: (feature) => {
-          return getCommonVectorSelectedStyle(Object.assign({}, {feature}, confQueryOverlayStyle.selection || {}));
-        },
+        style: undefined,
         showInLayerList: false,
         exportable: false,
         browsable: false

@@ -4,8 +4,6 @@ import olSource from 'ol/source/Source';
 import olSourceVector from 'ol/source/Vector';
 import type { default as OlGeometry } from 'ol/geom/Geometry';
 
-import { DOMValue } from '@igo2/common';
-
 import { DataSource } from '../../datasource/shared/datasources/datasource';
 import { DataSourceOptions } from '../../datasource/shared/datasources/datasource.interface';
 import { OgcFilterOperatorType } from './ogc-filter.enum';
@@ -52,7 +50,6 @@ export interface OgcFiltersOptions {
   checkboxes?: IgoOgcSelector;
   radioButtons?: IgoOgcSelector;
   select?: IgoOgcSelector;
-  autocomplete?: IgoOgcSelector;
   interfaceOgcFilters?: OgcInterfaceFilterOptions[];
   filtered?: boolean;
   advancedOgcFilters?: boolean;
@@ -63,7 +60,7 @@ export interface OgcFiltersOptions {
 export interface IgoOgcSelector {
   groups: SelectorGroup[];
   bundles: OgcSelectorBundle[];
-  selectorType: 'pushButton' | 'checkbox' | 'radioButton' | 'select' | 'autocomplete';
+  selectorType: 'pushButton' | 'checkbox' | 'radioButton' | 'select';
   order?: number;
 }
 
@@ -82,9 +79,7 @@ export interface OgcSelectorBundle {
   vertical?: boolean;
   multiple?: boolean;
   unfiltered?: boolean;
-  selectors?: OgcPushButton[] | OgcCheckbox[] | OgcRadioButton[] | OgcSelect[] | OgcAutocomplete[];
-  domSelectors?: IgoDomSelector[];
-  width?: string;
+  selectors: OgcPushButton[] | OgcCheckbox[] | OgcRadioButton[] | OgcSelect[];
 }
 
 export interface OgcPushButton {
@@ -115,12 +110,6 @@ export interface OgcSelect {
   enabled?: boolean;
   filters: IgoOgcFilterObject;
 }
-export interface OgcAutocomplete {
-  title: string;
-  tooltip?: string;
-  enabled?: boolean;
-  filters: IgoOgcFilterObject;
-}
 
 export interface OgcFilterableDataSourceOptions extends DataSourceOptions {
   ogcFilters?: OgcFiltersOptions;
@@ -135,14 +124,6 @@ export interface OgcFilterableDataSource extends DataSource {
 export interface IgoLogicalArrayOptions {
   logical: string;
   filters: IgoLogicalArrayOptions | AnyBaseOgcFilterOptions[];
-}
-
-export interface IgoDomSelector {
-  id: number;
-  name: string;
-  operator: string;
-  propertyName: string;
-  domValue: DOMValue[];
 }
 
 export interface OgcFilterCondionsArrayOptions {

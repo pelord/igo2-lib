@@ -20,7 +20,7 @@ export function getLayersLegends(layers: Layer[], view?: LegendMapViewOptions): 
       legends.push({
         title: layer.title || '',
         url: legendUrl.url,
-        display: legendOptions?.display === undefined ? true : legendOptions.display
+        display: legendOptions ? legendOptions.display === true : true
       });
     }
   }

@@ -1,14 +1,12 @@
 import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { IgoLanguageModule, IgoMessageModule } from '@igo2/core';
-
 import { QueryDirective } from './shared/query.directive';
 import { QueryService } from './shared/query.service';
 import { provideQuerySearchSource } from './shared/query-search-source.providers';
 
 @NgModule({
-  imports: [CommonModule, IgoLanguageModule, IgoMessageModule],
+  imports: [CommonModule],
   exports: [QueryDirective],
   declarations: [QueryDirective],
   providers: [QueryService]

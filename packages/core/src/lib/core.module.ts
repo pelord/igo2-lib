@@ -9,19 +9,7 @@ import { IgoConfigModule } from './config/config.module';
 import { IgoLanguageModule } from './language/language.module';
 import { IgoMessageModule } from './message/message.module';
 import { IgoErrorModule } from './request/error.module';
-import { DBConfig, NgxIndexedDBModule } from 'ngx-indexed-db';
 
-const dbConfig: DBConfig = {
-  name: 'igo2DB',
-  version: 1,
-  objectStoresMeta: [{
-    store: 'geoData',
-    storeConfig: { keyPath: 'url', autoIncrement: false },
-    storeSchema: [
-      { name: 'regionID', keypath: 'regionID', options: { unique: false }}
-    ]
-  }]
-};
 @NgModule({
   imports: [
     CommonModule,
@@ -30,8 +18,7 @@ const dbConfig: DBConfig = {
     IgoConfigModule.forRoot(),
     IgoErrorModule.forRoot(),
     IgoLanguageModule.forRoot(),
-    IgoMessageModule.forRoot(),
-    NgxIndexedDBModule.forRoot(dbConfig)
+    IgoMessageModule.forRoot()
   ],
   declarations: [],
   exports: [

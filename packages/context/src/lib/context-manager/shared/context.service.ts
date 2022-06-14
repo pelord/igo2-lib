@@ -24,8 +24,7 @@ import {
   RouteService,
   Message,
   MessageService,
-  LanguageService,
-  StorageService
+  LanguageService
 } from '@igo2/core';
 
 import { AuthService } from '@igo2/auth';
@@ -62,7 +61,7 @@ export class ContextService {
   private toolbar: string[];
 
   get defaultContextUri(): string {
-    return this.storageService.get('favorite.context.uri') as string || this._defaultContextUri || this.options.defaultContextUri;
+    return this._defaultContextUri || this.options.defaultContextUri;
   }
   set defaultContextUri(uri: string) {
     this._defaultContextUri = uri;
@@ -75,7 +74,6 @@ export class ContextService {
     private languageService: LanguageService,
     private config: ConfigService,
     private messageService: MessageService,
-    private storageService: StorageService,
     @Optional() private route: RouteService
   ) {
     this.options = Object.assign(
@@ -133,19 +131,12 @@ export class ContextService {
   }
 
   getDefault(): Observable<DetailedContext> {
-    if (this.authService.authenticated) {
-      const url = this.baseUrl + '/contexts/default';
-      return this.http.get<DetailedContext>(url).pipe(
-        tap((context) => {
-          this.defaultContextId$.next(context.id);
-        })
-      );
-    } else {
-      const uri = this.storageService.get('favorite.context.uri') as string;
-      this.defaultContextId$.next(uri);
-      return this.getContextByUri(uri);
-    }
-
+    const url = this.baseUrl + '/contexts/default';
+    return this.http.get<DetailedContext>(url).pipe(
+      tap((context) => {
+        this.defaultContextId$.next(context.id);
+      })
+    );
   }
 
   getProfilByUser(): Observable<ContextProfils[]> {
@@ -157,13 +148,8 @@ export class ContextService {
   }
 
   setDefault(id: string): Observable<any> {
-    if (this.authService.authenticated) {
-      const url = this.baseUrl + '/contexts/default';
-      return this.http.post(url, { defaultContextId: id });
-    } else {
-      this.storageService.set('favorite.context.uri', id);
-      return of(undefined);
-    }
+    const url = this.baseUrl + '/contexts/default';
+    return this.http.post(url, { defaultContextId: id });
   }
 
   hideContext(id: string) {

@@ -43,7 +43,6 @@ import {
 import { computeMVTOptionsOnHover } from '../utils/layer.utils';
 import { StyleService } from './style.service';
 import { LanguageService, MessageService } from '@igo2/core';
-import { GeoNetworkService } from '../../offline/shared/geo-network.service';
 import { StyleLike as OlStyleLike } from 'ol/style/Style';
 
 @Injectable({
@@ -54,7 +53,6 @@ export class LayerService {
     private http: HttpClient,
     private styleService: StyleService,
     private dataSourceService: DataSourceService,
-    private geoNetwork: GeoNetworkService,
     private messageService: MessageService,
     private languageService: LanguageService,
     @Optional() private authInterceptor: AuthInterceptor
@@ -154,7 +152,7 @@ export class LayerService {
           resolution
         );
       };
-      igoLayer = new VectorLayer(layerOptions, this.messageService, this.authInterceptor, this.geoNetwork);
+      igoLayer = new VectorLayer(layerOptions, this.messageService, this.authInterceptor);
     }
 
     if (layerOptions.source instanceof ClusterDataSource) {
@@ -168,7 +166,7 @@ export class LayerService {
           baseStyle
         );
       };
-      igoLayer = new VectorLayer(layerOptions, this.messageService, this.authInterceptor, this.geoNetwork);
+      igoLayer = new VectorLayer(layerOptions, this.messageService, this.authInterceptor);
     }
 
     const layerOptionsOl = Object.assign({}, layerOptions, {
@@ -176,7 +174,7 @@ export class LayerService {
     });
 
     if (!igoLayer) {
-      igoLayer = new VectorLayer(layerOptionsOl, this.messageService, this.authInterceptor, this.geoNetwork);
+      igoLayer = new VectorLayer(layerOptionsOl, this.messageService, this.authInterceptor);
     }
 
     this.applyMapboxStyle(igoLayer, layerOptionsOl as any);
@@ -220,21 +218,13 @@ export class LayerService {
 
   private applyMapboxStyle(layer: Layer, layerOptions: VectorTileLayerOptions) {
     if (layerOptions.mapboxStyle) {
-      this.getStuff(layerOptions.mapboxStyle.url).subscribe(res => {
-        if (res.sprite){
-          const url = this.getAbsoluteUrl(layerOptions.mapboxStyle.url, res.sprite);
-          this.getStuff(url+'.json').subscribe(res2 => {
-            stylefunction(layer.ol, res, layerOptions.mapboxStyle.source, undefined, res2,
-              url+'.png');
-          });
-        } else {
-          stylefunction(layer.ol, res, layerOptions.mapboxStyle.source);
-        }
+      this.getMapboxGlStyle(layerOptions.mapboxStyle.url).subscribe(res => {
+        stylefunction(layer.ol, res, layerOptions.mapboxStyle.source);
       });
     }
   }
 
-  private getStuff(url: string) {
+  public getMapboxGlStyle(url: string) {
     return this.http.get(url).pipe(
       map((res: any) => res),
       catchError(err => {
@@ -243,18 +233,4 @@ export class LayerService {
       })
     );
   }
-
-  private getAbsoluteUrl(source, url) {
-    const r = new RegExp('^http|\/\/', 'i');
-    if(r.test(url)){
-      return url;
-    } else {
-      if ( source.substr(source.length -1) === "/"){
-        return source + url;
-      } else{
-        return source + "/" + url;
-      }
-    }
-  }
-
 }

@@ -3,8 +3,7 @@ import {
   Self,
   OnInit,
   OnDestroy,
-  HostListener,
-  ChangeDetectorRef
+  HostListener
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
@@ -31,7 +30,6 @@ export class ContextListBindingDirective implements OnInit, OnDestroy {
   private contexts$$: Subscription;
   private selectedContext$$: Subscription;
   private defaultContextId$$: Subscription;
-  private previousMessageId;
 
   @HostListener('select', ['$event'])
   onSelect(context: Context) {
@@ -86,13 +84,7 @@ export class ContextListBindingDirective implements OnInit, OnDestroy {
 
   @HostListener('favorite', ['$event'])
   onFavorite(context: Context) {
-    if (!context.id) {
-      context.id = context.uri;
-    }
     this.contextService.setDefault(context.id).subscribe(() => {
-      if (this.previousMessageId) {
-        this.messageService.remove(this.previousMessageId);
-      }
       this.contextService.defaultContextId$.next(context.id);
       const translate = this.languageService.translate;
       const message = translate.instant(
@@ -104,9 +96,7 @@ export class ContextListBindingDirective implements OnInit, OnDestroy {
       const title = translate.instant(
         'igo.context.contextManager.dialog.favoriteTitle'
       );
-      const messageObj = this.messageService.success(message, title);
-      this.previousMessageId = messageObj.toastId;
-      this.cdRef.detectChanges();
+      this.messageService.success(message, title);
     });
   }
 
@@ -230,8 +220,7 @@ export class ContextListBindingDirective implements OnInit, OnDestroy {
     private confirmDialogService: ConfirmDialogService,
     private messageService: MessageService,
     private auth: AuthService,
-    private storageService: StorageService,
-    private cdRef: ChangeDetectorRef
+    private storageService: StorageService
   ) {
     this.component = component;
   }
@@ -252,10 +241,6 @@ export class ContextListBindingDirective implements OnInit, OnDestroy {
         this.component.defaultContextId = id;
       }
     );
-    const storedContextUri = this.storageService.get('favorite.context.uri') as string;
-    if (storedContextUri && !this.auth.authenticated) {
-      this.contextService.defaultContextId$.next(storedContextUri);
-    }
 
     // See feature-list.component for an explanation about the debounce time
     this.selectedContext$$ = this.contextService.context$

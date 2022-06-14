@@ -96,13 +96,10 @@
       "ol/format": "olformat",
       "@igo2/utils": "utils",
       "@igo2/core": "core",
-      "@ngx-translate/core": "ngxt-core",
-      "windows-1252": "windows1252"
+      "@ngx-translate/core": "ngxt-core"
     }
   },
   "allowedNonPeerDependencies": [
-    "nosleep.js",
-    "windows-1252",
     "ts-cacheable",
     "ts-md5",
     "@turf/helpers",

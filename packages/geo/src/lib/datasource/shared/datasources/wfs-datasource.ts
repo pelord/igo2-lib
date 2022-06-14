@@ -64,9 +64,6 @@ export class WFSDataSource extends DataSource {
     if (ogcFilters?.select){
       ogcFilters.select.selectorType = 'select';
     }
-    if (ogcFilters?.autocomplete){
-      ogcFilters.autocomplete.selectorType = 'autocomplete';
-    }
 
     this.setOgcFilters((this.options as OgcFilterableDataSourceOptions).ogcFilters, true);
   }

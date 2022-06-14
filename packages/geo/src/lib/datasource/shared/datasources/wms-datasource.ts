@@ -114,7 +114,7 @@ export class WMSDataSource extends DataSource {
       );
     } else {
       initOgcFilters.advancedOgcFilters = (initOgcFilters.pushButtons || initOgcFilters.checkboxes
-        || initOgcFilters.radioButtons || initOgcFilters.select || initOgcFilters.autocomplete)
+        || initOgcFilters.radioButtons || initOgcFilters.select)
         ? false
         : true;
       if (initOgcFilters.advancedOgcFilters && initOgcFilters.filters) {
@@ -134,9 +134,6 @@ export class WMSDataSource extends DataSource {
       }
       if (initOgcFilters.select){
         initOgcFilters.select.selectorType = 'select';
-      }
-      if (initOgcFilters.autocomplete){
-        initOgcFilters.autocomplete.selectorType = 'autocomplete';
       }
     }
 

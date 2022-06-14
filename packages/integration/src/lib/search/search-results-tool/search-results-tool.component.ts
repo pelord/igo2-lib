@@ -69,11 +69,6 @@ export class SearchResultsToolComponent implements OnInit, OnDestroy {
    */
   @Input() showIcons: boolean = true;
 
-  /**
-   * Determine the top panel default state
-   */
-  @Input() topPanelStateDefault: string = 'expanded';
-
   private hasFeatureEmphasisOnSelection: boolean = false;
 
   private showResultsGeometries$$: Subscription;
@@ -438,20 +433,19 @@ export class SearchResultsToolComponent implements OnInit, OnDestroy {
     this.tryAddFeatureToMap(result);
     this.searchState.setSelectedResult(result);
 
-    if (this.topPanelState === 'initial') {
-      if (this.topPanelStateDefault !== 'collapsed') {
-        this.topPanelState = 'expanded';
-      } else {
-        this.topPanelState = 'collapsed';
-      }
-    }
-
     if (this.topPanelState === 'expanded') {
       const igoList = this.computeElementRef()[0];
       const selected = this.computeElementRef()[1];
-      if (!this.isScrolledIntoView(igoList, selected)) {
-        this.adjustTopPanel(igoList, selected);
-      }
+      setTimeout(() => {
+        // To be sure the flexible component has been displayed yet
+        if (!this.isScrolledIntoView(igoList, selected)) {
+          this.adjustTopPanel(igoList, selected);
+        }
+      }, FlexibleComponent.transitionTime + 50);
+    }
+
+    if (this.topPanelState === 'initial') {
+      this.topPanelState = 'expanded';
     }
   }
 
