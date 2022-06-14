@@ -120,9 +120,8 @@ export class DrawComponent implements OnInit, OnDestroy {
   @Output() fontSize: string;
   @Output() fontStyle: string;
   @Input() map: IgoMap; // Map to draw on
-  // @Input() store: FeatureStore<FeatureWithDraw>; // Drawing store
 
-  @Input()
+  @Input() 
   get store(): FeatureStore<FeatureWithDraw>{
     return this._store;
   }
@@ -179,7 +178,13 @@ export class DrawComponent implements OnInit, OnDestroy {
   }
 
   // Initialize the store that will contain the entities and create the Draw control
-  ngOnInit(newTitle?: string, isInitStore?: boolean) {
+  ngOnInit(newTitle?: string, isNewLayer?: boolean) {
+
+    // if (isNewLayer){
+    //   this.store = new FeatureStore<FeatureWithDraw>([], {map: this.map});
+    //   this.olDrawingLayerSource = new OlVectorSource();
+    // }
+
     this.initStore(newTitle);
     this.drawControl = this.createDrawControl(
       this.fillColor,
@@ -189,7 +194,6 @@ export class DrawComponent implements OnInit, OnDestroy {
     this.drawControl.setGeometryType(this.geometryType.Point as any);
     this.toggleDrawControl();
 
-    this.store = new FeatureStore<FeatureWithDraw>([], {map: this.map});
     // Adds to the Map (data struc)
     let currStoreAndCurrDControl = {
       store: this.store,
@@ -198,7 +202,7 @@ export class DrawComponent implements OnInit, OnDestroy {
     this.layerWithStore.set(this.olDrawingLayer.id, currStoreAndCurrDControl);
     // console.log(this.layerWithStore);
 
-    this.onLayerChange(this.olDrawingLayer);
+    // this.onLayerChange(this.olDrawingLayer);
     console.log(this.map.layers);
   }
 
@@ -242,7 +246,8 @@ export class DrawComponent implements OnInit, OnDestroy {
    */
 
   // Reminder: private
-  public initStore(newTitle?: string) {
+  private initStore(newTitle?: string) {
+    this.map.removeLayer(this.olDrawingLayer);
     this.createLayer(newTitle);
 
     // When changing between layers
