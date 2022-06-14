@@ -696,7 +696,9 @@
         "toggleMapTooltips": "Show map tooltips",
         "undo": "Remove last vertex",
         "fontSize": "Font size",
-        "fontStyle": "Font style"
+        "fontStyle": "Font style",
+        "offsetX": "Horizontal offset",
+        "offsetY": "Vertical offset"
       },
       "network": {
         "online": {
@@ -728,9 +730,6 @@
         "maxValue": "{{column}} is bigger than {{value}}",
         "minLength": "{{column}} is shorter than {{value}} characters",
         "maxLength": "{{column}} is longer than {{value}} characters"
-      },
-      "query": {
-        "featureCountMax": "You may have more feature queryable on {{value}}. Zoom in to ensure you have access to all features."
       }
     }
   }
