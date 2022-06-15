@@ -48,7 +48,7 @@
         matInput
         placeholder="{{ 'igo.geo.draw.dialogTitle' | translate }}">
     </mat-form-field>
-    <button mat-raised-button (click)="ngOnInit(input.value)">Create Layer</button>
+    <button mat-raised-button (click)="ngOnInit(input.value, true)">Create Layer</button>
     <mat-select
     #selectedLayer
     (selectionChange)="onLayerChange(selectedLayer.value)"

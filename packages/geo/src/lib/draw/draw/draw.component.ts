@@ -157,7 +157,7 @@ export class DrawComponent implements OnInit, OnDestroy {
   public icon: string;
 
   private numberOfDrawings: number;
-
+  
   constructor(
     private languageService: LanguageService,
     private formBuilder: FormBuilder,
@@ -180,10 +180,10 @@ export class DrawComponent implements OnInit, OnDestroy {
   // Initialize the store that will contain the entities and create the Draw control
   ngOnInit(newTitle?: string, isNewLayer?: boolean) {
 
-    // if (isNewLayer){
-    //   this.store = new FeatureStore<FeatureWithDraw>([], {map: this.map});
-    //   this.olDrawingLayerSource = new OlVectorSource();
-    // }
+    if (isNewLayer){
+      this.store = new FeatureStore<FeatureWithDraw>([], {map: this.map});
+      this.olDrawingLayerSource = new OlVectorSource();
+    }
 
     this.initStore(newTitle);
     this.drawControl = this.createDrawControl(
@@ -202,8 +202,8 @@ export class DrawComponent implements OnInit, OnDestroy {
     this.layerWithStore.set(this.olDrawingLayer.id, currStoreAndCurrDControl);
     // console.log(this.layerWithStore);
 
-    // this.onLayerChange(this.olDrawingLayer);
-    console.log(this.map.layers);
+    this.onLayerChange(this.olDrawingLayer);
+
   }
 
   /**
@@ -247,7 +247,7 @@ export class DrawComponent implements OnInit, OnDestroy {
 
   // Reminder: private
   private initStore(newTitle?: string) {
-    this.map.removeLayer(this.olDrawingLayer);
+    // this.map.removeLayer(this.olDrawingLayer);
     this.createLayer(newTitle);
 
     // When changing between layers
@@ -580,17 +580,30 @@ export class DrawComponent implements OnInit, OnDestroy {
    * Display the current layer with the current store and the current layerSource
    */
 
-  public onLayerChange(currLayer){
+  public onLayerChange(currLayer: VectorLayer){
     
     // Setting the inputted variables
 
+    this.olDrawingLayer.visible = false; 
+    this.olDrawingLayer.opacity = 0; 
+    this.drawControl.setOlMap(undefined);
+    // this.drawControl.setOlMap(this.map.ol, true);
+    // this.olDrawingLayer.displayed = false; 
     this.olDrawingLayer = currLayer;
+    // this.olDrawingLayer.visible = true; 
     let storeAndDrawControl = this.layerWithStore.get(currLayer.id);
-    this.store.layer = currLayer;
-    this.store.source.ol = new OlVectorSource();
+    
+    this._store = storeAndDrawControl.store;
     this.store.layer.ol.getSource().refresh();
     this.drawControl = storeAndDrawControl.drawControl;
     this.olDrawingLayerSource = storeAndDrawControl.drawControl.olDrawingLayerSource; 
+    // this.map.lowerLayer
+
+    this.toggleDrawControl();
+    console.log(this.map.layers);
+    console.log(this.store);
+    console.log(this.olDrawingLayer);
+    console.log(this.map);
   }
   
   public createLayer(newTitle?){
@@ -877,7 +890,7 @@ export class DrawComponent implements OnInit, OnDestroy {
   }
 
   get allLayers(){
-    return this.map.layers;
+    return this.map.layers.filter(layer => layer.id.includes('igo-draw-layer'));
   }
 
   updateHeightTable() {
