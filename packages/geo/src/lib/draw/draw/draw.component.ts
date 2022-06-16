@@ -133,15 +133,14 @@ export class DrawComponent implements OnInit, OnDestroy {
 
   private layerWithStore = new Map<string, StoreAndDrawControl>();
   private layerCounterID: number = 0;
-  public activeLayer: string;
 
   public draw$: BehaviorSubject<Draw> = new BehaviorSubject({}); // Observable of draw
 
-  private olDrawingLayerSource = new OlVectorSource();
+  private activeDrawingLayerSource = new OlVectorSource();
   private drawControl: DrawControl;
   private drawEnd$$: Subscription;
   private drawSelect$$: Subscription;
-  private olDrawingLayer: VectorLayer;
+  private activeDrawingLayer: VectorLayer;
   public selectedFeatures$: BehaviorSubject<FeatureWithDraw[]> =
     new BehaviorSubject([]);
   public fillForm: string;
@@ -178,14 +177,9 @@ export class DrawComponent implements OnInit, OnDestroy {
   }
 
   // Initialize the store that will contain the entities and create the Draw control
-  ngOnInit(newTitle?: string, isNewLayer?: boolean) {
+  ngOnInit() {
 
-    if (isNewLayer){
-      this.store = new FeatureStore<FeatureWithDraw>([], {map: this.map});
-      this.olDrawingLayerSource = new OlVectorSource();
-    }
-
-    this.initStore(newTitle);
+    this.initStore();
     this.drawControl = this.createDrawControl(
       this.fillColor,
       this.strokeColor,
@@ -199,10 +193,10 @@ export class DrawComponent implements OnInit, OnDestroy {
       store: this.store,
       drawControl: this.drawControl
     }
-    this.layerWithStore.set(this.olDrawingLayer.id, currStoreAndCurrDControl);
+    this.layerWithStore.set(this.activeDrawingLayer.id, currStoreAndCurrDControl);
     // console.log(this.layerWithStore);
 
-    this.onLayerChange(this.olDrawingLayer);
+    this.onLayerChange(this.activeDrawingLayer);
 
   }
 
@@ -229,7 +223,7 @@ export class DrawComponent implements OnInit, OnDestroy {
   ) {
     const drawControl = new DrawControl({
       geometryType: undefined,
-      drawingLayerSource: this.olDrawingLayerSource,
+      drawingLayerSource: this.activeDrawingLayerSource,
       drawingLayerStyle: new OlStyle.Style({}),
       interactionStyle: createInteractionStyle(
         fillColor,
@@ -247,7 +241,7 @@ export class DrawComponent implements OnInit, OnDestroy {
 
   // Reminder: private
   private initStore(newTitle?: string) {
-    // this.map.removeLayer(this.olDrawingLayer);
+    // this.map.removeLayer(this.activeDrawingLayer);
     this.createLayer(newTitle);
 
     // When changing between layers
@@ -326,12 +320,12 @@ export class DrawComponent implements OnInit, OnDestroy {
         }
         // deletes the feature
         else {
-          this.olDrawingLayerSource
+          this.activeDrawingLayerSource
             .getFeatures()
             .forEach((drawingLayerFeature) => {
               const geometry = drawingLayerFeature.getGeometry() as any;
               if (olGeometry === geometry) {
-                this.olDrawingLayerSource.removeFeature(drawingLayerFeature);
+                this.activeDrawingLayerSource.removeFeature(drawingLayerFeature);
               }
             });
         }
@@ -513,6 +507,34 @@ export class DrawComponent implements OnInit, OnDestroy {
     });
   }
 
+  public setupLayer(newTitle?: string, isNewLayer?: boolean){
+    if (isNewLayer){
+      this.store = new FeatureStore<FeatureWithDraw>([], {map: this.map});
+      this.activeDrawingLayerSource = new OlVectorSource();
+    }
+
+    this.initStore(newTitle);
+    this.drawControl = this.createDrawControl(
+      this.fillColor,
+      this.strokeColor,
+      this.strokeWidth
+    );
+    this.drawControl.setGeometryType(this.geometryType.Point as any);
+    this.toggleDrawControl();
+
+    // Adds to the Map (data struc)
+    let currStoreAndCurrDControl = {
+      store: this.store,
+      drawControl: this.drawControl
+    }
+    this.layerWithStore.set(this.activeDrawingLayer.id, currStoreAndCurrDControl);
+    // console.log(this.layerWithStore);
+
+    this.onLayerChange(this.activeDrawingLayer);
+  }
+
+
+
   // HTML user interactions
 
   /**
@@ -535,10 +557,10 @@ export class DrawComponent implements OnInit, OnDestroy {
   deleteDrawings() {
     this.store.deleteMany(this.selectedFeatures$.value);
     this.selectedFeatures$.value.forEach((selectedFeature) => {
-      this.olDrawingLayerSource.getFeatures().forEach((drawingLayerFeature) => {
+      this.activeDrawingLayerSource.getFeatures().forEach((drawingLayerFeature) => {
         const geometry = drawingLayerFeature.getGeometry() as any;
         if (selectedFeature.properties.id === geometry.ol_uid) {
-          this.olDrawingLayerSource.removeFeature(drawingLayerFeature);
+          this.activeDrawingLayerSource.removeFeature(drawingLayerFeature);
         }
       });
     });
@@ -584,32 +606,32 @@ export class DrawComponent implements OnInit, OnDestroy {
     
     // Setting the inputted variables
 
-    this.olDrawingLayer.visible = false; 
-    this.olDrawingLayer.opacity = 0; 
-    this.drawControl.setOlMap(undefined);
+    // this.activeDrawingLayer.visible = false; 
+    // this.activeDrawingLayer.opacity = 0; 
+    // this.drawControl.setOlMap(undefined);
     // this.drawControl.setOlMap(this.map.ol, true);
-    // this.olDrawingLayer.displayed = false; 
-    this.olDrawingLayer = currLayer;
-    // this.olDrawingLayer.visible = true; 
+    // this.activeDrawingLayer.displayed = false; 
+    this.activeDrawingLayer = currLayer;
+    // this.activeDrawingLayer.visible = true; 
     let storeAndDrawControl = this.layerWithStore.get(currLayer.id);
     
     this._store = storeAndDrawControl.store;
-    this.store.layer.ol.getSource().refresh();
+    // this.store.layer.ol.getSource().refresh();
     this.drawControl = storeAndDrawControl.drawControl;
-    this.olDrawingLayerSource = storeAndDrawControl.drawControl.olDrawingLayerSource; 
+    this.activeDrawingLayerSource = storeAndDrawControl.drawControl.olDrawingLayerSource; 
     // this.map.lowerLayer
 
     this.toggleDrawControl();
     console.log(this.map.layers);
     console.log(this.store);
-    console.log(this.olDrawingLayer);
+    console.log(this.activeDrawingLayer);
     console.log(this.map);
   }
   
   public createLayer(newTitle?){
-    // this.map.removeLayer(this.olDrawingLayer);
+    // this.map.removeLayer(this.activeDrawingLayer);
     // console.log(this.map);
-    this.olDrawingLayer = new VectorLayer({
+    this.activeDrawingLayer = new VectorLayer({
       isIgoInternalLayer: true,
       id: 'igo-draw-layer' + this.layerCounterID++,
       title: newTitle ? newTitle:this.languageService.translate.instant('igo.geo.draw.drawing'),
@@ -635,11 +657,11 @@ export class DrawComponent implements OnInit, OnDestroy {
         enabled: false
       }
     });
-    // console.log(this.olDrawingLayer);
-    // this.map.addLayer(this.olDrawingLayer);
+    // console.log(this.activeDrawingLayer);
+    // this.map.addLayer(this.activeDrawingLayer);
     // console.log(this.map);
 
-    tryBindStoreLayer(this.store, this.olDrawingLayer);
+    tryBindStoreLayer(this.store, this.activeDrawingLayer);
 
     tryAddLoadingStrategy(
       this.store,
