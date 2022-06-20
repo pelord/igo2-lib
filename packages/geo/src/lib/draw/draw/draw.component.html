@@ -81,8 +81,8 @@
   <mat-divider></mat-divider>
 
   <div>
-    <mat-form-field appearance="outline">
-      <mat-select #selectedLayer (selectionChange)="onLayerChange(selectedLayer.value)">
+    <mat-form-field appearance="outline" class="layer-select">
+      <mat-select #selectedLayer (selectionChange)="onLayerChange(selectedLayer.value)" [value]="updateActiveLayer()" >
         <mat-option *ngFor="let layer of allLayers" [value]="layer">
           {{ layer.title }}
         </mat-option>
@@ -92,7 +92,8 @@
       </mat-select>
     </mat-form-field>
   </div>
-  <div *ngIf="isCreatingNewLayer">
+  
+  <div *ngIf="isCreatingNewLayer" class="input-button-container">
     <mat-form-field>
       <input #input matInput placeholder="test">
     </mat-form-field>

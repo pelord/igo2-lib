@@ -514,6 +514,8 @@ export class DrawComponent implements OnInit, OnDestroy {
     if (isNewLayer) {
       this.store = new FeatureStore<FeatureWithDraw>([], { map: this.map });
       this.activeDrawingLayerSource = new OlVectorSource();
+      this.activeDrawingLayer.opacity = 0;
+      this.deactivateDrawControl();
     }
 
     this.initStore(newTitle);
@@ -536,7 +538,7 @@ export class DrawComponent implements OnInit, OnDestroy {
     );
     // console.log(this.layerWithStore);
 
-    this.onLayerChange(this.activeDrawingLayer);
+    // this.onLayerChange(this.activeDrawingLayer, true);
   }
 
   // HTML user interactions
@@ -608,28 +610,27 @@ export class DrawComponent implements OnInit, OnDestroy {
    * Display the current layer with the current store and the current layerSource
    */
 
-  public onLayerChange(currLayer: VectorLayer) {
+  public onLayerChange(currLayer?: VectorLayer, isNewLayer?: boolean) {
     if (currLayer) {
       this.isCreatingNewLayer = false;
-
+      this.activeDrawingLayer.opacity = 0;
       this.activeDrawingLayer = currLayer;
-      // this.activeDrawingLayer.visible = true;
-      console.log(currLayer);
+      this.activeDrawingLayer.opacity = 1;
+
+      this.deactivateDrawControl();
 
       let storeAndDrawControl = this.layerWithStore.get(currLayer.id);
 
       this._store = storeAndDrawControl.store;
-      // this.store.layer.ol.getSource().refresh();
       this.drawControl = storeAndDrawControl.drawControl;
       this.activeDrawingLayerSource =
         storeAndDrawControl.drawControl.olDrawingLayerSource;
-      // this.map.lowerLayer
 
-      this.toggleDrawControl();
-
+      if (!isNewLayer){
+        this.toggleDrawControl();
+      }
 
       /**
-       * It is possible to turn off drawcontrol for other layers
        * Unselect selected features
        */
 
@@ -670,9 +671,6 @@ export class DrawComponent implements OnInit, OnDestroy {
         enabled: false
       }
     });
-    // console.log(this.activeDrawingLayer);
-    // this.map.addLayer(this.activeDrawingLayer);
-    // console.log(this.map);
 
     tryBindStoreLayer(this.store, this.activeDrawingLayer);
 
@@ -940,6 +938,10 @@ export class DrawComponent implements OnInit, OnDestroy {
 
   getLayerTitle(layer) {
     return layer ? layer.title : '';
+  }
+
+  updateActiveLayer(){
+    return this.allLayers.find(layer => layer.title === this.activeDrawingLayer.title);
   }
 
   // Helper methods

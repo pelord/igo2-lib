@@ -84,3 +84,17 @@ img {
 .igo-form-input-box{
   width: 150px;
 }
+
+.layer-select{
+  width: 100%;
+}
+
+.input-button-container{
+  mat-form-field {
+    width: 75%;
+  }
+  button{
+    left: 8px;
+    width: 25%;
+  }
+}
