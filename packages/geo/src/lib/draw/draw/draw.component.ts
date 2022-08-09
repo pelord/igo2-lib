@@ -78,6 +78,9 @@ import {
   MeasureAreaUnitAbbreviation,
 } from '../../measure/shared/measure.enum';
 import Polygon, {fromCircle} from 'ol/geom/Polygon';
+import { SpatialFilterService } from '../../filter/shared/spatial-filter.service';
+import { SpatialFilterType } from '../../filter';
+
 
 
 @Component({
@@ -187,6 +190,7 @@ export class DrawComponent implements OnInit, OnDestroy {
     private drawStyleService: DrawStyleService,
     private dialog: MatDialog,
     private drawIconService: DrawIconService,
+    private spatialFilterService: SpatialFilterService
   ) {
     this.buildForm();
     this.fillColor = this.drawStyleService.getFillColor();
@@ -654,6 +658,7 @@ export class DrawComponent implements OnInit, OnDestroy {
         this.selectedFeatures$.value[0],
         this.map.ol.getView().getProjection().getCode()
       );
+      console.log(this.spatialFilterService.loadBufferGeometry(this.selectedFeatures$.value[0], SpatialFilterType.Polygon, 1000));
       this.openDialog(olGeometryFeature, false);
     }
   }
