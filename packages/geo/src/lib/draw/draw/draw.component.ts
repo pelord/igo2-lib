@@ -33,6 +33,8 @@ import { FeatureDataSource } from '../../datasource/shared/datasources/feature-d
 import { DrawControl } from '../../geometry/shared/controls/draw';
 import {
   EntityRecord,
+  EntityTableButton,
+  EntityTableColumnRenderer,
   EntityTableTemplate
 } from '@igo2/common';
 
@@ -78,9 +80,6 @@ import {
   MeasureAreaUnitAbbreviation,
 } from '../../measure/shared/measure.enum';
 import Polygon, {fromCircle} from 'ol/geom/Polygon';
-import { SpatialFilterService } from '../../filter/shared/spatial-filter.service';
-import { SpatialFilterType } from '../../filter';
-
 
 
 @Component({
@@ -126,6 +125,21 @@ export class DrawComponent implements OnInit, OnDestroy {
         valueAccessor: (feature: FeatureWithDraw) => {
           return feature.properties.draw;
         }
+      },
+      {
+        name: 'Edition',
+        title: '',
+        sort: false,
+        valueAccessor: (feature: FeatureWithDraw) => {
+          return [{
+            editMode: false,
+            icon: 'pencil',
+            color: 'primary',
+            click: () => { this.editLabelDrawing(feature);},
+            style: 'mat-icon-button'
+          }] as EntityTableButton[];
+        },
+        renderer: EntityTableColumnRenderer.ButtonGroup,
       }
     ]
   };
@@ -190,7 +204,6 @@ export class DrawComponent implements OnInit, OnDestroy {
     private drawStyleService: DrawStyleService,
     private dialog: MatDialog,
     private drawIconService: DrawIconService,
-    private spatialFilterService: SpatialFilterService
   ) {
     this.buildForm();
     this.fillColor = this.drawStyleService.getFillColor();
@@ -652,15 +665,13 @@ export class DrawComponent implements OnInit, OnDestroy {
   /**
    * Called when the user double-clicks the selected drawing
    */
-  editLabelDrawing() {
-    if (this.selectedFeatures$.value.length) {
-      const olGeometryFeature = featureToOl(
-        this.selectedFeatures$.value[0],
-        this.map.ol.getView().getProjection().getCode()
-      );
-      console.log(this.spatialFilterService.loadBufferGeometry(this.selectedFeatures$.value[0], SpatialFilterType.Polygon, 1000));
-      this.openDialog(olGeometryFeature, false);
-    }
+  editLabelDrawing(feature) {
+    const olGeometryFeature = featureToOl(
+      feature,
+      this.map.ol.getView().getProjection().getCode()
+    );
+    this.openDialog(olGeometryFeature, false);
+
   }
 
   openShorcutsDialog() {
@@ -1057,7 +1068,7 @@ export class DrawComponent implements OnInit, OnDestroy {
     // Check the amount of rows as a possible alternative
 
     this.numberOfDrawings = this.activeStore.count$.getValue();
-    this.numberOfDrawings > 6
+    this.numberOfDrawings > 4
       ? (this.tableTemplate.tableHeight = '23vh')
       : (this.tableTemplate.tableHeight = 'auto');
   }
