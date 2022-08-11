@@ -26,7 +26,7 @@ import { CoordinatesUnit, FontType, GeometryType, LabelType } from '../shared/dr
 import { IgoMap } from '../../map/shared/map';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { Draw, FeatureWithDraw } from '../shared/draw.interface';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
 import { VectorSourceEvent as OlVectorSourceEvent } from 'ol/source/Vector';
 import { VectorLayer } from '../../layer/shared/layers/vector-layer';
 import { FeatureDataSource } from '../../datasource/shared/datasources/feature-datasource';
@@ -49,7 +49,7 @@ import type { default as OlGeometryType } from 'ol/geom/GeometryType';
 import { default as OlGeometry } from 'ol/geom/Geometry';
 import { getDistance, getLength } from 'ol/sphere';
 import { DrawStyleService } from '../shared/draw-style.service';
-import { skip } from 'rxjs/operators';
+import { debounce, debounceTime, skip } from 'rxjs/operators';
 import { DrawPopupComponent } from './draw-popup.component';
 import { DrawShorcutsComponent } from './draw-shorcuts.component';
 import { getTooltipsOfOlGeometry } from '../../measure/shared/measure.utils';
@@ -80,6 +80,7 @@ import {
   MeasureAreaUnitAbbreviation,
 } from '../../measure/shared/measure.enum';
 import Polygon, {fromCircle} from 'ol/geom/Polygon';
+import { SpatialFilterService, SpatialFilterType } from '../../filter';
 
 
 @Component({
@@ -198,12 +199,16 @@ export class DrawComponent implements OnInit, OnDestroy {
   public isCreatingNewLayer: boolean = false;
   private currGeometryType = this.geometryType.Point as any;
 
+  public bufferFormControl = new FormControl();
+  private bufferChanges$$: Subscription;
+
   constructor(
     private languageService: LanguageService,
     private formBuilder: FormBuilder,
     private drawStyleService: DrawStyleService,
     private dialog: MatDialog,
     private drawIconService: DrawIconService,
+    private spatialFilterService: SpatialFilterService
   ) {
     this.buildForm();
     this.fillColor = this.drawStyleService.getFillColor();
@@ -666,12 +671,21 @@ export class DrawComponent implements OnInit, OnDestroy {
    * Called when the user double-clicks the selected drawing
    */
   editLabelDrawing(feature) {
-    const olGeometryFeature = featureToOl(
+    let olGeometryFeature = featureToOl(
       feature,
       this.map.ol.getView().getProjection().getCode()
     );
+    this.bufferChanges$$ = this.bufferFormControl.valueChanges
+    .pipe(
+      debounceTime(500)
+    )
+    .subscribe((value) => {
+      this.spatialFilterService.loadBufferGeometry(feature, SpatialFilterType.Polygon, value).subscribe((featureGeo) => {
+        console.log(featureGeo);
+        console.log(olGeometryFeature);
+      })
+    });
     this.openDialog(olGeometryFeature, false);
-
   }
 
   openShorcutsDialog() {

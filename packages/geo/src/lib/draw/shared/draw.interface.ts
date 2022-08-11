@@ -4,6 +4,7 @@ import { DrawControl } from '../../geometry/shared/controls/draw';
 import { FeatureStore } from '../../feature';
 import { CoordinatesUnit, LabelType } from '../shared/draw.enum';
 import { MeasureAreaUnit, MeasureLengthUnit } from '../../measure/shared/measure.enum';
+import { FormControl } from '@angular/forms';
 
 export interface DrawOptions {
   icons?: string[];
@@ -34,6 +35,7 @@ export interface FeatureWithDrawProperties {
   offsetY: number;
   labelType: LabelType;
   measureUnit: MeasureLengthUnit | MeasureAreaUnit | CoordinatesUnit;
+  bufferFormControl?: FormControl;
 }
 
 export interface FeatureStoreDrawStrategyOptions {
