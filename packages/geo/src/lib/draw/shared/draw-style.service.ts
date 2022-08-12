@@ -5,6 +5,11 @@ import OlPoint from 'ol/geom/Point';
 import { transform } from 'ol/proj';
 import { MapService } from '../../map/shared/map.service';
 import { FontType } from './draw.enum';
+import { Feature } from '../../feature/shared/feature.interfaces';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs/operators';
+
 
 @Injectable({
   providedIn: 'root'
@@ -19,9 +24,13 @@ export class DrawStyleService {
   private fontStyle: string = FontType.Arial.toString();
   private offsetX: number = 0;
   private offsetY: number = 0;
+  
+  private baseUrl: string = 'https://geoegl.msp.gouv.qc.ca/apis/terrapi/';
+
 
   constructor(
-    private mapService: MapService
+    private mapService: MapService,
+    private http: HttpClient
   ) {}
 
   getFillColor(): string {
@@ -223,5 +232,23 @@ export class DrawStyleService {
       });
       return style;
     }
+  }
+
+
+  loadBufferGeometry(
+    feature: Feature,
+    buffer: number,
+  ): Observable<Feature> {
+    console.log(feature);
+    return this.http.post<Feature>(this.baseUrl + 'geospatial/buffer?', {
+          buffer,
+          loc: JSON.stringify(feature)
+        })
+        .pipe(
+          map(f => {
+            return f;
+          })
+        );
+    
   }
 }

@@ -297,6 +297,7 @@ export class SpatialFilterService {
     buffer?: number,
     type?: SpatialFilterQueryType,
   ): Observable<Feature> {
+    console.log(feature);
     if (filterType === SpatialFilterType.Predefined) {
       const featureType = this.urlFilterList[type];
       const featureCode = '/' + feature.properties.code;

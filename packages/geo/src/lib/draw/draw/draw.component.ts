@@ -53,7 +53,7 @@ import { debounce, debounceTime, skip } from 'rxjs/operators';
 import { DrawPopupComponent } from './draw-popup.component';
 import { DrawShorcutsComponent } from './draw-shorcuts.component';
 import { getTooltipsOfOlGeometry } from '../../measure/shared/measure.utils';
-import { createInteractionStyle, DDtoDMS } from '../shared/draw.utils';
+import { createInteractionStyle, DDtoDMS, OlFeaturetoFeature } from '../shared/draw.utils';
 import { transform } from 'ol/proj';
 import { DrawIconService } from '../shared/draw-icon.service';
 
@@ -675,16 +675,21 @@ export class DrawComponent implements OnInit, OnDestroy {
       feature,
       this.map.ol.getView().getProjection().getCode()
     );
+
+
+    let geometryFeature = OlFeaturetoFeature(feature);
     this.bufferChanges$$ = this.bufferFormControl.valueChanges
     .pipe(
       debounceTime(500)
     )
     .subscribe((value) => {
-      this.spatialFilterService.loadBufferGeometry(feature, SpatialFilterType.Polygon, value).subscribe((featureGeo) => {
+      this.drawStyleService.loadBufferGeometry(geometryFeature, value).subscribe((featureGeo) => {
         console.log(featureGeo);
         console.log(olGeometryFeature);
       })
+
     });
+    this.bufferFormControl.setValue(1);
     this.openDialog(olGeometryFeature, false);
   }
 
