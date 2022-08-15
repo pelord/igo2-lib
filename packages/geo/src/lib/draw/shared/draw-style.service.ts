@@ -234,21 +234,4 @@ export class DrawStyleService {
     }
   }
 
-
-  loadBufferGeometry(
-    feature: Feature,
-    buffer: number,
-  ): Observable<Feature> {
-    console.log(feature);
-    return this.http.post<Feature>(this.baseUrl + 'geospatial/buffer?', {
-          buffer,
-          loc: JSON.stringify(feature)
-        })
-        .pipe(
-          map(f => {
-            return f;
-          })
-        );
-    
-  }
 }

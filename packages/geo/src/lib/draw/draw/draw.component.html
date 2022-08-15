@@ -55,6 +55,13 @@
   </div>
   <mat-divider></mat-divider>
   <div>
+    <mat-form-field>
+      <input matInput 
+      type="number" (input)="bufferFormControl.setValue($event.target.value)">
+    </mat-form-field>
+  </div>
+  <mat-divider></mat-divider>
+  <div>
     <button
       *ngIf="activeStore.count$.getValue() > 0"
       class="deleteBtn"

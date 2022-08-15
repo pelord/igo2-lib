@@ -17,7 +17,9 @@ import {
   tryAddSelectionStrategy,
   FeatureMotion,
   FeatureStoreLoadingStrategy,
-  featureToOl
+  featureToOl,
+  FeatureGeometry,
+  Feature
 } from '../../feature';
 
 import { LanguageService } from '@igo2/core';
@@ -469,7 +471,6 @@ export class DrawComponent implements OnInit, OnDestroy {
         else{
           this.updateLabelOfOlGeometry(olGeometry, entity.properties.draw);
         }
-
         this.updateLabelType(
           olGeometry,
           entity.properties.labelType
@@ -675,21 +676,25 @@ export class DrawComponent implements OnInit, OnDestroy {
       feature,
       this.map.ol.getView().getProjection().getCode()
     );
-
-
+    
     let geometryFeature = OlFeaturetoFeature(feature);
     this.bufferChanges$$ = this.bufferFormControl.valueChanges
     .pipe(
       debounceTime(500)
     )
     .subscribe((value) => {
-      this.drawStyleService.loadBufferGeometry(geometryFeature, value).subscribe((featureGeo) => {
-        console.log(featureGeo);
-        console.log(olGeometryFeature);
+      this.spatialFilterService.loadBufferGeometry(geometryFeature, SpatialFilterType.Polygon, value).subscribe((featureGeo) => {
+        olGeometryFeature.setProperties(
+          {
+            flatCoordinates: this.getArraysOfCoordinates(featureGeo)
+          },
+          true
+        );
+
       })
 
     });
-    this.bufferFormControl.setValue(1);
+    this.bufferFormControl.setValue(100);
     this.openDialog(olGeometryFeature, false);
   }
 
@@ -1214,6 +1219,18 @@ export class DrawComponent implements OnInit, OnDestroy {
   private getRadius(olGeometry): number{
     const length = getLength(olGeometry);
     return Number(length / (2 * Math.PI));
+  }
+
+  private getArraysOfCoordinates(feature: FeatureGeometry | Feature): Number[]{
+    const featureGeo = feature as FeatureGeometry
+    const coordinates = featureGeo.coordinates[0];
+    let returnCoordinates = []
+    for (let i = 0; i < coordinates.length; i++){
+      returnCoordinates.push(coordinates[i][1]);
+      returnCoordinates.push(coordinates[i][0]);
+    }
+    console.log(returnCoordinates);
+    return returnCoordinates;
   }
 
 }

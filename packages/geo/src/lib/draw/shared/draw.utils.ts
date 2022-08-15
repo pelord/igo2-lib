@@ -12,7 +12,7 @@ import { CoordinatesUnit } from './draw.enum';
 import { convertDDToDMS } from '../../map/shared/map.utils';
 import OlFeature from 'ol/Feature';
 import { default as OlGeometry } from 'ol/geom/Geometry';
-import { Feature } from '../../feature/shared';
+import { Feature, FeatureGeometry } from '../../feature/shared';
 import Point from 'ol/geom/Point';
 import Polygon from 'ol/geom/Polygon';
 
@@ -128,24 +128,16 @@ export function DDtoDMS(value: [number, number], unit: CoordinatesUnit): string[
   return conversion ? conversion(value) : undefined;
 }
 
-export function OlFeaturetoFeature(olFeature: Feature): any{
-  let returnFeature = {
+export function OlFeaturetoFeature(olFeature: Feature): FeatureGeometry{
+  let returnFeature : FeatureGeometry = {
     type: undefined,
-    coordinates:{
-      type: undefined,
-      coordinates: undefined,
-    },
-    
+    coordinates: undefined
   };
   let geometryType = olFeature.geometry.type;
   let featureCoordinates = olFeature.geometry.coordinates;
-  if(geometryType === 'Point' || geometryType === 'Polygon'){
-    returnFeature.type = geometryType;
-    returnFeature.coordinates = featureCoordinates;
-  }
-  else{
-    return undefined
-  }
+  returnFeature.type = geometryType;
+  returnFeature.coordinates = featureCoordinates;
+  
   return returnFeature;
 }
 

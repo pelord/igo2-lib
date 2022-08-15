@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { ConfigService, LanguageService } from '@igo2/core';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { Feature } from '../../feature/shared';
+import { Feature, FeatureGeometry } from '../../feature/shared';
 import {
   SpatialFilterQueryType,
   SpatialFilterItemType,
@@ -292,15 +292,15 @@ export class SpatialFilterService {
    * Get buffer geometry
    */
   loadBufferGeometry(
-    feature: Feature,
+    feature: Feature | FeatureGeometry,
     filterType: SpatialFilterType,
     buffer?: number,
     type?: SpatialFilterQueryType,
   ): Observable<Feature> {
-    console.log(feature);
     if (filterType === SpatialFilterType.Predefined) {
+      const feat = feature as Feature;
       const featureType = this.urlFilterList[type];
-      const featureCode = '/' + feature.properties.code;
+      const featureCode = '/' + feat.properties.code;
       if (featureType && featureCode) {
         return this.http
           .get<Feature>(this.baseUrl + featureType + featureCode,
