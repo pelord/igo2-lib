@@ -296,7 +296,7 @@ export class SpatialFilterService {
     filterType: SpatialFilterType,
     buffer?: number,
     type?: SpatialFilterQueryType,
-  ): Observable<Feature> {
+  ): Observable<Feature | FeatureGeometry> {
     if (filterType === SpatialFilterType.Predefined) {
       const feat = feature as Feature;
       const featureType = this.urlFilterList[type];

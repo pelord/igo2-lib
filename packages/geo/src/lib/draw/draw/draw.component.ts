@@ -346,6 +346,32 @@ export class DrawComponent implements OnInit, OnDestroy {
           : (this.activeStore.layer.options.showInLayerList = false);
       })
     );
+
+    this.subscriptions$$.push(
+      this.bufferFormControl.valueChanges
+        .pipe(debounceTime(500))
+        .subscribe((value) => {
+          if (this.selectedFeatures$.value[0] && value > 0){
+            let feature = OlFeaturetoFeature(this.selectedFeatures$.value[0]);
+            this.spatialFilterService
+              .loadBufferGeometry(feature, SpatialFilterType.Polygon, value)
+              .subscribe((featureGeo: FeatureGeometry) => {
+
+                this.selectedFeatures$.value[0].geometry = featureGeo;
+                let olGeometryFeature = featureToOl(
+                  this.selectedFeatures$.value[0],
+                  this.map.ol.getView().getProjection().getCode()
+                );
+                console.log(this.selectedFeatures$.value[0]);
+                console.log(olGeometryFeature.getGeometry());
+
+                this.onSelectDraw(olGeometryFeature, this.selectedFeatures$.value[0].properties.draw);
+                // this.updateEverything(this.selectedFeatures$.value[0], olGeometryFeature.getGeometry());
+              });
+          }
+
+        })
+    );
   }
 
   /**
@@ -493,12 +519,14 @@ export class DrawComponent implements OnInit, OnDestroy {
           entity.properties.offsetX,
           entity.properties.offsetY
         );
+        console.log(entity);
+        console.log(olGeometry);
         this.replaceFeatureInStore(entity, olGeometry);
       }
     });
   }
 
-  private onSelectDraw(olFeature: OlFeature<OlGeometry>, label: string, labelTypeAndUnit?) {
+  private onSelectDraw(olFeature: OlFeature<OlGeometry>, label?: string, labelTypeAndUnit?) {
     const entities = this.activeStore.all();
 
     const olGeometry = olFeature.getGeometry() as any;
@@ -676,25 +704,6 @@ export class DrawComponent implements OnInit, OnDestroy {
       feature,
       this.map.ol.getView().getProjection().getCode()
     );
-    
-    let geometryFeature = OlFeaturetoFeature(feature);
-    this.bufferChanges$$ = this.bufferFormControl.valueChanges
-    .pipe(
-      debounceTime(500)
-    )
-    .subscribe((value) => {
-      this.spatialFilterService.loadBufferGeometry(geometryFeature, SpatialFilterType.Polygon, value).subscribe((featureGeo) => {
-        olGeometryFeature.setProperties(
-          {
-            flatCoordinates: this.getArraysOfCoordinates(featureGeo)
-          },
-          true
-        );
-
-      })
-
-    });
-    this.bufferFormControl.setValue(100);
     this.openDialog(olGeometryFeature, false);
   }
 
@@ -833,6 +842,29 @@ export class DrawComponent implements OnInit, OnDestroy {
       }
     );
   }
+
+  // public onBufferChange(bufferValue: number){
+  //   let feature = this.selectedFeatures$.value[0];
+  //   // let geometryFeature = OlFeaturetoFeature(feature);
+  //   this.bufferChanges$$ = this.bufferFormControl.valueChanges
+  //   .pipe(
+  //     debounceTime(500)
+  //   )
+  //   .subscribe((value) => {
+  //     this.spatialFilterService.loadBufferGeometry(feature, SpatialFilterType.Polygon, value).subscribe((featureGeo) => {
+  //       // olGeometryFeature.setProperties(
+  //       //   {
+  //       //     flatCoordinates: this.getArraysOfCoordinates(featureGeo)
+  //       //   },
+  //       //   true
+  //       // );
+        
+
+  //     })
+
+  //   });
+  //   this.bufferFormControl.setValue(100);
+  // }
 
   /**
    * Called when the user changes the color in a color picker
@@ -1221,16 +1253,44 @@ export class DrawComponent implements OnInit, OnDestroy {
     return Number(length / (2 * Math.PI));
   }
 
-  private getArraysOfCoordinates(feature: FeatureGeometry | Feature): Number[]{
-    const featureGeo = feature as FeatureGeometry
-    const coordinates = featureGeo.coordinates[0];
-    let returnCoordinates = []
-    for (let i = 0; i < coordinates.length; i++){
-      returnCoordinates.push(coordinates[i][1]);
-      returnCoordinates.push(coordinates[i][0]);
-    }
-    console.log(returnCoordinates);
-    return returnCoordinates;
-  }
+  // private getArraysOfCoordinates(feature: FeatureGeometry | Feature): Number[]{
+  //   const featureGeo = feature as FeatureGeometry
+  //   const coordinates = featureGeo.coordinates[0];
+  //   let returnCoordinates = []
+  //   for (let i = 0; i < coordinates.length; i++){
+  //     returnCoordinates.push(coordinates[i][1]);
+  //     returnCoordinates.push(coordinates[i][0]);
+  //   }
+  //   console.log(returnCoordinates);
+  //   return returnCoordinates;
+  // }
 
+  private updateEverything(entity: FeatureWithDraw, olGeometry){
+    this.updateLabelOfOlGeometry(olGeometry, entity.properties.draw);
+    this.updateLabelType(
+      olGeometry,
+      entity.properties.labelType
+    );
+    this.updateMeasureUnit(olGeometry, entity.properties.measureUnit);
+    this.updateFontSizeAndStyle(
+      olGeometry,
+      entity.properties.fontStyle.split(' ')[0].replace('px', ''),
+      entity.properties.fontStyle.substring(
+        entity.properties.fontStyle.indexOf(' ') + 1
+      )
+    );
+    this.updateFillAndStrokeColor(
+      olGeometry,
+      entity.properties.drawingStyle.fill,
+      entity.properties.drawingStyle.stroke
+    );
+    this.updateOffset(
+      olGeometry,
+      entity.properties.offsetX,
+      entity.properties.offsetY
+    );
+    this.replaceFeatureInStore(entity, olGeometry);
+  }
 }
+
+
