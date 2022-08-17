@@ -51,7 +51,7 @@ import type { default as OlGeometryType } from 'ol/geom/GeometryType';
 import { default as OlGeometry } from 'ol/geom/Geometry';
 import { getDistance, getLength } from 'ol/sphere';
 import { DrawStyleService } from '../shared/draw-style.service';
-import { debounce, debounceTime, skip } from 'rxjs/operators';
+import { debounceTime, skip } from 'rxjs/operators';
 import { DrawPopupComponent } from './draw-popup.component';
 import { DrawShorcutsComponent } from './draw-shorcuts.component';
 import { getTooltipsOfOlGeometry } from '../../measure/shared/measure.utils';
@@ -202,7 +202,6 @@ export class DrawComponent implements OnInit, OnDestroy {
   private currGeometryType = this.geometryType.Point as any;
 
   public bufferFormControl = new FormControl();
-  private bufferChanges$$: Subscription;
 
   constructor(
     private languageService: LanguageService,
@@ -352,9 +351,8 @@ export class DrawComponent implements OnInit, OnDestroy {
         .pipe(debounceTime(500))
         .subscribe((value) => {
           if (this.selectedFeatures$.value[0] && value > 0){
-            let feature = OlFeaturetoFeature(this.selectedFeatures$.value[0]);
             this.spatialFilterService
-              .loadBufferGeometry(feature, SpatialFilterType.Polygon, value)
+              .loadBufferGeometry(this.selectedFeatures$.value[0].geometry, SpatialFilterType.Polygon, value)
               .subscribe((featureGeo: FeatureGeometry) => {
 
                 this.selectedFeatures$.value[0].geometry = featureGeo;
@@ -362,11 +360,18 @@ export class DrawComponent implements OnInit, OnDestroy {
                   this.selectedFeatures$.value[0],
                   this.map.ol.getView().getProjection().getCode()
                 );
-                console.log(this.selectedFeatures$.value[0]);
-                console.log(olGeometryFeature.getGeometry());
+                console.log('hit')
+                console.log(featureGeo);
+                console.log(this.selectedFeatures$.value[0].geometry);
+                console.log(olGeometryFeature);
 
-                this.onSelectDraw(olGeometryFeature, this.selectedFeatures$.value[0].properties.draw);
-                // this.updateEverything(this.selectedFeatures$.value[0], olGeometryFeature.getGeometry());
+                const label = this.selectedFeatures$.value[0].properties.draw;
+                const labelTypeAndUnit = [this.selectedFeatures$.value[0].properties.labelType, this.selectedFeatures$.value[0].properties.measureUnit];
+
+                // this.activeStore.state.updateAll({selected: false});
+
+                // this.replaceFeatureInStore(this.selectedFeatures$.value[0], olGeometryFeature.getGeometry());
+                this.onSelectDraw(olGeometryFeature, label, labelTypeAndUnit);
               });
           }
 
@@ -519,8 +524,9 @@ export class DrawComponent implements OnInit, OnDestroy {
           entity.properties.offsetX,
           entity.properties.offsetY
         );
-        console.log(entity);
+        console.log(entity.geometry);
         console.log(olGeometry);
+        console.log(this.activeStore.all());
         this.replaceFeatureInStore(entity, olGeometry);
       }
     });
@@ -1253,44 +1259,6 @@ export class DrawComponent implements OnInit, OnDestroy {
     return Number(length / (2 * Math.PI));
   }
 
-  // private getArraysOfCoordinates(feature: FeatureGeometry | Feature): Number[]{
-  //   const featureGeo = feature as FeatureGeometry
-  //   const coordinates = featureGeo.coordinates[0];
-  //   let returnCoordinates = []
-  //   for (let i = 0; i < coordinates.length; i++){
-  //     returnCoordinates.push(coordinates[i][1]);
-  //     returnCoordinates.push(coordinates[i][0]);
-  //   }
-  //   console.log(returnCoordinates);
-  //   return returnCoordinates;
-  // }
-
-  private updateEverything(entity: FeatureWithDraw, olGeometry){
-    this.updateLabelOfOlGeometry(olGeometry, entity.properties.draw);
-    this.updateLabelType(
-      olGeometry,
-      entity.properties.labelType
-    );
-    this.updateMeasureUnit(olGeometry, entity.properties.measureUnit);
-    this.updateFontSizeAndStyle(
-      olGeometry,
-      entity.properties.fontStyle.split(' ')[0].replace('px', ''),
-      entity.properties.fontStyle.substring(
-        entity.properties.fontStyle.indexOf(' ') + 1
-      )
-    );
-    this.updateFillAndStrokeColor(
-      olGeometry,
-      entity.properties.drawingStyle.fill,
-      entity.properties.drawingStyle.stroke
-    );
-    this.updateOffset(
-      olGeometry,
-      entity.properties.offsetX,
-      entity.properties.offsetY
-    );
-    this.replaceFeatureInStore(entity, olGeometry);
-  }
 }
 
 
