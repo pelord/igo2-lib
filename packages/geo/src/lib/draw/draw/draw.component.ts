@@ -5,7 +5,8 @@ import {
   OnDestroy,
   ChangeDetectionStrategy,
   Output,
-  EventEmitter
+  EventEmitter,
+  ChangeDetectorRef
 } from '@angular/core';
 
 import {
@@ -209,7 +210,8 @@ export class DrawComponent implements OnInit, OnDestroy {
     private drawStyleService: DrawStyleService,
     private dialog: MatDialog,
     private drawIconService: DrawIconService,
-    private spatialFilterService: SpatialFilterService
+    private spatialFilterService: SpatialFilterService,
+    private cdRef: ChangeDetectorRef
   ) {
     this.buildForm();
     this.fillColor = this.drawStyleService.getFillColor();
@@ -356,14 +358,17 @@ export class DrawComponent implements OnInit, OnDestroy {
               .subscribe((featureGeo: FeatureGeometry) => {
 
                 this.selectedFeatures$.value[0].geometry = featureGeo;
-                let olGeometryFeature = featureToOl(
+                let olFeature = featureToOl(
                   this.selectedFeatures$.value[0],
                   this.map.ol.getView().getProjection().getCode()
                 );
+                // olGeometryFeature.setId(this.selectedFeatures$.value[0].properties.id);
+                olFeature.getGeometry().set('ol_uid', this.selectedFeatures$.value[0].properties.id);
+                
                 console.log('hit')
                 console.log(featureGeo);
-                console.log(this.selectedFeatures$.value[0].geometry);
-                console.log(olGeometryFeature);
+                console.log(this.selectedFeatures$.value[0]);
+                console.log(olFeature);
 
                 const label = this.selectedFeatures$.value[0].properties.draw;
                 const labelTypeAndUnit = [this.selectedFeatures$.value[0].properties.labelType, this.selectedFeatures$.value[0].properties.measureUnit];
@@ -371,7 +376,9 @@ export class DrawComponent implements OnInit, OnDestroy {
                 // this.activeStore.state.updateAll({selected: false});
 
                 // this.replaceFeatureInStore(this.selectedFeatures$.value[0], olGeometryFeature.getGeometry());
-                this.onSelectDraw(olGeometryFeature, label, labelTypeAndUnit);
+                // this.onSelectDraw(olGeometryFeature, label, labelTypeAndUnit);
+                this.onModifyDraw(olFeature.getGeometry());
+                this.cdRef.detectChanges();
               });
           }
 
@@ -541,6 +548,8 @@ export class DrawComponent implements OnInit, OnDestroy {
     const olGeometryCoordinates = JSON.stringify(
       olGeometry.getCoordinates()[0]
     );
+
+    console.log(olFeature);
 
     entities.forEach((entity) => {
       const entityCoordinates = JSON.stringify(entity.geometry.coordinates[0]);
