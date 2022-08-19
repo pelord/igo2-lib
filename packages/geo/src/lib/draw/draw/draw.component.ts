@@ -357,27 +357,25 @@ export class DrawComponent implements OnInit, OnDestroy {
               .loadBufferGeometry(this.selectedFeatures$.value[0].geometry, SpatialFilterType.Polygon, value)
               .subscribe((featureGeo: FeatureGeometry) => {
 
-                this.selectedFeatures$.value[0].geometry = featureGeo;
+                // this.selectedFeatures$.value[0].geometry.coordinates = featureGeo.coordinates;
+                // this.selectedFeatures$.value[0].geometry = this.selectedFeatures$.value[0].geometry;
                 let olFeature = featureToOl(
                   this.selectedFeatures$.value[0],
                   this.map.ol.getView().getProjection().getCode()
                 );
-                // olGeometryFeature.setId(this.selectedFeatures$.value[0].properties.id);
-                olFeature.getGeometry().set('ol_uid', this.selectedFeatures$.value[0].properties.id);
-                
-                console.log('hit')
-                console.log(featureGeo);
-                console.log(this.selectedFeatures$.value[0]);
-                console.log(olFeature);
+                // let olGeometry = olFeature.getGeometry() as Polygon | OlPoint;
+
+                let olGeometry = new Polygon([]);
+                olGeometry.setCoordinates(featureGeo.coordinates, 'XY');
+                olFeature.setGeometry(olGeometry);
 
                 const label = this.selectedFeatures$.value[0].properties.draw;
                 const labelTypeAndUnit = [this.selectedFeatures$.value[0].properties.labelType, this.selectedFeatures$.value[0].properties.measureUnit];
 
                 // this.activeStore.state.updateAll({selected: false});
 
-                // this.replaceFeatureInStore(this.selectedFeatures$.value[0], olGeometryFeature.getGeometry());
-                // this.onSelectDraw(olGeometryFeature, label, labelTypeAndUnit);
-                this.onModifyDraw(olFeature.getGeometry());
+                this.onSelectDraw(olFeature, label, labelTypeAndUnit);
+                
                 this.cdRef.detectChanges();
               });
           }
@@ -531,9 +529,6 @@ export class DrawComponent implements OnInit, OnDestroy {
           entity.properties.offsetX,
           entity.properties.offsetY
         );
-        console.log(entity.geometry);
-        console.log(olGeometry);
-        console.log(this.activeStore.all());
         this.replaceFeatureInStore(entity, olGeometry);
       }
     });
@@ -545,15 +540,8 @@ export class DrawComponent implements OnInit, OnDestroy {
     const olGeometry = olFeature.getGeometry() as any;
     olGeometry.ol_uid = olFeature.get('id');
 
-    const olGeometryCoordinates = JSON.stringify(
-      olGeometry.getCoordinates()[0]
-    );
-
-    console.log(olFeature);
-
     entities.forEach((entity) => {
-      const entityCoordinates = JSON.stringify(entity.geometry.coordinates[0]);
-      if (olGeometryCoordinates === entityCoordinates) {
+      if (olGeometry.ol_uid === entity.properties.id) {
         const fontSize = olFeature
           .get('fontStyle')
           .split(' ')[0]
