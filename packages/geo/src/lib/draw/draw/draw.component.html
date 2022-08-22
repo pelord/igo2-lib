@@ -57,7 +57,7 @@
   <div>
     <mat-form-field>
       <input matInput 
-      type="number" (input)="bufferFormControl.setValue($event.target.value)">
+      type="number" [formControl]="bufferFormControl" [value]="0">
     </mat-form-field>
   </div>
   <mat-divider></mat-divider>

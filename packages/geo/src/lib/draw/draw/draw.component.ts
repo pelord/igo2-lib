@@ -353,22 +353,31 @@ export class DrawComponent implements OnInit, OnDestroy {
         .pipe(debounceTime(500))
         .subscribe((value) => {
           if (this.selectedFeatures$.value[0] && value > 0){
+            const coordinates4326 = [];
+            const geom = [];
+            for (const coordinate of this.selectedFeatures$.value[0].geometry.coordinates[0]) {
+              let point4326 = transform(
+                coordinate,
+                this.map.ol.getView().getProjection().getCode(),
+                'EPSG:4326'
+              );
+              geom.push(point4326);
+            }
+            coordinates4326.push(geom);
+            const geometry4326 = {
+              type: this.selectedFeatures$.value[0].geometry.type,
+              coordinates: coordinates4326
+            }
             this.spatialFilterService
-              .loadBufferGeometry(this.selectedFeatures$.value[0].geometry, SpatialFilterType.Polygon, value)
+              .loadBufferGeometry(geometry4326, SpatialFilterType.Polygon, value)
               .subscribe((featureGeo: FeatureGeometry) => {
+                this.selectedFeatures$.value[0].geometry.coordinates = featureGeo.coordinates;
+                this.selectedFeatures$.value[0].projection = 'EPSG:4326';
 
-                // this.selectedFeatures$.value[0].geometry.coordinates = featureGeo.coordinates;
-                // this.selectedFeatures$.value[0].geometry = this.selectedFeatures$.value[0].geometry;
-                let olFeature = featureToOl(
+                const olFeature = featureToOl(
                   this.selectedFeatures$.value[0],
                   this.map.ol.getView().getProjection().getCode()
                 );
-                // let olGeometry = olFeature.getGeometry() as Polygon | OlPoint;
-
-                let olGeometry = new Polygon([]);
-                olGeometry.setCoordinates(featureGeo.coordinates, 'XY');
-                olFeature.setGeometry(olGeometry);
-
                 const label = this.selectedFeatures$.value[0].properties.draw;
                 const labelTypeAndUnit = [this.selectedFeatures$.value[0].properties.labelType, this.selectedFeatures$.value[0].properties.measureUnit];
 
