@@ -293,7 +293,7 @@ export class SpatialFilterService {
    */
   loadBufferGeometry(
     feature: Feature | FeatureGeometry,
-    filterType: SpatialFilterType,
+    filterType?: SpatialFilterType,
     buffer?: number,
     type?: SpatialFilterQueryType,
   ): Observable<Feature | FeatureGeometry> {
