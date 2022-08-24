@@ -379,16 +379,17 @@ export class DrawComponent implements OnInit, OnDestroy {
 
               const coordinates4326 = [];
               const geom = [];
-              let point4326 = transform(
-                feature.geometry.coordinates,
-                this.map.ol.getView().getProjection().getCode(),
-                'EPSG:4326'
-              );
-              geom.push(point4326);
-
+              for (let i = 0; i<4; i++){
+                let point4326 = transform(
+                  feature.geometry.coordinates,
+                  this.map.ol.getView().getProjection().getCode(),
+                  'EPSG:4326'
+                );
+                geom.push(point4326);
+              }
               coordinates4326.push(geom);
               geometry4326 = {
-                type: feature.geometry.type,
+                type: 'Polygon',
                 coordinates: coordinates4326
               };
               console.log(geometry4326);
@@ -1311,6 +1312,10 @@ export class DrawComponent implements OnInit, OnDestroy {
   private getRadius(olGeometry): number{
     const length = getLength(olGeometry);
     return Number(length / (2 * Math.PI));
+  }
+
+  private createBufferSubscription(){
+    
   }
 
 }
