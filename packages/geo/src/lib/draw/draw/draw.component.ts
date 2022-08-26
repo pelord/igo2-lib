@@ -27,9 +27,9 @@ import { LanguageService } from '@igo2/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CoordinatesUnit, FontType, GeometryType, LabelType } from '../shared/draw.enum';
 import { IgoMap } from '../../map/shared/map';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject, fromEventPattern, Subscription } from 'rxjs';
 import { Draw, FeatureWithDraw } from '../shared/draw.interface';
-import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
+import { FormGroup, FormBuilder, FormControl, FormArray } from '@angular/forms';
 import { VectorSourceEvent as OlVectorSourceEvent } from 'ol/source/Vector';
 import { VectorLayer } from '../../layer/shared/layers/vector-layer';
 import { FeatureDataSource } from '../../datasource/shared/datasources/feature-datasource';
@@ -56,7 +56,7 @@ import { debounceTime, skip } from 'rxjs/operators';
 import { DrawPopupComponent } from './draw-popup.component';
 import { DrawShorcutsComponent } from './draw-shorcuts.component';
 import { getTooltipsOfOlGeometry } from '../../measure/shared/measure.utils';
-import { createInteractionStyle, DDtoDMS, OlFeaturetoFeature } from '../shared/draw.utils';
+import { createInteractionStyle, DDtoDMS } from '../shared/draw.utils';
 import { transform } from 'ol/proj';
 import { DrawIconService } from '../shared/draw-icon.service';
 
@@ -84,6 +84,7 @@ import {
 } from '../../measure/shared/measure.enum';
 import Polygon, {fromCircle} from 'ol/geom/Polygon';
 import { SpatialFilterService, SpatialFilterType } from '../../filter';
+import Observable from 'ol/Observable';
 
 
 @Component({
@@ -203,6 +204,8 @@ export class DrawComponent implements OnInit, OnDestroy {
   private currGeometryType = this.geometryType.Point as any;
 
   public bufferFormControl = new FormControl();
+  public bufferFormControls : FormArray;
+ 
 
   constructor(
     private languageService: LanguageService,
@@ -348,97 +351,98 @@ export class DrawComponent implements OnInit, OnDestroy {
       })
     );
 
-    this.subscriptions$$.push(
-      this.bufferFormControl.valueChanges
-        .pipe(debounceTime(500))
-        .subscribe((value) => {
-          if (this.selectedFeatures$.value[0] && value > 0){
+    // this.subscriptions$$.push(this.bufferFormControls.valueChanges.pipe)
 
-            const feature = this.selectedFeatures$.value[0];
-            let geometry4326;
-            if (feature.geometry.type === 'Polygon'){
-              const coordinates4326 = [];
-              const geom = [];
-              for (const coordinate of feature.geometry.coordinates[0]) {
-                let point4326 = transform(
-                  coordinate,
-                  this.map.ol.getView().getProjection().getCode(),
-                  'EPSG:4326'
-                );
-                geom.push(point4326);
-              }
-              coordinates4326.push(geom);
-              geometry4326 = {
-                type: feature.geometry.type,
-                coordinates: coordinates4326
-              };
-              console.log(geometry4326);
+    // this.subscriptions$$.push(
+    //   this.bufferFormControl.valueChanges
+    //     .pipe(debounceTime(500))
+    //     .subscribe((value) => {
+    //       if (this.selectedFeatures$.value[0] && value > 0){
 
-            }
-            else if (feature.geometry.type === 'Point'){
+    //         const feature = this.selectedFeatures$.value[0];
+    //         let geometry4326;
+    //         if (feature.geometry.type === 'Polygon'){
+    //           const coordinates4326 = [];
+    //           const geom = [];
+    //           for (const coordinate of feature.geometry.coordinates[0]) {
+    //             let point4326 = transform(
+    //               coordinate,
+    //               this.map.ol.getView().getProjection().getCode(),
+    //               'EPSG:4326'
+    //             );
+    //             geom.push(point4326);
+    //           }
+    //           coordinates4326.push(geom);
+    //           geometry4326 = {
+    //             type: feature.geometry.type,
+    //             coordinates: coordinates4326
+    //           };
+    //           console.log(geometry4326);
 
-              const coordinates4326 = [];
-              const geom = [];
-              for (let i = 0; i<4; i++){
-                let point4326 = transform(
-                  feature.geometry.coordinates,
-                  this.map.ol.getView().getProjection().getCode(),
-                  'EPSG:4326'
-                );
-                geom.push(point4326);
-              }
-              coordinates4326.push(geom);
-              geometry4326 = {
-                type: 'Polygon',
-                coordinates: coordinates4326
-              };
-              console.log(geometry4326);
+    //         }
+    //         else if (feature.geometry.type === 'Point'){
+
+    //           const coordinates4326 = [];
+    //           const geom = [];
+    //           let point4326 = transform(
+    //             feature.geometry.coordinates,
+    //             this.map.ol.getView().getProjection().getCode(),
+    //             'EPSG:4326'
+    //           );
+    //           geom.push(point4326);
               
-            }
-            else if (feature.geometry.type === 'LineString'){
-              const coordinates4326 = [];
-              const geom = [];
-              for (const coordinate of feature.geometry.coordinates) {
-                let point4326 = transform(
-                  coordinate,
-                  this.map.ol.getView().getProjection().getCode(),
-                  'EPSG:4326'
-                );
-                geom.push(point4326);
-              }
-              coordinates4326.push(geom);
-              geometry4326 = {
-                type: feature.geometry.type,
-                coordinates: coordinates4326
-              };
-              console.log(geometry4326);
-            }
+    //           coordinates4326.push(geom);
+    //           geometry4326 = {
+    //             type: feature.geometry.type,
+    //             coordinates: coordinates4326
+    //           };
+    //           console.log(geometry4326);
+              
+    //         }
+    //         else if (feature.geometry.type === 'LineString'){
+    //           const coordinates4326 = [];
+    //           const geom = [];
+    //           for (const coordinate of feature.geometry.coordinates) {
+    //             let point4326 = transform(
+    //               coordinate,
+    //               this.map.ol.getView().getProjection().getCode(),
+    //               'EPSG:4326'
+    //             );
+    //             geom.push(point4326);
+    //           }
+    //           coordinates4326.push(geom);
+    //           geometry4326 = {
+    //             type: feature.geometry.type,
+    //             coordinates: coordinates4326
+    //           };
+    //           console.log(geometry4326);
+    //         }
             
 
-            this.spatialFilterService
-            .loadBufferGeometry(geometry4326, undefined, value)
-            .subscribe((featureGeo: FeatureGeometry) => {
-              feature.geometry.coordinates = featureGeo.coordinates;
-              feature.projection = 'EPSG:4326';
+    //         this.spatialFilterService
+    //         .loadBufferGeometry(geometry4326, undefined, value)
+    //         .subscribe((featureGeo: FeatureGeometry) => {
+    //           feature.geometry.coordinates = featureGeo.coordinates;
+    //           feature.projection = 'EPSG:4326';
 
-              const olFeature = featureToOl(
-                feature,
-                this.map.ol.getView().getProjection().getCode()
-              );
-              const label = feature.properties.draw;
-              const labelTypeAndUnit = [feature.properties.labelType, feature.properties.measureUnit];
+    //           const olFeature = featureToOl(
+    //             feature,
+    //             this.map.ol.getView().getProjection().getCode()
+    //           );
+    //           const label = feature.properties.draw;
+    //           const labelTypeAndUnit = [feature.properties.labelType, feature.properties.measureUnit];
 
-              this.onSelectDraw(olFeature, label, labelTypeAndUnit);
+    //           this.onSelectDraw(olFeature, label, labelTypeAndUnit);
               
-              this.cdRef.detectChanges();
-            });
+    //           this.cdRef.detectChanges();
+    //         });
 
 
 
-          }
+    //       }
 
-        })
-    );
+    //     })
+    // );
   }
 
   /**
@@ -475,8 +479,12 @@ export class DrawComponent implements OnInit, OnDestroy {
               0,
               (olGeometry instanceof OlPoint) ? -15 : 0
             );
-
+            this.updateFormControl(
+              olGeometry,
+              new FormControl()
+            );
           }
+          console.log(olGeometry);
 
           isDrawEnd ? this.onDrawEnd(olGeometry): this.onSelectDraw(olGeometry, label,
             [dialogRef.componentInstance.labelFlag, dialogRef.componentInstance.measureUnit]);
@@ -707,12 +715,24 @@ export class DrawComponent implements OnInit, OnDestroy {
         offsetX: olGeometry.get('offsetX_'),
         offsetY: olGeometry.get('offsetY_'),
         labelType: olGeometry.get('labelType_'),
-        measureUnit: olGeometry.get('measureUnit_')
+        measureUnit: olGeometry.get('measureUnit_'),
+        bufferFormControl: olGeometry.get('bufferFormControl_')
       },
       meta: {
         id: featureId
       }
     });
+
+    // let featureGeo;
+    // this.activeStore.all().forEach((e) => {
+    //   if(e.properties.id === featureId){
+    //     featureGeo = e;
+    //     return;
+    //   }
+    // });
+    // this.addBufferSubscription(featureGeo);
+    this.bufferFormControls.push(olGeometry.get('bufferFormControl_'));
+
   }
 
   private buildForm() {
@@ -903,29 +923,6 @@ export class DrawComponent implements OnInit, OnDestroy {
       }
     );
   }
-
-  // public onBufferChange(bufferValue: number){
-  //   let feature = this.selectedFeatures$.value[0];
-  //   // let geometryFeature = OlFeaturetoFeature(feature);
-  //   this.bufferChanges$$ = this.bufferFormControl.valueChanges
-  //   .pipe(
-  //     debounceTime(500)
-  //   )
-  //   .subscribe((value) => {
-  //     this.spatialFilterService.loadBufferGeometry(feature, SpatialFilterType.Polygon, value).subscribe((featureGeo) => {
-  //       // olGeometryFeature.setProperties(
-  //       //   {
-  //       //     flatCoordinates: this.getArraysOfCoordinates(featureGeo)
-  //       //   },
-  //       //   true
-  //       // );
-        
-
-  //     })
-
-  //   });
-  //   this.bufferFormControl.setValue(100);
-  // }
 
   /**
    * Called when the user changes the color in a color picker
@@ -1126,7 +1123,18 @@ export class DrawComponent implements OnInit, OnDestroy {
       },
       true
     );
+  }
 
+  private updateFormControl(
+    olFeature: OlFeature<OlGeometry>,
+    formControl: FormControl
+  ){
+    olFeature.setProperties(
+      {
+        bufferFormControl_: formControl
+      },
+      true
+    )
   }
 
   // Updates values of the selected element on the HTML view
@@ -1193,6 +1201,12 @@ export class DrawComponent implements OnInit, OnDestroy {
   updateActiveLayer(){
     let currLayer = this.allLayers.find(layer => layer.title === this.activeDrawingLayer.title);
     return currLayer ? currLayer : this.allLayers[0];
+  }
+
+  getBufferControl() {
+    return this.selectedFeatures$.value.length > 0
+    ? this.selectedFeatures$.value[0].properties.bufferFormControl
+    : this.bufferFormControl;
   }
 
   // Helper methods
@@ -1314,9 +1328,93 @@ export class DrawComponent implements OnInit, OnDestroy {
     return Number(length / (2 * Math.PI));
   }
 
-  private createBufferSubscription(){
-    
+  private addBufferSubscription(feature: FeatureWithDraw){
+    const formControl = feature.properties.bufferFormControl;
+    this.subscriptions$$.push(
+      formControl.valueChanges
+        .pipe(debounceTime(500))
+        .subscribe((value) => {
+          if (value > 0){
+            let geometry4326;
+            if (feature.geometry.type === 'Polygon'){
+              const coordinates4326 = [];
+              const geom = [];
+              for (const coordinate of feature.geometry.coordinates[0]) {
+                let point4326 = transform(
+                  coordinate,
+                  this.map.ol.getView().getProjection().getCode(),
+                  'EPSG:4326'
+                );
+                geom.push(point4326);
+              }
+              coordinates4326.push(geom);
+              geometry4326 = {
+                type: feature.geometry.type,
+                coordinates: coordinates4326
+              };
+              console.log(geometry4326);
+
+            }
+            else if (feature.geometry.type === 'Point'){
+
+              const coordinates4326 = [];
+              const geom = [];
+              let point4326 = transform(
+                feature.geometry.coordinates,
+                this.map.ol.getView().getProjection().getCode(),
+                'EPSG:4326'
+              );
+              geom.push(point4326);
+              
+              coordinates4326.push(geom);
+              geometry4326 = {
+                type: feature.geometry.type,
+                coordinates: coordinates4326
+              };
+              console.log(geometry4326);
+              
+            }
+            else if (feature.geometry.type === 'LineString'){
+              const coordinates4326 = [];
+              const geom = [];
+              for (const coordinate of feature.geometry.coordinates) {
+                let point4326 = transform(
+                  coordinate,
+                  this.map.ol.getView().getProjection().getCode(),
+                  'EPSG:4326'
+                );
+                geom.push(point4326);
+              }
+              coordinates4326.push(geom);
+              geometry4326 = {
+                type: feature.geometry.type,
+                coordinates: coordinates4326
+              };
+              console.log(geometry4326);
+            }
+            this.spatialFilterService
+            .loadBufferGeometry(geometry4326, undefined, value)
+            .subscribe((featureGeo: FeatureGeometry) => {
+              feature.geometry.coordinates = featureGeo.coordinates;
+              feature.projection = 'EPSG:4326';
+
+              const olFeature = featureToOl(
+                feature,
+                this.map.ol.getView().getProjection().getCode()
+              );
+              const label = feature.properties.draw;
+              const labelTypeAndUnit = [feature.properties.labelType, feature.properties.measureUnit];
+
+              this.onSelectDraw(olFeature, label, labelTypeAndUnit);
+              
+              this.cdRef.detectChanges();
+            });
+          }
+        })
+    );
   }
+
+  
 
 }
 

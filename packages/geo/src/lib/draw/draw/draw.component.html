@@ -54,12 +54,6 @@
     </mat-form-field>
   </div>
   <mat-divider></mat-divider>
-  <div>
-    <mat-form-field>
-      <input matInput 
-      type="number" [formControl]="bufferFormControl" [value]="0">
-    </mat-form-field>
-  </div>
   <mat-divider></mat-divider>
   <div>
     <button
@@ -265,6 +259,15 @@
               )">
         </mat-form-field>
       </div>
+
+      <div>
+        <mat-form-field>
+          <input matInput 
+          type="number" [formControl]="getBufferControl()" [value]="0">
+        </mat-form-field>
+  
+      </div>
+
     </form>
   </div>
 
