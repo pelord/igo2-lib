@@ -28,6 +28,10 @@ import { MessageService } from '@igo2/core';
 import { WFSDataSourceOptions } from '../../../datasource/shared/datasources/wfs-datasource.interface';
 import { buildUrl, defaultMaxFeatures } from '../../../datasource/shared/datasources/wms-wfs.utils';
 import { OgcFilterableDataSourceOptions } from '../../../filter/shared/ogc-filter.interface';
+import { GeoNetworkService, SimpleGetOptions } from '../../../offline/shared/geo-network.service';
+import { catchError, concatMap, first } from 'rxjs/operators';
+import { GeoDBService } from '../../../offline/geoDB/geoDB.service';
+import { of } from 'rxjs';
 import { Qc511DataSource } from '../../../datasource/shared/datasources/qc511-datasource';
 import { FeatureDataSourceOptions } from 'packages/geo/src/public_api';
 import { Md5 } from 'ts-md5';
@@ -55,7 +59,9 @@ export class VectorLayer extends Layer {
   constructor(
     options: VectorLayerOptions,
     public messageService?: MessageService,
-    public authInterceptor?: AuthInterceptor
+    public authInterceptor?: AuthInterceptor,
+    private geoNetworkService?: GeoNetworkService,
+    private geoDBService?: GeoDBService
   ) {
     super(options, messageService, authInterceptor);
     this.watcher = new VectorWatcher(this);
@@ -70,7 +76,7 @@ export class VectorLayer extends Layer {
     if (this.options.animation) {
       this.dataSource.ol.on(
         'addfeature',
-        function(e) {
+        function (e) {
           this.flash(e.feature);
         }.bind(this)
       );
@@ -114,16 +120,16 @@ export class VectorLayer extends Layer {
         };
       } else {
         loader = (extent, resolution, proj, success, failure) => {
-            this.customLoader(
-              vectorSource,
-              url,
-              this.authInterceptor,
-              extent,
-              resolution,
-              proj,
-              success,
-              failure
-            );
+          this.customLoader(
+            vectorSource,
+            url,
+            this.authInterceptor,
+            extent,
+            resolution,
+            proj,
+            success,
+            failure
+          );
         };
       }
       if (loader) {
@@ -159,10 +165,14 @@ export class VectorLayer extends Layer {
 
       switch (feature.getGeometry().getType()) {
         case 'Point':
-          const radius =
-            easeOut(elapsedRatio) * (styleClone.getImage().getRadius() * 3);
-          styleClone.getImage().setRadius(radius);
-          styleClone.getImage().setOpacity(opacity);
+          if (styleClone.getImage() !== null &&
+            typeof styleClone.getImage().getRadius === 'function') {
+            const radius =
+              easeOut(elapsedRatio) * (styleClone.getImage().getRadius() * 3);
+            styleClone.getImage().setRadius(radius);
+            styleClone.getImage().setOpacity(opacity);
+          }
+
           break;
         case 'LineString':
           // TODO
@@ -173,7 +183,7 @@ export class VectorLayer extends Layer {
               .getStroke()
               .setWidth(
                 easeOut(elapsedRatio) *
-                  (styleClone.getImage().getStroke().getWidth() * 3)
+                (styleClone.getImage().getStroke().getWidth() * 3)
               );
           }
           if (styleClone.getStroke()) {
@@ -216,7 +226,7 @@ export class VectorLayer extends Layer {
     if (map === undefined) {
       this.watcher.unsubscribe();
     } else {
-      this.watcher.subscribe(() => {});
+      this.watcher.subscribe(() => { });
     }
     super.setMap(map);
   }
@@ -229,7 +239,7 @@ export class VectorLayer extends Layer {
   public stopAnimation() {
     this.dataSource.ol.un(
       'addfeature',
-      function(e) {
+      function (e) {
         if (this.visible) {
           this.flash(e.feature);
         }
@@ -363,13 +373,12 @@ export class VectorLayer extends Layer {
           console.log('No more data to download at this resolution');
         }*/
         // Avoids retrieving an older call that took longer to be process
-        if (idAssociatedCall === (this.dataSource as WFSDataSource).mostRecentIdCallOGCFilter)
-        {
-            vectorSource.addFeatures(features);
-            success(features);
+        if (idAssociatedCall === (this.dataSource as WFSDataSource).mostRecentIdCallOGCFilter) {
+          vectorSource.addFeatures(features);
+          success(features);
         }
         else {
-            success([]);
+          success([]);
         }
       } else {
         onError();
@@ -408,50 +417,102 @@ export class VectorLayer extends Layer {
     } else {
       modifiedUrl = url(extent, resolution, projection);
     }
-    xhr.open( 'GET', modifiedUrl);
-    const format = vectorSource.getFormat();
-    if (format.getType() === FormatType.ARRAY_BUFFER) {
-      xhr.responseType = 'arraybuffer';
-    }
-    if (interceptor) {
-      interceptor.interceptXhr(xhr, modifiedUrl);
-    }
 
-    const onError = () => {
-      vectorSource.removeLoadedExtent(extent);
-      failure();
-    };
-    xhr.onerror = onError;
-    xhr.onload = () => {
-      // status will be 0 for file:// urls
-      if (!xhr.status || (xhr.status >= 200 && xhr.status < 300)) {
-        const type = format.getType();
-        let source;
-        if (type === FormatType.JSON || type === FormatType.TEXT) {
-          source = xhr.responseText;
-        } else if (type === FormatType.XML) {
-          source = xhr.responseXML;
-          if (!source) {
-            source = new DOMParser().parseFromString(
-              xhr.responseText,
-              'application/xml'
-            );
+    if (this.geoNetworkService && typeof url !== 'function') {
+      const format = vectorSource.getFormat();
+      const type = format.getType();
+
+      let responseType = type;
+      const onError = () => {
+        vectorSource.removeLoadedExtent(extent);
+        failure();
+      };
+
+      const options: SimpleGetOptions = { responseType };
+      this.geoNetworkService.geoDBService.get(url).pipe(concatMap(r =>
+        r ? of(r) : this.geoNetworkService.get(modifiedUrl, options)
+          .pipe(
+            first(),
+            catchError((res) => {
+              onError();
+              throw res;
+            })
+          )
+      ))
+        .subscribe((content) => {
+          if (content) {
+            const format = vectorSource.getFormat();
+            const type = format.getType();
+            let source;
+            if (type === FormatType.JSON || type === FormatType.TEXT) {
+              source = content;
+            } else if (type === FormatType.XML) {
+              source = content;
+              if (!source) {
+                source = new DOMParser().parseFromString(
+                  content,
+                  'application/xml'
+                );
+              }
+            } else if (type === FormatType.ARRAY_BUFFER) {
+              source = content;
+            }
+            if (source) {
+              const features = format.readFeatures(source, { extent, featureProjection: projection });
+              vectorSource.addFeatures(features, format.readProjection(source));
+              success(features);
+            } else {
+              onError();
+            }
           }
-        } else if (type === FormatType.ARRAY_BUFFER) {
-          source = xhr.response;
-        }
-        if (source) {
-          const features = format.readFeatures(source, { extent, featureProjection: projection });
-          vectorSource.addFeatures(features, format.readProjection(source));
-          success(features);
+        });
+
+    } else {
+      xhr.open('GET', modifiedUrl);
+      const format = vectorSource.getFormat();
+      if (format.getType() === FormatType.ARRAY_BUFFER) {
+        xhr.responseType = 'arraybuffer';
+      }
+      if (interceptor) {
+        interceptor.interceptXhr(xhr, modifiedUrl);
+      }
+
+      const onError = () => {
+        vectorSource.removeLoadedExtent(extent);
+        failure();
+      };
+      xhr.onerror = onError;
+      xhr.onload = () => {
+        // status will be 0 for file:// urls
+        if (!xhr.status || (xhr.status >= 200 && xhr.status < 300)) {
+          const type = format.getType();
+          let source;
+          if (type === FormatType.JSON || type === FormatType.TEXT) {
+            source = xhr.responseText;
+          } else if (type === FormatType.XML) {
+            source = xhr.responseXML;
+            if (!source) {
+              source = new DOMParser().parseFromString(
+                xhr.responseText,
+                'application/xml'
+              );
+            }
+          } else if (type === FormatType.ARRAY_BUFFER) {
+            source = xhr.response;
+          }
+          if (source) {
+            const features = format.readFeatures(source, { extent, featureProjection: projection });
+            vectorSource.addFeatures(features, format.readProjection(source));
+            success(features);
+          } else {
+            onError();
+          }
         } else {
           onError();
         }
-      } else {
-        onError();
-      }
-    };
-    xhr.send();
+      };
+      xhr.send();
+    }
   }
 
 
@@ -497,7 +558,7 @@ export class VectorLayer extends Layer {
               anchorOrigin: 'bottom-left',
               anchorXUnits: 'fraction',
               anchorYUnits: 'pixels',
-              src: '/Carte/Images/gm/'+f.ico,
+              src: '/Carte/Images/gm/' + f.ico,
             }),
           });
 
