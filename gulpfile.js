@@ -198,6 +198,8 @@ gulp.task('core:concatStyles', done => {
       './packages/geo/src/lib/map/menu-button/menu-button.theming.scss',
       './packages/geo/src/lib/measure/measure.theming.scss',
       './packages/geo/src/lib/measure/measurer/measurer.theming.scss',
+      './packages/geo/src/lib/workspace/workspace.theming.scss',
+      './packages/geo/src/lib/workspace/confirmation-popup/confirmation-popup.theming.scss',
       './packages/core/src/style/themes/blue.theme.scss',
       './packages/core/src/style/themes/bluedq.theme.scss',
       './packages/core/src/style/themes/bluegrey.theme.scss',
@@ -205,7 +207,8 @@ gulp.task('core:concatStyles', done => {
       './packages/core/src/style/themes/indigo.theme.scss',
       './packages/core/src/style/themes/orange.theme.scss',
       './packages/core/src/style/themes/dark.theme.scss',
-      './packages/core/src/style/themes/teal.theme.scss'
+      './packages/core/src/style/themes/teal.theme.scss',
+      './packages/core/src/style/themes/qcca.theme.scss'
     ])
     .pipe(concat('index.theming.scss'))
     .pipe(gulp.dest('./packages/core/src/style'), { overwrite: true })

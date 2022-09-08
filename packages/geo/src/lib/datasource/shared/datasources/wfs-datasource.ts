@@ -21,6 +21,7 @@ import { AuthInterceptor } from '@igo2/auth';
 
 export class WFSDataSource extends DataSource {
   public ol: olSourceVector<OlGeometry>;
+  public mostRecentIdCallOGCFilter: number = 0;
 
   set ogcFilters(value: OgcFiltersOptions) {
     (this.options as OgcFilterableDataSourceOptions).ogcFilters = value;
@@ -63,6 +64,9 @@ export class WFSDataSource extends DataSource {
     if (ogcFilters?.select){
       ogcFilters.select.selectorType = 'select';
     }
+    if (ogcFilters?.autocomplete){
+      ogcFilters.autocomplete.selectorType = 'autocomplete';
+    }
 
     this.setOgcFilters((this.options as OgcFilterableDataSourceOptions).ogcFilters, true);
   }
@@ -85,6 +89,7 @@ export class WFSDataSource extends DataSource {
 
   setOgcFilters(ogcFilters: OgcFiltersOptions, triggerEvent: boolean = false) {
     this.ogcFilters = ogcFilters;
+    this.mostRecentIdCallOGCFilter += 1;
     if (triggerEvent) {
       this.ogcFilters$.next(this.ogcFilters);
     }

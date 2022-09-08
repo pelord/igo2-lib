@@ -6,7 +6,7 @@ import { WMSDataSourceOptions } from './wms-datasource.interface';
 import { WFSService } from './wfs.service';
 
 import { OgcFilterWriter } from '../../../filter/shared/ogc-filter';
-import { OgcFilterableDataSourceOptions, OgcFiltersOptions } from '../../../filter/shared/ogc-filter.interface';
+import { OgcFilterableDataSourceOptions, OgcFiltersOptions, OgcFilterDuringOptions } from '../../../filter/shared/ogc-filter.interface';
 import { QueryHtmlTarget } from '../../../query/shared/query.enums';
 import {
   formatWFSQueryString,
@@ -114,9 +114,15 @@ export class WMSDataSource extends DataSource {
       );
     } else {
       initOgcFilters.advancedOgcFilters = (initOgcFilters.pushButtons || initOgcFilters.checkboxes
-        || initOgcFilters.radioButtons || initOgcFilters.select)
+        || initOgcFilters.radioButtons || initOgcFilters.select || initOgcFilters.autocomplete)
         ? false
         : true;
+      if (initOgcFilters.advancedOgcFilters && initOgcFilters.filters) {
+          const filterDuring = initOgcFilters.filters as OgcFilterDuringOptions;
+          if(filterDuring.calendarModeYear) {
+            initOgcFilters.advancedOgcFilters = false;
+          }
+      }
       if (initOgcFilters.pushButtons){
         initOgcFilters.pushButtons.selectorType = 'pushButton';
       }
@@ -128,6 +134,9 @@ export class WMSDataSource extends DataSource {
       }
       if (initOgcFilters.select){
         initOgcFilters.select.selectorType = 'select';
+      }
+      if (initOgcFilters.autocomplete){
+        initOgcFilters.autocomplete.selectorType = 'autocomplete';
       }
     }
 

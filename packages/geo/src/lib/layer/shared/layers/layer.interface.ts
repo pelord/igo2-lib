@@ -7,6 +7,7 @@ import { AnyDataSourceOptions } from '../../../datasource/shared/datasources/any
 import { MapExtent, MapViewOptions } from '../../../map/shared/map.interface';
 
 export interface LayerOptions {
+  isIgoInternalLayer?: boolean; // useful when mapOffline directive set the resolution of the layers.
   source?: DataSource;
   sourceOptions?: AnyDataSourceOptions;
   title?: string;
@@ -40,6 +41,14 @@ export interface GeoWorkspaceOptions {
   minResolution?: number;
   maxResolution?: number;
   enabled?: boolean;
+  queryOptions?: GeoWorkspaceQueryOptions;
+  pageSize?: number;
+  pageSizeOptions?: number[];
+}
+
+export interface GeoWorkspaceQueryOptions {
+  mapQueryOnOpenTab?: boolean;
+  tabQuery?: boolean;
 }
 
 export interface LayersLink {
@@ -100,4 +109,5 @@ export interface ItemStyleOptions {
 export interface OutputLayerLegend {
   title: string;
   url: string;
+  display: boolean;
 }

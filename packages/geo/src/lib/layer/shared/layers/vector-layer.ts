@@ -25,6 +25,10 @@ import { MessageService } from '@igo2/core';
 import { WFSDataSourceOptions } from '../../../datasource/shared/datasources/wfs-datasource.interface';
 import { buildUrl, defaultMaxFeatures } from '../../../datasource/shared/datasources/wms-wfs.utils';
 import { OgcFilterableDataSourceOptions } from '../../../filter/shared/ogc-filter.interface';
+import { GeoNetworkService, SimpleGetOptions } from '../../../offline/shared/geo-network.service';
+import { catchError, concatMap, first } from 'rxjs/operators';
+import { GeoDBService } from '../../../offline/geoDB/geoDB.service';
+import { of } from 'rxjs';
 export class VectorLayer extends Layer {
   public dataSource:
     | FeatureDataSource
@@ -48,7 +52,9 @@ export class VectorLayer extends Layer {
   constructor(
     options: VectorLayerOptions,
     public messageService?: MessageService,
-    public authInterceptor?: AuthInterceptor
+    public authInterceptor?: AuthInterceptor,
+    private geoNetworkService?: GeoNetworkService,
+    private geoDBService?: GeoDBService
   ) {
     super(options, messageService, authInterceptor);
     this.watcher = new VectorWatcher(this);
@@ -139,10 +145,14 @@ export class VectorLayer extends Layer {
 
       switch (feature.getGeometry().getType()) {
         case 'Point':
-          const radius =
+          if(styleClone.getImage() !== null &&
+            typeof styleClone.getImage().getRadius === 'function'){
+            const radius =
             easeOut(elapsedRatio) * (styleClone.getImage().getRadius() * 3);
-          styleClone.getImage().setRadius(radius);
-          styleClone.getImage().setOpacity(opacity);
+            styleClone.getImage().setRadius(radius);
+            styleClone.getImage().setOpacity(opacity);
+          }
+
           break;
         case 'LineString':
           // TODO
@@ -251,8 +261,9 @@ export class VectorLayer extends Layer {
    * @param proj the projection to retrieve the data
    * @param success success callback
    * @param failure failure callback
+   * @param randomParam random parameter to ensure cache is not causing problems in retrieving new data
    */
-  private customWFSLoader(
+  public customWFSLoader(
     vectorSource,
     options,
     interceptor,
@@ -260,7 +271,8 @@ export class VectorLayer extends Layer {
     resolution,
     proj,
     success,
-    failure
+    failure,
+    randomParam?: boolean
   ) {
     {
       const paramsWFS = options.paramsWFS;
@@ -271,7 +283,8 @@ export class VectorLayer extends Layer {
         options,
         currentExtent,
         wfsProj,
-        (options as OgcFilterableDataSourceOptions).ogcFilters);
+        (options as OgcFilterableDataSourceOptions).ogcFilters,
+        randomParam);
       let startIndex = 0;
       if (paramsWFS.version === '2.0.0' && paramsWFS.maxFeatures > defaultMaxFeatures) {
         const nbOfFeature = 1000;
@@ -313,6 +326,7 @@ export class VectorLayer extends Layer {
     threshold: number,
     success, failure) {
 
+    const idAssociatedCall = (this.dataSource as WFSDataSource).mostRecentIdCallOGCFilter;
     const xhr = new XMLHttpRequest();
     const alteredUrlWithKeyAuth = interceptor.alterUrlWithKeyAuth(url);
     let modifiedUrl = url;
@@ -338,8 +352,15 @@ export class VectorLayer extends Layer {
         /*if (features.length === 0 || features.length < threshold ) {
           console.log('No more data to download at this resolution');
         }*/
-        vectorSource.addFeatures(features);
-        success(features);
+        // Avoids retrieving an older call that took longer to be process
+        if (idAssociatedCall === (this.dataSource as WFSDataSource).mostRecentIdCallOGCFilter)
+        {
+            vectorSource.addFeatures(features);
+            success(features);
+        }
+        else {
+            success([]);
+        }
       } else {
         onError();
       }
@@ -377,6 +398,57 @@ export class VectorLayer extends Layer {
     } else {
       modifiedUrl = url(extent, resolution, projection);
     }
+
+    if (this.geoNetworkService && typeof url !== 'function') {
+      const format = vectorSource.getFormat();
+      const type = format.getType();
+
+      let responseType = type;
+      const onError = () => {
+        vectorSource.removeLoadedExtent(extent);
+        failure();
+      };
+
+      const options: SimpleGetOptions = { responseType };
+      this.geoNetworkService.geoDBService.get(url).pipe(concatMap(r =>
+        r ? of(r) : this.geoNetworkService.get(modifiedUrl, options)
+          .pipe(
+            first(),
+            catchError((res) => {
+              onError();
+              throw res;
+            })
+          )
+      ))
+      .subscribe((content) => {
+          if (content) {
+            const format = vectorSource.getFormat();
+            const type = format.getType();
+            let source;
+            if (type === FormatType.JSON || type === FormatType.TEXT) {
+              source = content;
+            } else if (type === FormatType.XML) {
+              source = content;
+              if (!source) {
+                source = new DOMParser().parseFromString(
+                  content,
+                  'application/xml'
+                );
+              }
+            } else if (type === FormatType.ARRAY_BUFFER) {
+              source = content;
+            }
+            if (source) {
+              const features = format.readFeatures(source, { extent, featureProjection: projection });
+              vectorSource.addFeatures(features, format.readProjection(source));
+              success(features);
+            } else {
+              onError();
+            }
+          }
+        });
+
+    } else {
     xhr.open( 'GET', modifiedUrl);
     const format = vectorSource.getFormat();
     if (format.getType() === FormatType.ARRAY_BUFFER) {
@@ -421,5 +493,6 @@ export class VectorLayer extends Layer {
       }
     };
     xhr.send();
+  }
   }
 }
