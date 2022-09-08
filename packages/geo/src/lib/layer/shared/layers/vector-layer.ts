@@ -5,7 +5,6 @@ import { unByKey } from 'ol/Observable';
 import { easeOut } from 'ol/easing';
 import { asArray as ColorAsArray } from 'ol/color';
 import { getVectorContext } from 'ol/render';
-import FormatType from 'ol/format/FormatType';
 import olFeature from 'ol/Feature';
 import olProjection from 'ol/proj/Projection';
 import * as olproj from 'ol/proj';
@@ -256,7 +255,7 @@ export class VectorLayer extends Layer {
   public centerMapOnFeature(id: string | number) {
     const feat = this.dataSource.ol.getFeatureById(id);
     if (feat) {
-      this.map.ol.getView().setCenter(feat.getGeometry().getCoordinates());
+      this.map.ol.getView().setCenter((feat.getGeometry() as any).getCoordinates());
     }
   }
 
@@ -444,9 +443,9 @@ export class VectorLayer extends Layer {
             const format = vectorSource.getFormat();
             const type = format.getType();
             let source;
-            if (type === FormatType.JSON || type === FormatType.TEXT) {
+            if (type === 'json' || type === 'text') {
               source = content;
-            } else if (type === FormatType.XML) {
+            } else if (type === 'xml') {
               source = content;
               if (!source) {
                 source = new DOMParser().parseFromString(
@@ -454,7 +453,7 @@ export class VectorLayer extends Layer {
                   'application/xml'
                 );
               }
-            } else if (type === FormatType.ARRAY_BUFFER) {
+            } else if (type === 'arraybuffer') {
               source = content;
             }
             if (source) {
@@ -470,48 +469,12 @@ export class VectorLayer extends Layer {
     } else {
       xhr.open('GET', modifiedUrl);
       const format = vectorSource.getFormat();
-      if (format.getType() === FormatType.ARRAY_BUFFER) {
+      if (format.getType() === 'arraybuffer') {
         xhr.responseType = 'arraybuffer';
       }
       if (interceptor) {
         interceptor.interceptXhr(xhr, modifiedUrl);
       }
-
-      const onError = () => {
-        vectorSource.removeLoadedExtent(extent);
-        failure();
-      };
-      xhr.onerror = onError;
-      xhr.onload = () => {
-        // status will be 0 for file:// urls
-        if (!xhr.status || (xhr.status >= 200 && xhr.status < 300)) {
-          const type = format.getType();
-          let source;
-          if (type === FormatType.JSON || type === FormatType.TEXT) {
-            source = xhr.responseText;
-          } else if (type === FormatType.XML) {
-            source = xhr.responseXML;
-            if (!source) {
-              source = new DOMParser().parseFromString(
-                xhr.responseText,
-                'application/xml'
-              );
-            }
-          } else if (type === FormatType.ARRAY_BUFFER) {
-            source = xhr.response;
-          }
-          if (source) {
-            const features = format.readFeatures(source, { extent, featureProjection: projection });
-            vectorSource.addFeatures(features, format.readProjection(source));
-            success(features);
-          } else {
-            onError();
-          }
-        } else {
-          onError();
-        }
-      };
-      xhr.send();
     }
   }
 
