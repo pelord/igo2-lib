@@ -136,7 +136,7 @@ export class GeometryDrawComponent implements OnDestroy, OnInit {
         color: [0, 153, 255].concat([0.2])
       })
     });
-  }
+  };
   public buffer: number = 0;
   public measureUnit$: BehaviorSubject<MeasureLengthUnit> = new BehaviorSubject(MeasureLengthUnit.Meters);
   public zoneWithBuffer;

@@ -34,8 +34,8 @@ export class GeometryPredefinedOrDrawTypeComponent implements OnInit, OnDestroy 
 
   @Input() drawControlIsActive$: BehaviorSubject<Boolean> = new BehaviorSubject(true);
   @Input() geometryTypes: string[] = ['Point', 'LineString', 'Polygon'];
-  @Input() predefinedRegionsStore: EntityStore<FeatureForPredefinedOrDrawGeometry>
-  @Input() currentRegionStore: FeatureStore<FeatureForPredefinedOrDrawGeometry>
+  @Input() predefinedRegionsStore: EntityStore<FeatureForPredefinedOrDrawGeometry>;
+  @Input() currentRegionStore: FeatureStore<FeatureForPredefinedOrDrawGeometry>;
   @Input() predefinedTypes: string[] = [];
   @Input() minBufferMeters: number = 0;
   @Input() maxBufferMeters: number = 100000;
