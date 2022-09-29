@@ -381,7 +381,7 @@ export class DrawComponent implements OnInit, OnDestroy {
           let bufferID = this.activeDrawingLayer.id + '-' + feature.properties.id;
           let currValue = value[bufferID];
 
-          if (currValue > 0){
+          if (currValue > 0 ){
             let geometry4326;
             if (feature.geometry.type === 'Polygon'){
               const coordinates4326 = [];
@@ -735,6 +735,7 @@ export class DrawComponent implements OnInit, OnDestroy {
 
         const offsetX = olFeature.get('offsetX');
         const offsetY = olFeature.get('offsetY');
+        const bufferFormControl = olFeature.get('bufferFormControl')
 
         const rad: number = entity.properties.rad
           ? entity.properties.rad
@@ -745,6 +746,7 @@ export class DrawComponent implements OnInit, OnDestroy {
         this.updateOffset(olGeometry, offsetX, offsetY);
         this.updateLabelType(olGeometry, labelTypeAndUnit[0]);
         this.updateMeasureUnit(olGeometry, labelTypeAndUnit[1]);
+        this.updateFormControl(olGeometry, bufferFormControl);
         this.replaceFeatureInStore(entity, olGeometry, rad);
       }
     });
@@ -838,7 +840,7 @@ export class DrawComponent implements OnInit, OnDestroy {
     });
 
     let bufferID = this.activeDrawingLayer.id + '-' + featureId;
-    this.bufferFormControls.addControl(bufferID, new FormControl());
+    this.bufferFormControls.addControl(bufferID, olGeometry.get('bufferFormControl_'));
 
   }
 
