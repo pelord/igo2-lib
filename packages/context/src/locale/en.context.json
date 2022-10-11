@@ -84,6 +84,10 @@
           "failed": {
             "text": "Failed to export",
             "title": "Failed to export context"
+          },
+          "warningLocalLayerPresent": {
+            "text": "Local layers in the context will not be included in the exported file",
+            "title": "Warning"
           }
         },
         "import": {

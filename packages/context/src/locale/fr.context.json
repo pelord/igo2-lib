@@ -84,6 +84,10 @@
           "failed": {
             "text": "Impossible d’exporter, problème de contexte rencontré.",
             "title": "Problème d’exportation"
+          },
+          "warningLocalLayerPresent": {
+            "text": "Le contexte comprend des couches locales qui ne seront pas incluses dans le fichier exporté",
+            "title": "Avertissement"
           }
         },
         "import": {

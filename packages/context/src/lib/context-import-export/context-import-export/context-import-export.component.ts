@@ -76,9 +76,20 @@ export class ContextImportExportComponent implements OnInit {
 
   handleExportFormSubmit(contextOptions) {
     this.loading$.next(true);
+  
+    const contextLayersNoInternal = contextOptions.layers.filter(layer => {
+      return !(layer.options.isIgoInternalLayer);
+    })
+    if (contextOptions.layers.length !== contextLayersNoInternal.length) {
+      const title = this.languageService.translate.instant('igo.context.contextImportExport.export.warningLocalLayerPresent.title');
+      const message = this.languageService.translate.instant('igo.context.contextImportExport.export.warningLocalLayerPresent.text');
+      this.messageService.alert(message, title);
+      
+    }
+
     this.res = this.contextService.getContextFromLayers(
       this.map,
-      contextOptions.layers,
+      contextLayersNoInternal,
       contextOptions.name
     );
     this.res.imported = true;
