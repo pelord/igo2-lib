@@ -83,8 +83,7 @@ import {
   MeasureAreaUnitAbbreviation,
 } from '../../measure/shared/measure.enum';
 import Polygon, {fromCircle} from 'ol/geom/Polygon';
-import { SpatialFilterService, SpatialFilterType } from '../../filter';
-import Observable from 'ol/Observable';
+import { SpatialFilterService } from '../../filter';
 
 
 @Component({
@@ -205,6 +204,8 @@ export class DrawComponent implements OnInit, OnDestroy {
 
   public bufferFormControl = new FormControl();
   public bufferFormControls: FormGroup;
+
+  private testingCounter = 0;
  
   constructor(
     private languageService: LanguageService,
@@ -366,22 +367,23 @@ export class DrawComponent implements OnInit, OnDestroy {
 
 
     this.subscriptions$$.push(
-
-      // Push the formControl into the formGroup
-      // this.bufferFormControls.addControl();
-
       // If a value in the bufferFormControls changes
       this.bufferFormControls.valueChanges
       .pipe(debounceTime(500))
-      .subscribe((value) => {
-        console.log(value);
-        console.log(this.activeDrawingLayer);
-        if (this.selectedFeatures$.value[0] ){
+      .subscribe((value) => {        
+        if (this.selectedFeatures$.value[0]){
+          this.testingCounter++;
+          console.log("testingCounter: " + this.testingCounter);
+
+          console.log(this.bufferFormControls);
+
           const feature = this.selectedFeatures$.value[0];
           let bufferID = this.activeDrawingLayer.id + '-' + feature.properties.id;
+          console.log("feature.properties.bufferFormControl.value: " + feature.properties.bufferFormControl.value);
           let currValue = value[bufferID];
+          console.log("currValue:" + currValue);
 
-          if (currValue > 0 ){
+          if (currValue > 0 && this.bufferFormControls.get(bufferID).value == currValue){
             let geometry4326;
             if (feature.geometry.type === 'Polygon'){
               const coordinates4326 = [];
@@ -468,94 +470,6 @@ export class DrawComponent implements OnInit, OnDestroy {
 
       })
 
-      // this.bufferFormControl.valueChanges
-      //   .pipe(debounceTime(500))
-      //   .subscribe((value) => {
-      //     if (this.selectedFeatures$.value[0] && value > 0){
-
-      //       const feature = this.selectedFeatures$.value[0];
-      //       let geometry4326;
-      //       if (feature.geometry.type === 'Polygon'){
-      //         const coordinates4326 = [];
-      //         const geom = [];
-      //         for (const coordinate of feature.geometry.coordinates[0]) {
-      //           let point4326 = transform(
-      //             coordinate,
-      //             this.map.ol.getView().getProjection().getCode(),
-      //             'EPSG:4326'
-      //           );
-      //           geom.push(point4326);
-      //         }
-      //         coordinates4326.push(geom);
-      //         geometry4326 = {
-      //           type: feature.geometry.type,
-      //           coordinates: coordinates4326
-      //         };
-      //         console.log(geometry4326);
-
-      //       }
-      //       else if (feature.geometry.type === 'Point'){
-
-      //         const coordinates4326 = [];
-      //         const geom = [];
-      //         let point4326 = transform(
-      //           feature.geometry.coordinates,
-      //           this.map.ol.getView().getProjection().getCode(),
-      //           'EPSG:4326'
-      //         );
-      //         geom.push(point4326);
-              
-      //         coordinates4326.push(geom);
-      //         geometry4326 = {
-      //           type: feature.geometry.type,
-      //           coordinates: coordinates4326
-      //         };
-      //         console.log(geometry4326);
-              
-      //       }
-      //       else if (feature.geometry.type === 'LineString'){
-      //         const coordinates4326 = [];
-      //         const geom = [];
-      //         for (const coordinate of feature.geometry.coordinates) {
-      //           let point4326 = transform(
-      //             coordinate,
-      //             this.map.ol.getView().getProjection().getCode(),
-      //             'EPSG:4326'
-      //           );
-      //           geom.push(point4326);
-      //         }
-      //         coordinates4326.push(geom);
-      //         geometry4326 = {
-      //           type: feature.geometry.type,
-      //           coordinates: coordinates4326
-      //         };
-      //         console.log(geometry4326);
-      //       }
-            
-
-      //       this.spatialFilterService
-      //       .loadBufferGeometry(geometry4326, undefined, value)
-      //       .subscribe((featureGeo: FeatureGeometry) => {
-      //         feature.geometry.coordinates = featureGeo.coordinates;
-      //         feature.projection = 'EPSG:4326';
-
-      //         const olFeature = featureToOl(
-      //           feature,
-      //           this.map.ol.getView().getProjection().getCode()
-      //         );
-      //         const label = feature.properties.draw;
-      //         const labelTypeAndUnit = [feature.properties.labelType, feature.properties.measureUnit];
-
-      //         this.onSelectDraw(olFeature, label, labelTypeAndUnit);
-              
-      //         this.cdRef.detectChanges();
-      //       });
-
-
-
-      //     }
-
-      //   })
     );
   }
 
@@ -593,9 +507,11 @@ export class DrawComponent implements OnInit, OnDestroy {
               0,
               (olGeometry instanceof OlPoint) ? -15 : 0
             );
+            let tempFormControl = new FormControl();
+            tempFormControl.setValue(0);
             this.updateFormControl(
               olGeometry,
-              new FormControl()
+              tempFormControl
             );
           }
           console.log(olGeometry);
@@ -735,7 +651,7 @@ export class DrawComponent implements OnInit, OnDestroy {
 
         const offsetX = olFeature.get('offsetX');
         const offsetY = olFeature.get('offsetY');
-        const bufferFormControl = olFeature.get('bufferFormControl')
+        const bufferFormControl = olFeature.get('bufferFormControl');
 
         const rad: number = entity.properties.rad
           ? entity.properties.rad
@@ -840,7 +756,11 @@ export class DrawComponent implements OnInit, OnDestroy {
     });
 
     let bufferID = this.activeDrawingLayer.id + '-' + featureId;
-    this.bufferFormControls.addControl(bufferID, olGeometry.get('bufferFormControl_'));
+    console.log(this.bufferFormControls);
+    console.log(bufferID);
+    if (!this.bufferFormControls.get(bufferID)){
+      this.bufferFormControls.addControl(bufferID, olGeometry.get('bufferFormControl_'));
+    }
 
   }
 
