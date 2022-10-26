@@ -1,6 +1,6 @@
 import OlMap from 'ol/Map';
 import olGeolocation from 'ol/Geolocation';
-import { BehaviorSubject, fromEvent, Subscription } from 'rxjs';
+import { BehaviorSubject, interval, Subscription } from 'rxjs';
 
 import * as olproj from 'ol/proj';
 import olFeature from 'ol/Feature';
@@ -12,11 +12,9 @@ import { IgoMap } from '../map';
 import * as olstyle from 'ol/style';
 import { Overlay } from '../../../overlay/shared/overlay';
 import { FeatureMotion } from '../../../feature/shared/feature.enums';
-import { StorageService } from '@igo2/core';
+import { StorageService, ConfigService } from '@igo2/core';
 import { MapViewOptions } from '../map.interface';
-import BaseEvent from 'ol/events/Event';
-import { FromEventTarget } from 'rxjs/internal/observable/fromEvent';
-import { debounceTime } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 export interface MapGeolocationControllerOptions {
   //  todo keepPositionHistory?: boolean;
   projection: olproj.ProjectionLike
@@ -67,7 +65,7 @@ export class MapGeolocationController extends MapController {
         width: 2,
       }),
     }),
-  })
+  });
   private accuracyFeatureStyle: olstyle.Style | olstyle.Style[] = new olstyle.Style({
     stroke: new olstyle.Stroke({
       color: 'rgba(120, 120, 120, 0.4)',
@@ -76,9 +74,14 @@ export class MapGeolocationController extends MapController {
     fill: new olstyle.Fill({
       color: 'rgba(120, 120, 120, 0.4)',
     }),
-  })
+  });
 
   private geolocation: olGeolocation;
+
+  /**
+   * Observable of the current emission interval of the position. In seconds
+   */
+   public readonly emissionIntervalSeconds$: BehaviorSubject<number> = new BehaviorSubject(5);
 
   /**
    * Observable of the current position
@@ -161,8 +164,12 @@ export class MapGeolocationController extends MapController {
    */
   set followPosition(value: boolean) {
     this._followPosition = value;
-    this.handleFeatureCreation(this.position$.value);
     this.followPosition$.next(value);
+    if (this.configService?.getConfig('geolocate.followPosition') === false) {
+      this._followPosition = false;
+      this.followPosition$.next(false);
+    }
+    this.handleFeatureCreation(this.position$.value);
     if (this.storageService && value !== undefined) {
       this.storageService.set('geolocation.followPosition', value);
     }
@@ -179,7 +186,8 @@ export class MapGeolocationController extends MapController {
   constructor(
     private map: IgoMap,
     private options?: MapGeolocationControllerOptions,
-    private storageService?: StorageService) {
+    private storageService?: StorageService,
+    private configService?: ConfigService) {
     super();
     this.geolocationOverlay = new Overlay(this.map);
   }
@@ -217,23 +225,17 @@ export class MapGeolocationController extends MapController {
       },
       projection: this.options.projection,
     });
-
-    const debounce = 500;
-    this.subscriptions$$.push(fromEvent<BaseEvent>(this.geolocation as FromEventTarget<BaseEvent>, 'change:position')
-    .pipe(debounceTime(debounce))
-    .subscribe(() => this.onPositionChange(true)));
-
-    this.subscriptions$$.push(fromEvent<BaseEvent>(this.geolocation as FromEventTarget<BaseEvent>, 'change:altitude')
-    .pipe(debounceTime(debounce))
-    .subscribe(() => this.onPositionChange(false)));
-
-    this.subscriptions$$.push(fromEvent<BaseEvent>(this.geolocation as FromEventTarget<BaseEvent>, 'change:accuracy')
-    .pipe(debounceTime(debounce))
-    .subscribe(() => this.onPositionChange(false)));
-
-    this.subscriptions$$.push(fromEvent<BaseEvent>(this.geolocation as FromEventTarget<BaseEvent>, 'change:altitudeAccuracy')
-    .pipe(debounceTime(debounce))
-    .subscribe(() => this.onPositionChange(false)));
+    let tracking = false;
+    this.subscriptions$$.push(this.emissionIntervalSeconds$
+      .pipe(switchMap(value => interval(value * 1000)))
+      .subscribe(() => {
+        if (tracking === this.tracking) {
+          this.onPositionChange(true);
+        } else {
+          tracking = this.tracking;
+          this.onPositionChange(true, true);
+        }
+      }));
   }
 
   public updateGeolocationOptions(options: MapViewOptions) {
@@ -281,6 +283,9 @@ export class MapGeolocationController extends MapController {
    * @param emitEvent Map event
    */
   private onPositionChange(emitEvent: boolean = false, zoomTo: boolean = false) {
+    if (!this.tracking) {
+      return;
+    }
     const geolocateProperties = this.geolocation.getProperties();
 
     if (geolocateProperties.accuracy > this.accuracyThreshold) {

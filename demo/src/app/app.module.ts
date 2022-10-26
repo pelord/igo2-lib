@@ -50,11 +50,20 @@ import { AppContextModule } from './context/context/context.module';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { LanguageService } from '@igo2/core';
+import { IgoCoreModule, LanguageService } from '@igo2/core';
+import { MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip';
+
+export const defaultTooltipOptions: MatTooltipDefaultOptions = {
+  showDelay: 500,
+  hideDelay: 0,
+  touchendHideDelay: 0,
+  disableTooltipInteractivity: true
+};
 
 @NgModule({
   declarations: [AppComponent],
   imports: [
+    IgoCoreModule,
     BrowserModule,
     BrowserAnimationsModule,
     MatSidenavModule,
@@ -110,6 +119,7 @@ import { LanguageService } from '@igo2/core';
   ],
   providers: [
     {provide: APP_INITIALIZER, useFactory: appInitializerFactory, deps: [LanguageService], multi: true},
+    { provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: defaultTooltipOptions }
   ],
   bootstrap: [AppComponent]
 })
