@@ -462,10 +462,6 @@ export class DrawComponent implements OnInit, OnDestroy {
             });
           }
           
-          
-
-
-
         }
 
       })
@@ -513,6 +509,7 @@ export class DrawComponent implements OnInit, OnDestroy {
               olGeometry,
               tempFormControl
             );
+            this.updateGeometry(olGeometry, olGeometry);
           }
           console.log(olGeometry);
 
@@ -1162,6 +1159,18 @@ export class DrawComponent implements OnInit, OnDestroy {
     olFeature.setProperties(
       {
         bufferFormControl_: formControl
+      },
+      true
+    )
+  }
+
+  private updateGeometry(
+    olFeature: OlFeature<OlGeometry>,
+    olGeometry: OlGeometry,
+  ){
+    olFeature.setProperties(
+      {
+        olGeometry_: olGeometry
       },
       true
     )

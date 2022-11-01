@@ -5,6 +5,8 @@ import { FeatureStore } from '../../feature';
 import { CoordinatesUnit, LabelType } from '../shared/draw.enum';
 import { MeasureAreaUnit, MeasureLengthUnit } from '../../measure/shared/measure.enum';
 import { FormControl } from '@angular/forms';
+import { default as OlGeometry } from 'ol/geom/Geometry';
+
 
 export interface DrawOptions {
   icons?: string[];
@@ -36,6 +38,7 @@ export interface FeatureWithDrawProperties {
   labelType: LabelType;
   measureUnit: MeasureLengthUnit | MeasureAreaUnit | CoordinatesUnit;
   bufferFormControl?: FormControl;
+  olGeometry?: OlGeometry;
 }
 
 export interface FeatureStoreDrawStrategyOptions {
