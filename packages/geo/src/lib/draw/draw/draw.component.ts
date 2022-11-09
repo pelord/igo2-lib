@@ -753,8 +753,7 @@ export class DrawComponent implements OnInit, OnDestroy {
     });
 
     let bufferID = this.activeDrawingLayer.id + '-' + featureId;
-    console.log(this.bufferFormControls);
-    console.log(bufferID);
+
     if (!this.bufferFormControls.get(bufferID)){
       this.bufferFormControls.addControl(bufferID, olGeometry.get('bufferFormControl_'));
     }
@@ -828,6 +827,8 @@ export class DrawComponent implements OnInit, OnDestroy {
           const geometry = drawingLayerFeature.getGeometry() as any;
           if (selectedFeature.properties.id === geometry.ol_uid) {
             this.activeDrawingLayerSource.removeFeature(drawingLayerFeature);
+            let bufferID = this.activeDrawingLayer.id + '-' + selectedFeature.properties.id;
+            this.bufferFormControls.removeControl(bufferID);
           }
         });
     });
