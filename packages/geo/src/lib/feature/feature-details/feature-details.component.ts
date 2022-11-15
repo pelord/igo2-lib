@@ -22,7 +22,7 @@ import { Feature } from '../shared';
 import { SearchSource } from '../../search/shared/sources/source';
 import { IgoMap } from '../../map/shared/map';
 import { HttpClient } from '@angular/common/http';
-
+import { Clipboard } from '@igo2/utils';
 @Component({
   selector: 'igo-feature-details',
   templateUrl: './feature-details.component.html',
@@ -138,7 +138,6 @@ export class FeatureDetailsComponent implements OnInit, OnDestroy {
   openSecureUrl(value) {
     let url: string;
     const regexDepot = new RegExp(this.configService?.getConfig('depot.url') + '.*?(?="|$)');
-    const regexUrl = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
 
     if (regexDepot.test(value)) {
       url = value.match(regexDepot)[0];
@@ -158,8 +157,7 @@ export class FeatureDetailsComponent implements OnInit, OnDestroy {
         this.messageService.error(message, title);
       });
     } else {
-      url = value.match(regexUrl)[0];
-      window.open(url, '_blank');
+      window.open(value, '_blank');
     }
   }
 
@@ -194,10 +192,17 @@ export class FeatureDetailsComponent implements OnInit, OnDestroy {
 
   isEmbeddedLink(value) {
     if (typeof value === 'string') {
-      const regex = /^<a/;
-      return regex.test(value);
+        const matchRegex = /<a/g;
+        const match = value.match(matchRegex) || [];
+        const count = match.length;
+        if (count === 1) {
+            return true;
+        } else {
+            return false;
+        }
     }
-  }
+    return false;
+}
 
   getEmbeddedLinkText(value) {
     const regex = /(?:>).*?(?=<|$)/;
@@ -261,5 +266,15 @@ export class FeatureDetailsComponent implements OnInit, OnDestroy {
       }
     }
     return feature.properties;
+  }
+
+  /**
+   * Copy the url to a clipboard
+   */
+  copyTextToClipboard(value: string): void {
+    const successful = Clipboard.copy(value);
+    if (successful) {
+      this.messageService.success('igo.geo.query.link.message');
+    }
   }
 }
