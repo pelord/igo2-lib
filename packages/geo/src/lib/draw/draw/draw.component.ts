@@ -18,16 +18,17 @@ import {
   tryAddSelectionStrategy,
   FeatureMotion,
   FeatureStoreLoadingStrategy,
-  featureToOl
+  featureToOl,
+  FeatureGeometry
 } from '../../feature';
 
 import { LanguageService } from '@igo2/core';
 import { MatDialog } from '@angular/material/dialog';
 import { FontType, GeometryType } from '../shared/draw.enum';
 import { IgoMap } from '../../map/shared/map';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject, debounceTime, Subscription } from 'rxjs';
 import { Draw, FeatureWithDraw } from '../shared/draw.interface';
-import { UntypedFormGroup, UntypedFormBuilder } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { VectorSourceEvent as OlVectorSourceEvent } from 'ol/source/Vector';
 import { VectorLayer } from '../../layer/shared/layers/vector-layer';
 import { FeatureDataSource } from '../../datasource/shared/datasources/feature-datasource';
@@ -69,6 +70,8 @@ import {
 import Point from 'ol/geom/Point';
 
 import { DrawLayerPopupComponent } from './draw-layer-popup.component';
+import { SpatialFilterService } from '../../filter';
+
 
 @Component({
   selector: 'igo-draw',
@@ -199,6 +202,9 @@ export class DrawComponent implements OnInit, OnDestroy {
   public isCreatingNewLayer: boolean = false;
   private currGeometryType = this.geometryType.Point as any;
 
+  public bufferFormControl = new FormControl();
+  public bufferFormControls: FormGroup;
+
   @ViewChild('selectedLayer') select;
 
   constructor(
@@ -206,7 +212,8 @@ export class DrawComponent implements OnInit, OnDestroy {
     private formBuilder: UntypedFormBuilder,
     private drawStyleService: DrawStyleService,
     private dialog: MatDialog,
-    private drawIconService: DrawIconService
+    private drawIconService: DrawIconService,
+    private spatialFilterService: SpatialFilterService,
   ) {
     this.buildForm();
     this.fillColor = this.drawStyleService.getFillColor();
@@ -351,6 +358,123 @@ export class DrawComponent implements OnInit, OnDestroy {
           : (this.activeStore.layer.options.showInLayerList = false);
       })
     );
+
+    this.subscriptions$$.push(
+      this.selectedFeatures$.subscribe(() => {
+      if (this.selectedFeatures$.value[0]){
+        let bufferID = this.activeDrawingLayer.id + '-' + this.selectedFeatures$.value[0].properties.id;
+        // console.log(this.bufferFormControl.value);
+        if (this.bufferFormControl.value === null){        
+          this.bufferFormControl = this.bufferFormControls.get(bufferID) as FormControl;
+        }        
+      }
+      else{
+        this.bufferFormControl = new FormControl;
+      }
+    }));
+
+
+    // this.subscriptions$$.push(
+    //   // If a value in the bufferFormControls changes
+    //   this.bufferFormControls.valueChanges
+    //   .pipe(debounceTime(500))
+    //   .subscribe((value) => {        
+    //     if (this.selectedFeatures$.value[0]){
+
+    //       console.log(this.bufferFormControls);
+
+    //       const feature = this.selectedFeatures$.value[0];
+    //       let bufferID = this.activeDrawingLayer.id + '-' + feature.properties.id;
+    //       console.log("feature.properties.bufferFormControl.value: " + feature.properties.bufferFormControl.value);
+    //       let currValue = value[bufferID];
+    //       console.log("currValue:" + currValue);
+
+    //       if (currValue > 0 && this.bufferFormControls.get(bufferID).value == currValue){
+    //         let geometry4326;
+    //         if (feature.geometry.type === 'Polygon'){
+    //           const coordinates4326 = [];
+    //           const geom = [];
+    //           for (const coordinate of feature.geometry.coordinates[0]) {
+    //             let point4326 = transform(
+    //               coordinate,
+    //               this.map.ol.getView().getProjection().getCode(),
+    //               'EPSG:4326'
+    //             );
+    //             geom.push(point4326);
+    //           }
+    //           coordinates4326.push(geom);
+    //           geometry4326 = {
+    //             type: feature.geometry.type,
+    //             coordinates: coordinates4326
+    //           };
+    //           console.log(geometry4326);
+  
+    //         }
+    //         else if (feature.geometry.type === 'Point'){
+  
+    //           const coordinates4326 = [];
+    //           const geom = [];
+    //           let point4326 = transform(
+    //             feature.geometry.coordinates,
+    //             this.map.ol.getView().getProjection().getCode(),
+    //             'EPSG:4326'
+    //           );
+    //           geom.push(point4326);
+              
+    //           coordinates4326.push(geom);
+    //           geometry4326 = {
+    //             type: feature.geometry.type,
+    //             coordinates: coordinates4326
+    //           };
+    //           console.log(geometry4326);
+              
+    //         }
+    //         else if (feature.geometry.type === 'LineString'){
+    //           const coordinates4326 = [];
+    //           const geom = [];
+    //           for (const coordinate of feature.geometry.coordinates) {
+    //             let point4326 = transform(
+    //               coordinate,
+    //               this.map.ol.getView().getProjection().getCode(),
+    //               'EPSG:4326'
+    //             );
+    //             geom.push(point4326);
+    //           }
+    //           coordinates4326.push(geom);
+    //           geometry4326 = {
+    //             type: feature.geometry.type,
+    //             coordinates: coordinates4326
+    //           };
+    //           console.log(geometry4326);
+    //         }
+            
+  
+    //         this.spatialFilterService
+    //         .loadBufferGeometry(geometry4326, undefined, currValue)
+    //         .subscribe((featureGeo: FeatureGeometry) => {
+    //           feature.geometry.coordinates = featureGeo.coordinates;
+    //           feature.projection = 'EPSG:4326';
+  
+    //           const olFeature = featureToOl(
+    //             feature,
+    //             this.map.ol.getView().getProjection().getCode()
+    //           );
+    //           const label = feature.properties.draw;
+    //           // const labelTypeAndUnit = [feature.properties.labelType, feature.properties.measureUnit];
+  
+    //           this.onSelectDraw(olFeature, label);
+              
+    //           this.cdRef.detectChanges();
+    //         });
+    //       }
+          
+    //     }
+
+    //   })
+
+    // );
+
+
   }
 
 /**
@@ -511,6 +635,8 @@ export class DrawComponent implements OnInit, OnDestroy {
 
         const offsetX = olFeature.get('offsetX');
         const offsetY = olFeature.get('offsetY');
+        const bufferFormControl = olFeature.get('bufferFormControl');
+
 
         const rad: number = entity.properties.rad
           ? entity.properties.rad
@@ -519,6 +645,7 @@ export class DrawComponent implements OnInit, OnDestroy {
         this.updateFontSizeAndStyle(olGeometry, fontSize, fontStyle);
         this.updateFillAndStrokeColor(olGeometry, fillColor, strokeColor);
         this.updateOffset(olGeometry, offsetX, offsetY);
+        this.updateFormControl(olGeometry, bufferFormControl);
         this.replaceFeatureInStore(entity, olGeometry, rad);
       }
     });
@@ -601,12 +728,19 @@ export class DrawComponent implements OnInit, OnDestroy {
           stroke: olGeometry.get('strokeColor_')
         },
         offsetX: olGeometry.get('offsetX_'),
-        offsetY: olGeometry.get('offsetY_')
+        offsetY: olGeometry.get('offsetY_'),
+        bufferFormControl: olGeometry.get('bufferFormControl_')
+
       },
       meta: {
         id: featureId
       }
     });
+    let bufferID = this.activeDrawingLayer.id + '-' + featureId;
+
+    if (!this.bufferFormControls.get(bufferID)){
+      this.bufferFormControls.addControl(bufferID, olGeometry.get('bufferFormControl_'));
+    }
   }
 
   private buildForm() {
@@ -614,6 +748,8 @@ export class DrawComponent implements OnInit, OnDestroy {
       fill: [''],
       stroke: ['']
     });
+    this.bufferFormControls = this.formBuilder.group({});
+
   }
 
   public setupLayer(isNewLayer?: boolean) {
@@ -680,6 +816,8 @@ export class DrawComponent implements OnInit, OnDestroy {
           const geometry = drawingLayerFeature.getGeometry() as any;
           if (selectedFeature.properties.id === geometry.ol_uid) {
             this.activeDrawingLayerSource.removeFeature(drawingLayerFeature);
+            let bufferID = this.activeDrawingLayer.id + '-' + selectedFeature.properties.id;
+            this.bufferFormControls.removeControl(bufferID);
           }
         });
     });
@@ -975,6 +1113,18 @@ export class DrawComponent implements OnInit, OnDestroy {
       true
     );
   }
+
+  private updateFormControl(
+    olFeature: OlFeature<OlGeometry>,
+    formControl: FormControl
+  ){
+    olFeature.setProperties(
+      {
+        bufferFormControl_: formControl
+      },
+      true
+    )
+  } 
 
   // Updates values of the selected element on the HTML view
 

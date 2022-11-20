@@ -2,6 +2,7 @@ import { Feature } from '../../feature/shared/feature.interfaces';
 import { IgoMap } from '../../map/shared/map';
 import { DrawControl } from '../../geometry/shared/controls/draw';
 import { FeatureStore } from '../../feature';
+import { FormControl } from '@angular/forms';
 
 export interface DrawOptions {
   icons?: string[];
@@ -30,6 +31,7 @@ export interface FeatureWithDrawProperties {
   drawingStyle: DrawingStyle;
   offsetX: number;
   offsetY: number;
+  bufferFormControl: FormControl;
 }
 
 export interface FeatureStoreDrawStrategyOptions {
