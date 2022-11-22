@@ -41,6 +41,14 @@
   <mat-divider></mat-divider>
 
   <div>
+    <mat-form-field>
+      <input matInput 
+      type="number" [formControl]="bufferFormControl" [value]="0">
+    </mat-form-field>
+
+  </div>
+
+  <div>
     <mat-form-field appearance="outline" class="layer-select">
       <mat-label>{{'igo.geo.draw.layer.title' | translate}}</mat-label>
       <mat-select #selectedLayer (selectionChange)="onLayerChange(selectedLayer.value)" [value]="updateActiveLayer()">
