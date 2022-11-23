@@ -1,8 +1,5 @@
 {
   "name": "@igo/demo",
-  "workspaces": [
-    "./packages/*"
-  ],
   "version": "1.13.4",
   "description": "IGO Library",
   "author": "IGO Community",
