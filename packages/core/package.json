@@ -19,8 +19,8 @@
   },
   "peerDependencies": {
     "@angular/cdk": "^14.2.7",
-    "@angular/common": "^14.2.12",
-    "@angular/core": "^14.2.12",
+    "@angular/common": "^15.0.1",
+    "@angular/core": "^15.0.1",
     "@igo2/utils": "^1.13.4",
     "rxjs": "^7.5.6",
     "ngx-indexed-db": "^11.0.2",

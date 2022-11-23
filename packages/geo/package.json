@@ -24,10 +24,10 @@
     "windows-1252": "^3.0.4"
   },
   "peerDependencies": {
-    "@angular/animations": "^14.2.12",
-    "@angular/common": "^14.2.12",
-    "@angular/core": "^14.2.12",
-    "@angular/forms": "^14.2.12",
+    "@angular/animations": "^15.0.1",
+    "@angular/common": "^15.0.1",
+    "@angular/core": "^15.0.1",
+    "@angular/forms": "^15.0.1",
     "@angular/material": "^14.2.7",
     "@igo2/common": "^1.13.4",
     "@igo2/core": "^1.13.4",
