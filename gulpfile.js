@@ -480,7 +480,7 @@ gulp.task(
 // https://github.com/stylus/stylus/pull/2538
 gulp.task('libs:fixStylus', done => {
   gulp
-    .src(['./node_modules/stylus/lib/nodes/index.js'])
+    .src(['./node_modules/stylus/lib/nodes/index.js'], { "allowEmpty": true })
     .pipe(
       replace(
         `/**
