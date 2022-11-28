@@ -1,3 +1,5 @@
+import { DataSourceService } from '../../datasource/shared/datasource.service';
+import { OptionsService } from '../../datasource/shared/options/options.service';
 import {
   Directive,
   Input,
@@ -10,7 +12,7 @@ import {
 import olLayerVectorTile from 'ol/layer/VectorTile';
 import olLayerVector from 'ol/layer/Vector';
 
-import { Subscription } from 'rxjs';
+import { of, Subscription } from 'rxjs';
 import olVectorTileSource from 'ol/source/VectorTile';
 
 import type { default as OlMapBrowserEvent } from 'ol/MapBrowserEvent';
@@ -26,16 +28,17 @@ import * as OlGeom from 'ol/geom';
 
 import { EntityStore } from '@igo2/common';
 import { FeatureDataSource } from '../../datasource/shared/datasources/feature-datasource';
-import { VectorLayer, Layer, VectorTileLayer } from '../../layer/shared/layers';
+import { VectorLayer, Layer, VectorTileLayer, VectorTileLayerOptions } from '../../layer/shared/layers';
 import { take } from 'rxjs/operators';
 import { tryBindStoreLayer } from '../../feature/shared/feature.utils';
 import { FeatureStore } from '../../feature/shared/store';
 import { FeatureMotion } from '../../feature/shared/feature.enums';
-import { MediaService } from '@igo2/core';
+import { MediaService, ConfigService } from '@igo2/core';
 import { StyleService } from '../../layer/shared/style.service';
 import { unByKey } from 'ol/Observable';
 import RenderFeature from 'ol/render/Feature';
 import { StyleByAttribute } from '../../layer/shared/vector-style.interface';
+import { MVTDataSourceOptions, AnyDataSourceOptions } from '../../datasource';
 
 /**
  * This directive makes the mouse coordinate trigger a reverse search on available search sources.
@@ -57,6 +60,7 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
   private selectionLayer: olLayerVectorTile;
   private selectionMVT = {};
   private mvtStyleOptions: StyleByAttribute;
+  public optionsService: OptionsService;
 
   /**
    * Listener to the pointer move event
@@ -94,11 +98,20 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
     return (this.component.map as IgoMap).projection;
   }
 
+  public anyDataSourceOptions: AnyDataSourceOptions;
+
+  public _hoverLayers: Layer[] = [];
+
+  public hoverLayer = 'https://services3.arcgis.com/0lL78GhXbg1Po7WO/arcgis/rest/services/FS_INFOCRUE_DEV_Fort_Jour2/FeatureServer/102/query/?f=json&geometry={\"x\":{x},\"y\":{y}}&spatialReference={\"wkid\":{srid}}&outFields=Troncon,Prevision,DateHeureMAJPrevision,DateHeurePrevision,planEau,nomBassin&returnGeometry=true&geometryType=esriGeometryPoint';
+
   constructor(
     @Self() private component: MapBrowserComponent,
     private mediaService: MediaService,
     private styleService: StyleService,
-  ) { }
+    private ConfigService: ConfigService,
+  ) { 
+
+  }
 
   /**
    * Start listening to pointermove and reverse search results.
@@ -112,15 +125,42 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
     this.map.status$.pipe(take(1)).subscribe(() => {
       this.store = new FeatureStore<Feature>([], { map: this.map });
       this.initStore();
+      this.store.layer.dataSource.options.url = this.hoverLayer;
+      console.log('this.store.layer.dataSource.options.url' + this.store.layer.dataSource.options.url);
     });
+
+    //this.hoverLayer: 'https://services3.arcgis.com/0lL78GhXbg1Po7WO/arcgis/rest/services/FS_INFOCRUE_DEV_Fort_Jour2/FeatureServer/102/query/?f=json&geometry={\"x\":{x},\"y\":{y}}&spatialReference={\"wkid\":{srid}}&outFields=Troncon,Prevision,DateHeureMAJPrevision,DateHeurePrevision,planEau,nomBassin&returnGeometry=true&geometryType=esriGeometryPoint';
+
 
     // To handle context change without using the contextService.
+    let layer: Layer;
     this.layers$$ = this.map.layers$.subscribe((layers: Layer[]) => {
+      for (layer of layers) {
+        this._hoverLayers.push(layer);
+        let hLayer: any;
+        for (hLayer of this._hoverLayers){
+          if (hLayer.dataSource.options.url){
+            console.log('hLayer.dataSource.options.url before ' + hLayer.dataSource.options.url);
+            hLayer.dataSource.options.url = this.hoverLayer;
+            console.log('hLayer.dataSource.options.url after ' + hLayer.dataSource.options.url);
+            this.initStore();
+          }
+        }
+            //console.log('_hoverLayers' + this._hoverLayers);
+        //let sourceOptions = layer.options.sourceOptions as AnyDataSourceOptions;
+        //if (sourceOptions){
+        //  console.log('sourceOptions: ' + sourceOptions);
+        //(layer.ol.getSource() as any).setUrl(this.hoverLayer);
+        //console.log('layer.ol.getSource' + layer.ol.getSource);
+        //this.store.layer.dataSource.options.url = this.hoverLayer;
+        //console.log('hoverLayer' + this.hoverLayer);
+       // }
+      }
+      /*
       if (this.store && !layers.find(l => l.id === 'hoverFeatureId')) {
         this.initStore();
-      }
+      }*/
     });
-
   }
 
   /**
@@ -129,6 +169,7 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
    */
   private initStore() {
     const store = this.store;
+    console.log("store" + this.store);
 
     const layer = new VectorLayer({
       isIgoInternalLayer: true,
