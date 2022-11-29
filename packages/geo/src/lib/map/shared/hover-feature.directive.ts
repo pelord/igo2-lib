@@ -1,4 +1,3 @@
-import { DataSourceService } from '../../datasource/shared/datasource.service';
 import { OptionsService } from '../../datasource/shared/options/options.service';
 import {
   Directive,
@@ -12,7 +11,7 @@ import {
 import olLayerVectorTile from 'ol/layer/VectorTile';
 import olLayerVector from 'ol/layer/Vector';
 
-import { of, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import olVectorTileSource from 'ol/source/VectorTile';
 
 import type { default as OlMapBrowserEvent } from 'ol/MapBrowserEvent';
@@ -28,7 +27,7 @@ import * as OlGeom from 'ol/geom';
 
 import { EntityStore } from '@igo2/common';
 import { FeatureDataSource } from '../../datasource/shared/datasources/feature-datasource';
-import { VectorLayer, Layer, VectorTileLayer, VectorTileLayerOptions } from '../../layer/shared/layers';
+import { VectorLayer, Layer, VectorTileLayer } from '../../layer/shared/layers';
 import { take } from 'rxjs/operators';
 import { tryBindStoreLayer } from '../../feature/shared/feature.utils';
 import { FeatureStore } from '../../feature/shared/store';
@@ -38,7 +37,7 @@ import { StyleService } from '../../layer/shared/style.service';
 import { unByKey } from 'ol/Observable';
 import RenderFeature from 'ol/render/Feature';
 import { StyleByAttribute } from '../../layer/shared/vector-style.interface';
-import { MVTDataSourceOptions, AnyDataSourceOptions } from '../../datasource';
+import { AnyDataSourceOptions } from '../../datasource';
 
 /**
  * This directive makes the mouse coordinate trigger a reverse search on available search sources.
