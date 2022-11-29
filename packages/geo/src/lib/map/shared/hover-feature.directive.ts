@@ -108,9 +108,7 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
     private mediaService: MediaService,
     private styleService: StyleService,
     private ConfigService: ConfigService,
-  ) { 
-
-  }
+  ) {}
 
   /**
    * Start listening to pointermove and reverse search results.
