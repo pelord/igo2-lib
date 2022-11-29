@@ -131,8 +131,7 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
 
     //this.hoverLayer: 'https://services3.arcgis.com/0lL78GhXbg1Po7WO/arcgis/rest/services/FS_INFOCRUE_DEV_Fort_Jour2/FeatureServer/102/query/?f=json&geometry={\"x\":{x},\"y\":{y}}&spatialReference={\"wkid\":{srid}}&outFields=Troncon,Prevision,DateHeureMAJPrevision,DateHeurePrevision,planEau,nomBassin&returnGeometry=true&geometryType=esriGeometryPoint';
 
-
-    // To handle context change without using the contextService.
+    /*
     let layer: Layer;
     this.layers$$ = this.map.layers$.subscribe((layers: Layer[]) => {
       for (layer of layers) {
@@ -145,23 +144,42 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
             console.log('hLayer.dataSource.options.url after ' + hLayer.dataSource.options.url);
             this.initStore();
           }
+        }*/
+
+      // To handle context change without using the contextService.
+      this.layers$$ = this.map.layers$.subscribe((layers: Layer[]) => {
+        let layer: Layer;
+        if (this.store && !layers.find(l => l.id === 'hoverFeatureId')) {
+          for (layer of layers) {
+            this._hoverLayers.push(layer);
+            let hLayer: any;
+            for (hLayer of this._hoverLayers){
+              if (hLayer.dataSource.options.url){
+                console.log('hLayer.dataSource.options.url before ' + hLayer.dataSource.options.url);
+                hLayer.dataSource.options.url = this.hoverLayer;
+                console.log('hLayer.dataSource.options.url after ' + hLayer.dataSource.options.url);
+              }
+            }
+          }
+          this.initStore();
         }
-            //console.log('_hoverLayers' + this._hoverLayers);
-        //let sourceOptions = layer.options.sourceOptions as AnyDataSourceOptions;
-        //if (sourceOptions){
-        //  console.log('sourceOptions: ' + sourceOptions);
-        //(layer.ol.getSource() as any).setUrl(this.hoverLayer);
-        //console.log('layer.ol.getSource' + layer.ol.getSource);
-        //this.store.layer.dataSource.options.url = this.hoverLayer;
-        //console.log('hoverLayer' + this.hoverLayer);
-       // }
-      }
-      /*
-      if (this.store && !layers.find(l => l.id === 'hoverFeatureId')) {
-        this.initStore();
-      }*/
-    });
+      });
   }
+                    /*
+                    this.layers$$ = this.map.layers$.subscribe((layers: Layer[]) => {
+                      if (this.store && !layers.find(l => l.id === 'hoverFeatureId')) {
+                        this.initStore();
+                      }
+                    });*/
+                          //console.log('_hoverLayers' + this._hoverLayers);
+                      //let sourceOptions = layer.options.sourceOptions as AnyDataSourceOptions;
+                      //if (sourceOptions){
+                      //  console.log('sourceOptions: ' + sourceOptions);
+                      //(layer.ol.getSource() as any).setUrl(this.hoverLayer);
+                      //console.log('layer.ol.getSource' + layer.ol.getSource);
+                      //this.store.layer.dataSource.options.url = this.hoverLayer;
+                      //console.log('hoverLayer' + this.hoverLayer);
+                    // }
 
   /**
    * Initialize the pointer position store
