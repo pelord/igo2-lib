@@ -151,9 +151,9 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
             this._hoverLayers.push(layer);
             let hLayer: any;
             for (hLayer of this._hoverLayers){
-              if (hLayer.dataSource.options.url){
+              if ((hLayer.id === 'infocrue-median-jour1') && hLayer.dataSource.options.url){
                 console.log('hLayer.dataSource.options.url before ' + hLayer.dataSource.options.url);
-                hLayer.dataSource.options.url = this.hoverLayer;
+                hLayer.dataSource.options.url = hLayer.dataSource.options.queryUrl;
                 console.log('hLayer.dataSource.options.url after ' + hLayer.dataSource.options.url);
               }
             }
