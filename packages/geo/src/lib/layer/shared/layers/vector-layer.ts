@@ -26,8 +26,8 @@ import { buildUrl, defaultMaxFeatures } from '../../../datasource/shared/datasou
 import { OgcFilterableDataSourceOptions } from '../../../filter/shared/ogc-filter.interface';
 import { GeoNetworkService, SimpleGetOptions } from '../../../offline/shared/geo-network.service';
 import { catchError, concatMap, first } from 'rxjs/operators';
-import { GeoDBService } from '../../../offline/geoDB/geoDB.service';
 import { of } from 'rxjs';
+import { DbNameEnum } from '../../../offline/geoDB/geoDB.enums';
 export class VectorLayer extends Layer {
   public dataSource:
     | FeatureDataSource
@@ -52,8 +52,7 @@ export class VectorLayer extends Layer {
     options: VectorLayerOptions,
     public messageService?: MessageService,
     public authInterceptor?: AuthInterceptor,
-    private geoNetworkService?: GeoNetworkService,
-    private geoDBService?: GeoDBService
+    private geoNetworkService?: GeoNetworkService
   ) {
     super(options, messageService, authInterceptor);
     this.watcher = new VectorWatcher(this);
@@ -414,7 +413,7 @@ export class VectorLayer extends Layer {
 
       const options: SimpleGetOptions = { responseType };
       this.geoNetworkService.geoDBService.get(url).pipe(concatMap(r =>
-        r ? of(r) : this.geoNetworkService.get(modifiedUrl, options)
+        r ? of(r) : this.geoNetworkService.get(modifiedUrl, options, DbNameEnum.GeoData)
           .pipe(
             first(),
             catchError((res) => {

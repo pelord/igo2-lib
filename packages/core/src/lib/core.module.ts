@@ -14,13 +14,21 @@ import { DBConfig, NgxIndexedDBModule } from 'ngx-indexed-db';
 const dbConfig: DBConfig = {
   name: 'igo2DB',
   version: 1,
-  objectStoresMeta: [{
-    store: 'geoData',
-    storeConfig: { keyPath: 'url', autoIncrement: false },
-    storeSchema: [
-      { name: 'regionID', keypath: 'regionID', options: { unique: false }}
-    ]
-  }]
+  objectStoresMeta: [
+    {
+      store: 'geoData',
+      storeConfig: { keyPath: 'url', autoIncrement: false },
+      storeSchema: [
+        { name: 'regionID', keypath: 'regionID', options: { unique: false } }
+      ]
+    },
+    {
+      store: 'tileData',
+      storeConfig: { keyPath: 'url', autoIncrement: false },
+      storeSchema: [
+        { name: 'regionID', keypath: 'regionID', options: { unique: false } }
+      ]
+    }]
 };
 @NgModule({
   imports: [

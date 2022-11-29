@@ -55,7 +55,7 @@ export class LayerService {
     private http: HttpClient,
     private styleService: StyleService,
     private dataSourceService: DataSourceService,
-    private geoNetwork: GeoNetworkService,
+    private geoNetworkService: GeoNetworkService,
     private messageService: MessageService,
     private languageService: LanguageService,
     @Optional() private authInterceptor: AuthInterceptor
@@ -133,7 +133,7 @@ export class LayerService {
   }
 
   private createTileLayer(layerOptions: TileLayerOptions): TileLayer {
-    return new TileLayer(layerOptions, this.messageService, this.authInterceptor);
+    return new TileLayer(layerOptions, this.messageService, this.authInterceptor, this.geoNetworkService);
   }
 
   private createVectorLayer(layerOptions: VectorLayerOptions): VectorLayer {
@@ -155,7 +155,7 @@ export class LayerService {
           resolution
         );
       };
-      igoLayer = new VectorLayer(layerOptions, this.messageService, this.authInterceptor, this.geoNetwork);
+      igoLayer = new VectorLayer(layerOptions, this.messageService, this.authInterceptor, this.geoNetworkService);
     }
 
     if (layerOptions.source instanceof ClusterDataSource) {
@@ -169,7 +169,7 @@ export class LayerService {
           baseStyle
         );
       };
-      igoLayer = new VectorLayer(layerOptions, this.messageService, this.authInterceptor, this.geoNetwork);
+      igoLayer = new VectorLayer(layerOptions, this.messageService, this.authInterceptor, this.geoNetworkService);
     }
 
     const layerOptionsOl = Object.assign({}, layerOptions, {
@@ -177,7 +177,7 @@ export class LayerService {
     });
 
     if (!igoLayer) {
-      igoLayer = new VectorLayer(layerOptionsOl, this.messageService, this.authInterceptor, this.geoNetwork);
+      igoLayer = new VectorLayer(layerOptionsOl, this.messageService, this.authInterceptor, this.geoNetworkService);
     }
 
     this.applyMapboxStyle(igoLayer, layerOptionsOl as any);

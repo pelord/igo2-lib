@@ -2,7 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ConnectionState, NetworkService } from '@igo2/core';
 import { Observable } from 'rxjs';
+import { DbNameEnum } from '../geoDB/geoDB.enums';
 import { GeoDBService } from '../geoDB/geoDB.service';
+import { TileDBService } from '../geoDB/tileDB.service';
 
 export enum ResponseType {
   Arraybuffer= 'arraybuffer',
@@ -22,6 +24,7 @@ export class GeoNetworkService {
   constructor(
     private http: HttpClient,
     public geoDBService: GeoDBService,
+    public tileDBService: TileDBService,
     private networkService: NetworkService,
   ) {
     this.networkService.currentState().subscribe((state: ConnectionState) => {
@@ -29,11 +32,11 @@ export class GeoNetworkService {
     });
   }
 
-  get(url: string, simpleGetOptions: SimpleGetOptions): Observable<any> {
+  get(url: string, simpleGetOptions: SimpleGetOptions, dbType: DbNameEnum): Observable<any> {
     if (window.navigator.onLine && this.networkOnline) {
       return this.getOnline(url, simpleGetOptions);
     }
-    return this.getOffline(url);
+    return this.getOffline(url, dbType);
   }
 
   private getOnline(url: string, simpleGetOptions: SimpleGetOptions): Observable<any> {
@@ -59,8 +62,16 @@ export class GeoNetworkService {
     return request;
   }
 
-  private getOffline(url: string): Observable<any> {
-    return this.geoDBService.get(url);
+  private getOffline(url: string, dbType: DbNameEnum): Observable<any> {
+    switch (dbType) {
+      // TODO Ajuster pour autre formats
+      case DbNameEnum.GeoData:
+        return this.geoDBService.get(url);
+      case DbNameEnum.TileData:
+        return this.tileDBService.get(url);
+      default:
+        return this.geoDBService.get(url);
+    }
   }
 
   public isOnline() {

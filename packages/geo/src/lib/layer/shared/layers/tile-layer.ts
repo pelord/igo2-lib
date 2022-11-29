@@ -1,6 +1,7 @@
 import olLayerTile from 'ol/layer/Tile';
 import olSourceTile from 'ol/source/Tile';
 import Tile from 'ol/Tile';
+import TileState from 'ol/TileState';
 
 import { TileWatcher } from '../../utils';
 import { IgoMap } from '../../../map';
@@ -17,6 +18,9 @@ import { TileLayerOptions } from './tile-layer.interface';
 
 import { MessageService } from '@igo2/core';
 import { AuthInterceptor } from '@igo2/auth';
+import { GeoNetworkService, ResponseType } from '../../../offline/shared/geo-network.service';
+import { first } from 'rxjs';
+import { DbNameEnum } from '../../../offline/geoDB/geoDB.enums';
 export class TileLayer extends Layer {
   public dataSource:
     | OSMDataSource
@@ -30,10 +34,15 @@ export class TileLayer extends Layer {
 
   private watcher: TileWatcher;
 
+  get offlinable(): boolean {
+    return this.options.offlinable || false;
+  }
+
   constructor(
     options: TileLayerOptions,
     public messageService?: MessageService,
-    public authInterceptor?: AuthInterceptor) {
+    public authInterceptor?: AuthInterceptor,
+    private geoNetworkService?: GeoNetworkService) {
     super(options, messageService);
 
     this.watcher = new TileWatcher(this);
@@ -47,7 +56,7 @@ export class TileLayer extends Layer {
     const tileLayer = new olLayerTile(olOptions);
     const tileSource = tileLayer.getSource();
     tileSource.setTileLoadFunction((tile: Tile, url: string) => {
-      this.customLoader(tile, url, this.authInterceptor);
+      this.customLoader(tile, url, this.authInterceptor, this.offlinable);
     });
 
     return tileLayer;
@@ -59,14 +68,30 @@ export class TileLayer extends Layer {
    * @param tile the current tile
    * @param url the url string or function to retrieve the data
    */
-  customLoader(tile, url: string, interceptor: AuthInterceptor ) {
-
+  customLoader(tile: Tile, url: string, interceptor: AuthInterceptor, offlinable: boolean) {
     const alteredUrlWithKeyAuth = interceptor.alterUrlWithKeyAuth(url);
     let modifiedUrl = url;
     if (alteredUrlWithKeyAuth) {
       modifiedUrl = alteredUrlWithKeyAuth;
     }
-    tile.getImage().src = modifiedUrl;
+    if (!offlinable) {
+      (tile as any).getImage().src = modifiedUrl;
+      return;
+    }
+    const request = this.geoNetworkService.get(modifiedUrl, { responseType: ResponseType.Blob }, DbNameEnum.TileData);
+    request.pipe(first())
+      .subscribe((blob) => {
+        if (blob) {
+          const urlCreator = window.URL;
+          const imageUrl = urlCreator.createObjectURL(blob);
+          (tile as any).getImage().src = imageUrl;
+          (tile as any).getImage().onload = function () {
+            URL.revokeObjectURL(this.src);
+          };
+        } else {
+          tile.setState(TileState.ERROR);
+        }
+      });
   }
 
   public setMap(map: IgoMap | undefined) {

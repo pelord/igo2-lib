@@ -9,7 +9,7 @@ import { InsertSourceInsertDBEnum } from './geoDB.enums';
 @Injectable({
   providedIn: 'root'
 })
-export class GeoDBService {
+export abstract class GeoDBService {
   readonly dbName: string = 'geoData';
   public collisionsMap: Map<number, string[]> = new Map();
   public _newData: number = 0;
