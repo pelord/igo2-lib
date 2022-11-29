@@ -101,7 +101,7 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
 
   public _hoverLayers: Layer[] = [];
 
-  public hoverLayer = 'https://services3.arcgis.com/0lL78GhXbg1Po7WO/arcgis/rest/services/FS_INFOCRUE_DEV_Fort_Jour2/FeatureServer/102/query/?f=json&geometry={\"x\":{x},\"y\":{y}}&spatialReference={\"wkid\":{srid}}&outFields=Troncon,Prevision,DateHeureMAJPrevision,DateHeurePrevision,planEau,nomBassin&returnGeometry=true&geometryType=esriGeometryPoint';
+  public hoverLayer = 'https://geoegl.msp.gouv.qc.ca/apis/wss/query.fcgi';
 
   constructor(
     @Self() private component: MapBrowserComponent,
@@ -118,13 +118,6 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
     this.listenToMapPointerMove();
     this.subscribeToPointerStore();
     this.listenToMapClick();
-
-    this.map.status$.pipe(take(1)).subscribe(() => {
-      this.store = new FeatureStore<Feature>([], { map: this.map });
-      this.initStore();
-      this.store.layer.dataSource.options.url = this.hoverLayer;
-      console.log('this.store.layer.dataSource.options.url' + this.store.layer.dataSource.options.url);
-    });
 
     //this.hoverLayer: 'https://services3.arcgis.com/0lL78GhXbg1Po7WO/arcgis/rest/services/FS_INFOCRUE_DEV_Fort_Jour2/FeatureServer/102/query/?f=json&geometry={\"x\":{x},\"y\":{y}}&spatialReference={\"wkid\":{srid}}&outFields=Troncon,Prevision,DateHeureMAJPrevision,DateHeurePrevision,planEau,nomBassin&returnGeometry=true&geometryType=esriGeometryPoint';
 
@@ -151,15 +144,22 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
             this._hoverLayers.push(layer);
             let hLayer: any;
             for (hLayer of this._hoverLayers){
-              if ((hLayer.id === 'infocrue-median-jour1') && hLayer.dataSource.options.url){
+              if ((hLayer.title === 'WFS (polygon)') && hLayer.dataSource.options.url){
                 console.log('hLayer.dataSource.options.url before ' + hLayer.dataSource.options.url);
-                hLayer.dataSource.options.url = hLayer.dataSource.options.queryUrl;
+                hLayer.dataSource.options.url = this.hoverLayer;
                 console.log('hLayer.dataSource.options.url after ' + hLayer.dataSource.options.url);
               }
             }
           }
           this.initStore();
         }
+      });
+
+      this.map.status$.pipe(take(1)).subscribe(() => {
+        this.store = new FeatureStore<Feature>([], { map: this.map });
+        //this.store.layer.dataSource.options.url = this.hoverLayer;
+        //console.log('this.store.layer.dataSource.options.url' + this.store.layer.dataSource.options.url);
+        this.initStore();
       });
   }
                     /*
