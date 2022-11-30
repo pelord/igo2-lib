@@ -1,3 +1,27 @@
+## [1.13.4](https://github.com/infra-geo-ouverte/igo2-lib/compare/1.13.3...1.13.4) (2022-11-22)
+
+
+### Bug Fixes
+
+* **contexts:** fix empty context list when ours is empty ([#1137](https://github.com/infra-geo-ouverte/igo2-lib/issues/1137)) ([cd8b830](https://github.com/infra-geo-ouverte/igo2-lib/commit/cd8b830063095fde3fe78e8ed352bfb24a497b38))
+* **imgerror:** relative path is used ([#1135](https://github.com/infra-geo-ouverte/igo2-lib/issues/1135)) ([4fe3918](https://github.com/infra-geo-ouverte/igo2-lib/commit/4fe3918490e3dab7d0f68bada832b708b0909f3b))
+
+
+
+## [1.13.3](https://github.com/infra-geo-ouverte/igo2-lib/compare/1.13.2...1.13.3) (2022-11-16)
+
+
+### Bug Fixes
+
+* **layer-sync/feature-details:** layer sync filters init / embedded link ([#1132](https://github.com/infra-geo-ouverte/igo2-lib/issues/1132)) ([a8c911f](https://github.com/infra-geo-ouverte/igo2-lib/commit/a8c911f880567b7caa9e0d9331cdb34c39fba085))
+
+
+### Features
+
+* **draw:** Make multiple layers with the drawing tool ([#1081](https://github.com/infra-geo-ouverte/igo2-lib/issues/1081)) ([39179bb](https://github.com/infra-geo-ouverte/igo2-lib/commit/39179bbd57d797821c882041453152ced5c4a83c))
+
+
+
 ## [1.13.2](https://github.com/infra-geo-ouverte/igo2-lib/compare/1.13.1...1.13.2) (2022-11-14)
 
 
