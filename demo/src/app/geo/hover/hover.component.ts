@@ -78,7 +78,7 @@ export class AppHoverComponent {
         outputFormatDownload: 'shp'
       }
     };
-
+/*
     this.dataSourceService
       .createAsyncDataSource(wfsDatasourcePolygon)
       .subscribe((dataSource: WFSDataSource) => {
@@ -102,7 +102,7 @@ export class AppHoverComponent {
         outputFormatDownload: 'shp'
       }
     };
-
+/*
     this.dataSourceService
       .createAsyncDataSource(wfsDatasourcePoint)
       .subscribe((dataSource: WFSDataSource) => {
@@ -148,7 +148,62 @@ export class AppHoverComponent {
           }
         };
         this.map.addLayer(this.layerService.createLayer(layer));
-      });
+      });*/
+
+      this.layerService
+      .createAsyncLayer({
+        title: 'Vector tile with custom getfeatureinfo url',
+        visible: true,
+        sourceOptions: {
+          type: 'mvt',
+          url: 'https://tiles.arcgis.com/tiles/0lL78GhXbg1Po7WO/arcgis/rest/services/VT_INFOCRUE_DEV_Median_Jour2/VectorTileServer/tile/{z}/{y}/{x}.pbf',
+            //'https://ahocevar.com/geoserver/gwc/service/tms/1.0.0/ne:ne_10m_admin_0_countries@EPSG:900913@pbf/{z}/{x}/{-y}.pbf',
+          queryable: true,
+          queryUrl: 'https://geoegl.msp.gouv.qc.ca/apis/wss/amenagement.fcgi?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetFeatureInfo&FORMAT=image%2Fpng&TRANSPARENT=true&QUERY_LAYERS=wms_mern_reg_admin&LAYERS=wms_mern_reg_admin&DPI=96&MAP_RESOLUTION=96&FORMAT_OPTIONS=dpi%3A96&INFO_FORMAT=geojson&FEATURE_COUNT=5&I=50&J=50&CRS=EPSG:{srid}&STYLES=&WIDTH=101&HEIGHT=101&BBOX={xmin},{ymin},{xmax},{ymax}',
+          queryLayerFeatures: true,
+          queryFormat: 'esrijson',
+          sourceFields : [
+            {"name" : "Troncon", "alias" : "Tronçon"},
+            {"name" : "Prevision", "alias" : "Prévision"},
+            {"name" : "DateHeureMAJPrevision", "alias" : "Dernière mise à jour"},
+            {"name" : "DateHeurePrevision", "alias" : "Date heure crue max"},
+            {"name" : "planEau", "alias" : "Plan d'eau"},
+            {"name" : "nomBassin", "alias" : "Bassin"},
+            {"name" : "messageParticulier", "alias" : "Message"},
+            {"name" : "typePrevision", "alias" : "prévision"}
+          ]
+        },
+        "hoverStyle": {
+          "visible": false,
+          "attribute":[""],
+          "data": [""],
+          "stroke": ["rgba(51,153,204)"],
+          "fill":["rgba(51,153,204,0.4)"],
+          "radius":[25],
+          "width": [10],
+          "label": {
+            "attribute": "Sélectionner le tronçon",
+            "style": {
+              "textAlign": "left",
+              "textBaseline": "top",
+              "font": "13px Open Sans SemiBold, roboto",
+              "fill": { "color": "#fff" },
+              "backgroundFill": { "color": "rgba(91, 91,91, 0.7)" },
+              "backgroundStroke": { "color": "rgba(200, 200, 200, 0.75)", "width": 0 },
+              "overflow": true,
+              "offsetX": 30,
+              "offsetY": 10,
+              "padding": [2.8, 2.8, 2.8, 2.8]
+            }
+          }
+        },
+        mapboxStyle: {
+          url: 'https://tiles.arcgis.com/tiles/0lL78GhXbg1Po7WO/arcgis/rest/services/VT_INFOCRUE_DEV_Median_Jour2/VectorTileServer/resources/styles', //'assets/mapboxStyleExample-vectortile.json',
+          source: 'esri'
+        },
+      } as any)
+      .subscribe(l => this.map.addLayer(l));
+
 
   }
 }
