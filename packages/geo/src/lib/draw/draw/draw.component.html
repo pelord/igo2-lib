@@ -87,7 +87,8 @@
       matTooltipShowDelay="500"
       [matTooltip]="'igo.geo.draw.delete' | translate"
       [disabled]="(selectedFeatures$ | async).length === 0"
-      (click)="deleteDrawings()">
+      (click)="deleteDrawings()"
+    >
       <mat-icon svgIcon="delete"></mat-icon>
     </button>
 
