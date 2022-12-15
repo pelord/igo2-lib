@@ -192,6 +192,9 @@ export class IgoMap {
     options = Object.assign({ constrainResolution: true }, options);
     const view = new olView(options);
     this.ol.setView(view);
+    if (this.viewController){
+      this.viewController.olView$.next(view);
+    }
 
     if (options) {
       if (options.maxLayerZoomExtent) {

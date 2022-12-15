@@ -121,6 +121,25 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
       }
     });
 
+    this.map.viewController.olView$.subscribe((v) => {
+      console.log('MARCHE PAS')
+      if (v && this.map) {
+        this.selectionLayer = new olLayerVectorTile({
+          map: this.map.ol,
+          zIndex: 901,
+          renderMode: "vector",
+          declutter: true,
+          // monitor proj to recreate this source based on new proj
+          source: new olVectorTileSource({ projection: v.getProjection() }),
+          style: (feature, resolution) => {
+            if (this.mvtStyleOptions && feature.getId() in this.selectionMVT) {
+              return this.createHoverStyle(feature, this.mvtStyleOptions, resolution);
+            }
+          }
+        });
+      }
+
+    });
   }
 
   /**

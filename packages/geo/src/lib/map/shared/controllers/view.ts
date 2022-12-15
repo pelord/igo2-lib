@@ -25,6 +25,11 @@ export interface MapViewControllerOptions {
  */
 export class MapViewController extends MapController {
   /**
+   * Observable of the current ol view
+   */
+  olView$ = new BehaviorSubject<OlView>(undefined);
+
+  /**
    * Observable of the current rotation in radians
    */
    readonly rotation$ = new BehaviorSubject<number>(0);
