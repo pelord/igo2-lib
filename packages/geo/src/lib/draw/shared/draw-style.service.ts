@@ -5,6 +5,11 @@ import OlPoint from 'ol/geom/Point';
 import { transform } from 'ol/proj';
 import { MapService } from '../../map/shared/map.service';
 import { FontType } from './draw.enum';
+import { HttpClient } from '@angular/common/http';
+import { Feature, FeatureGeometry } from '../../feature/shared';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import Point from 'ol/geom/Point';
 
 @Injectable({
   providedIn: 'root'
@@ -19,10 +24,9 @@ export class DrawStyleService {
   private fontStyle: string = FontType.Arial.toString();
   private offsetX: number = 0;
   private offsetY: number = 0;
+  private baseUrl: string = 'https://geoegl.msp.gouv.qc.ca/apis/terrapi/';
 
-  constructor(
-    private mapService: MapService
-  ) {}
+  constructor(private mapService: MapService, private http: HttpClient) {}
 
   getFillColor(): string {
     return this.fillColor;
@@ -115,7 +119,11 @@ export class DrawStyleService {
 
     // if feature is a circle
     if (feature.get('rad')) {
-      const coordinates = transform(feature.getGeometry().flatCoordinates, proj, 'EPSG:4326');
+      const coordinates = transform(
+        feature.getGeometry().flatCoordinates,
+        proj,
+        'EPSG:4326'
+      );
 
       style = new OlStyle.Style({
         text: new OlStyle.Text({
@@ -135,7 +143,10 @@ export class DrawStyleService {
         }),
 
         image: new OlStyle.Circle({
-          radius: feature.get('rad') / Math.cos((Math.PI / 180) * coordinates[1]) / resolution,
+          radius:
+            feature.get('rad') /
+            Math.cos((Math.PI / 180) * coordinates[1]) /
+            resolution,
           stroke: new OlStyle.Stroke({
             color: strokeColor ? strokeColor : this.strokeColor,
             width: this.strokeWidth
@@ -223,5 +234,29 @@ export class DrawStyleService {
       });
       return style;
     }
+  }
+
+  loadBufferGeometry(
+    feature: Feature | FeatureGeometry,
+    buffer?: number,
+  ): Observable<Feature | FeatureGeometry> {
+    // if point {create new Feature}
+    let bufferedFeature = feature as FeatureGeometry;
+    console.log(bufferedFeature);
+    console.log(feature);
+
+    if (bufferedFeature.type.includes("LineString")){
+      bufferedFeature.type = "MultiLineString";
+    }
+    return this.http
+      .post<Feature>(this.baseUrl + 'geospatial/buffer?', {
+        buffer,
+        loc: JSON.stringify(bufferedFeature)
+      })
+      .pipe(
+        map((f) => {
+          return f;
+        })
+      );
   }
 }

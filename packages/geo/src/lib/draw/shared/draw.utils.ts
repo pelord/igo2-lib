@@ -12,6 +12,9 @@ import { CoordinatesUnit } from './draw.enum';
 import { convertDDToDMS, roundCoordToString } from '../../map/shared/map.utils';
 
 
+
+
+
 /**
  * Create a default style
  * @param fillColor the fill color
@@ -128,5 +131,8 @@ export function DDtoDMS(value: [number, number], unit: CoordinatesUnit): string[
 
   return conversion ? conversion(value) : undefined;
 }
+
+
+
 
 
