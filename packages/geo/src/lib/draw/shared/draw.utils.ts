@@ -10,6 +10,7 @@ import {
 } from '../../measure/shared/measure.utils';
 import { CoordinatesUnit } from './draw.enum';
 import { convertDDToDMS, roundCoordToString } from '../../map/shared/map.utils';
+import { MeasureLengthUnit } from '../../measure';
 
 
 
@@ -131,8 +132,3 @@ export function DDtoDMS(value: [number, number], unit: CoordinatesUnit): string[
 
   return conversion ? conversion(value) : undefined;
 }
-
-
-
-
-

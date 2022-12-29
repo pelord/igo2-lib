@@ -40,10 +40,20 @@
 
   <mat-divider></mat-divider>
 
-  <div>
+  <div class="buffer-unit">
     <mat-form-field>
       <input matInput 
       type="number" [formControl]="bufferFormControl" [value]="0">
+    </mat-form-field>
+
+    <mat-form-field class="unit-field">
+      <mat-select 
+      [value]="bufferMeasureUnit" 
+      (selectionChange)="onBufferUnitChange($event.value)">
+        <mat-option *ngFor="let unit of measureUnits" [value]="unit">
+          {{('igo.geo.measure.' + unit) | translate}}
+        </mat-option>
+      </mat-select>  
     </mat-form-field>
 
   </div>

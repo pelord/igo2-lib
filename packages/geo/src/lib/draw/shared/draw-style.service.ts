@@ -242,8 +242,6 @@ export class DrawStyleService {
   ): Observable<Feature | FeatureGeometry> {
     // if point {create new Feature}
     let bufferedFeature = feature as FeatureGeometry;
-    console.log(bufferedFeature);
-    console.log(feature);
 
     if (bufferedFeature.type.includes("LineString")){
       bufferedFeature.type = "MultiLineString";

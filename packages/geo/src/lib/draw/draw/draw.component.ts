@@ -99,6 +99,7 @@ import {
 } from '../../measure/shared/measure.enum';
 import Polygon, { fromCircle } from 'ol/geom/Polygon';
 
+
 @Component({
   selector: 'igo-draw',
   animations: [
@@ -205,6 +206,8 @@ export class DrawComponent implements OnInit, OnDestroy {
 
   @Output() fontSize: string;
   @Output() fontStyle: string;
+  @Output() bufferMeasureUnitChange = new EventEmitter<MeasureLengthUnit>();
+
 
   public activeStore: FeatureStore<FeatureWithDraw>;
   private layerCounterID: number = 0;
@@ -233,6 +236,10 @@ export class DrawComponent implements OnInit, OnDestroy {
 
   public bufferFormControl = new FormControl();
   public bufferFormControls: FormGroup;
+
+  public bufferMeasureUnit: MeasureLengthUnit = MeasureLengthUnit.Meters;
+  public currentBufferValue: number = 0;
+  
 
   @ViewChild('selectedLayer') select;
 
@@ -426,9 +433,11 @@ export class DrawComponent implements OnInit, OnDestroy {
             let currValue = value[bufferID];
 
             if (
-              currValue > 0 &&
-              this.bufferFormControls.get(bufferID).value == currValue
+              currValue > 0 
+              // && this.bufferFormControls.get(bufferID).value == currValue
             ) {
+              console.log("currValue: " + currValue);
+
               let geometry4326;
               if (feature.geometry.type === 'Polygon') {
                 const coordinates4326 = [];
@@ -478,6 +487,10 @@ export class DrawComponent implements OnInit, OnDestroy {
                   coordinates: coordinates4326
                 };
               }
+              if (this.bufferMeasureUnit === MeasureLengthUnit.Kilometers){
+                currValue = currValue*1000;
+              }
+
 
               this.drawStyleService.loadBufferGeometry(geometry4326, currValue)
                 .subscribe((featureGeo: FeatureGeometry) => {
@@ -736,7 +749,6 @@ export class DrawComponent implements OnInit, OnDestroy {
     entities.forEach((entity) => {
 
       // if (olGeometryCoordinates === entityCoordinates) {
-      // if (true){
       const fontSize = olFeature
         .get('fontStyle')
         .split(' ')[0]
@@ -1189,6 +1201,17 @@ export class DrawComponent implements OnInit, OnDestroy {
     this.toggleDrawControl();
   }
 
+  onBufferUnitChange(unit: MeasureLengthUnit){
+    if (unit === this.bufferMeasureUnit) {
+      return;
+    } else {
+      this.bufferMeasureUnit = unit;
+      this.bufferMeasureUnit === MeasureLengthUnit.Meters ?
+      this.bufferFormControl.setValue(this.bufferFormControl.value * 1000) :
+      this.bufferFormControl.setValue(this.bufferFormControl.value / 1000);
+    }
+  }
+
   // Updates the properties of olFeature inputted
 
   /**
@@ -1349,6 +1372,10 @@ export class DrawComponent implements OnInit, OnDestroy {
     return currLayer ? currLayer : this.allLayers[0];
   }
 
+  get measureUnits(): string[] {
+    return [MeasureLengthUnit.Meters, MeasureLengthUnit.Kilometers];
+  }
+
   // Helper methods
 
   /**
@@ -1466,4 +1493,5 @@ export class DrawComponent implements OnInit, OnDestroy {
     const length = getLength(olGeometry);
     return Number(length / (2 * Math.PI));
   }
+  
 }
