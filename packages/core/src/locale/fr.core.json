@@ -9,8 +9,7 @@
       },
       "errors": {
         "uncaught": {
-          "message":
-            "Désolé! Le service que vous voulez utiliser n’est malheureusement pas disponible pour le moment. Essayez plus tard!",
+          "message": "Désolé, le service n’est pas disponible pour le moment. Réessayez plus tard.",
           "title": "Erreur serveur"
         }
       },
