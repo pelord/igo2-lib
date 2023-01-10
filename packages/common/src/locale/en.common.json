@@ -10,7 +10,7 @@
         "filter": "Filter"
       },
       "entity-table": {
-        "targetHtmlUrl": "Open the external link"
+        "targetHtmlUrl": "Open external link"
       },
       "form": {
         "errors": {
@@ -24,7 +24,7 @@
       },
       "interactiveTour": {
         "tooltipTourToolButton": "Interactive tour of the application",
-        "disaledTooltipTourToolButton": "To have access to this tool's tour, add contexts or layers",
+        "disaledTooltipTourToolButton": "To have access to the application tour, add contexts or layers",
         "buttonTitle": "Discover",
         "exitButton": "Exit",
         "backButton": "Back",

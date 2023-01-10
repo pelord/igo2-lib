@@ -23,8 +23,8 @@
         "icon": "Actions supplémentaires"
       },
       "interactiveTour": {
-        "tooltipTourToolButton": "Aide interactive sur l'outil",
-        "disaledTooltipTourToolButton": "Pour avoir accès au tour interactif de cet outil, ajouter des contextes ou des couches",
+        "tooltipTourToolButton": "Tour interactif de l'application",
+        "disaledTooltipTourToolButton": "Pour avoir accès au tour interactif de cette application, ajoutez des contextes ou des couches",
         "buttonTitle": "Découvrir",
         "exitButton": "Quitter",
         "backButton": "Précédent",
