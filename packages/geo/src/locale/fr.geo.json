@@ -3,27 +3,27 @@
     "geo": {
       "catalog": {
         "layer.addToMap": "Ajouter à la carte",
-        "layer.addToMapOutRange": "Ajouter à la carte. La donnée est non visible à l'échelle active. Veuillez zoomer +/- si vous voulez l'apercevoir à la carte.",
+        "layer.addToMapOutRange": "Ajouter à la carte. La donnée est non visible à l'échelle active. Zoomez +/- pour l'afficher.",
         "layer.removeFromMap": "Retirer de la carte",
-        "layer.removeFromMapOutRange": "Retirer de la carte. La donnée est non visible à l'échelle active. Veuillez zoomer +/- si vous voulez l'apercevoir à la carte.",
+        "layer.removeFromMapOutRange": "Retirer de la carte. La donnée est non visible à l'échelle active. Zoomer +/- pour l'afficher.",
         "group.addToMap": "Ajouter toutes les couches de ce groupe à la carte",
         "group.removeFromMap": "Retirer toutes les couches de ce groupe de la carte",
         "baseLayers": "Fonds de carte",
         "unavailableTitle": "Catalogue indisponible",
         "unavailable": "Le catalogue '{{value}}' est indisponible pour le moment ou vous n'avez pas les permissions requises.",
-        "someUnavailable": "Certaines couches d'information du catalogue sont indisponible pour le moment ou vous n'avez pas les permissions requises.",
+        "someUnavailable": "Certaines couches d'information du catalogue sont indisponibles pour le moment ou vous n'avez pas les permissions requises.",
         "externalProvider": {
           "catalog": "Ce catalogue provient d'une organisation externe.",
           "group": "Ces couches proviennent d'une organisation externe.",
           "layer": "Cette couche provient d'une organisation externe.",
-          "unavailableWithEmail": "Le catalogue '{{value}}' est indisponible pour le moment. Pour ajouter un service externe à la liste prédéfinie, veuillez contacter {{email}}. Des délais peuvent s'appliquer si problème il y a avec le fournisseur externe."
+          "unavailableWithEmail": "Le catalogue '{{value}}' est indisponible pour le moment. Pour ajouter un catalogue externe à la liste prédéfinie, contactez {{email}}. Des délais peuvent s'appliquer s'il y a des problèmes avec le fournisseur externe."
         },
         "library.add": "Ajouter ce catalogue",
         "library.cancel": "Annuler",
         "library.remove": "Retirer ce catalogue de la liste",
         "library.inlist": {
-          "title": "Catalogue déjà contenu",
-          "message": "Le catalogue à ajouter est déjà dans la liste"
+          "title": "Catalogue déjà présent",
+          "message": "Ce catalogue est déjà présent dans la liste."
         },
         "library.addTitle": "Ajout d'un catalogue",
         "library.addBtn": "Ajouter un catalogue"
@@ -36,61 +36,61 @@
       },
       "dataSource": {
         "unavailableTitle": "Couche indisponible",
-        "optionsApiUnavailable": "L'information sur les couches n'a pas pu être récupérée. Certaines couches pourraient ne pas présenter la bonne information.",
-        "unavailable": "La couche '{{value}}' est indisponible pour le moment ou vous n'avez pas les permissions requises."
+        "optionsApiUnavailable": "L'information sur la couche n'a pu être récupérée. Certaines couches pourraient ne pas présenter les bonnes données.",
+        "unavailable": "Couche '{{value}}' indisponible pour le moment ou vous n'avez pas les permissions requises."
       },
       "dropGeoFile": {
         "invalid": {
-          "text": "Le fichier '{{value}}' est invalide. ({{mimeType}})",
+          "text": "Fichier '{{value}}' invalide. ({{mimeType}})",
           "title": "Fichier invalide"
         },
         "empty": {
-          "text": "Le fichier '{{value}}' est vide, impossible d'importer",
+          "text": "Fichier '{{value}}' vide.",
           "title": "Fichier vide"
         },
         "success": {
-          "text": "La couche '{{value}}' a été ajoutée à la carte",
+          "text": "Couche '{{value}}' ajoutée à la carte",
           "title": "Fichier importé"
         },
         "unreadable": {
-          "text": "Le fichier '{{value}}' est impossible à lire",
+          "text": "Fichier '{{value}}' impossible à lire",
           "title": "Fichier illisible"
         },
         "tooLarge": {
-          "text": "Le fichier '{{value}}' est trop volumineux (Maximum: {{size}} Mo)",
+          "text": "Fichier '{{value}}' trop volumineux (Maximum: {{size}} Mo)",
           "title": "Fichier trop volumineux"
         },
         "invalidSRS": {
-          "text": "La projection est valide. Elle doit commencer par EPSG:",
+          "text": "La projection est invalide. Elle doit commencer par EPSG:",
           "title": "Projection invalid"
         },
         "ogreServer": {
           "title": "Erreur 500 du service Ogre",
-          "text": "Erreur de la conversion du fichier en geojson. Il est possible que le fichier soit trop volumineux, essayer de l'importer en format geojson"
+          "text": "Erreur lors de la conversion du fichier en geojson. Il est possible que le fichier soit trop volumineux. Essayez de l'importer en format geojson."
         }
       },
       "export": {
         "customList": {
-          "text": "Certaines couches sélectionnées ( {{value}} ) réduisent la liste des formats possible",
+          "text": "Certaines couches sélectionnées ({{value}}) réduisent la liste des formats possibles",
           "title": "Liste restreinte de formats"
         },
         "nothing": {
-          "text": "Impossible d’exporter, donnée non valide ou aucune donnée sélectionnée.",
-          "title": "Donnée non valide ou non présente"
+          "text": "Donnée non valide ou aucune donnée sélectionnée, impossible d'exporter.",
+          "title": "Donnée invalide ou non présente"
         },
         "noFormat": {
-          "text": "Aucun format d'exportation valide pour toutes les couches sélectionnées. Veuillez exporter les couches une à la fois.",
+          "text": "Aucun format d'exportation valide pour toutes les couches sélectionnées. Exportez les couches individuellement.",
           "title": "Aucun format disponible"
         },
         "failed": {
-          "text": "Impossible d’exporter, problème de donnée rencontré.",
+          "text": "Impossible d’exporter, problème de données rencontré.",
           "title": "Problème d’exportation"
         },
         "popupBlocked": {
-          "text": "</br>Veuillez autoriser l'ouverture des fenêtres (popup) dans votre fureteur. </br>Pour Chrome and Edge, à droite dans la barre d'adresse).</br>{{extraMessage}}",
+          "text": "</br>Autorisez l'ouverture des fenêtres intempestives dans votre navigateur.</br>(Pour Chrome and Edge, à droite dans la barre d'adresse.)</br>{{extraMessage}}",
           "selectAgain": "Faites le correctif et sélectionner à nouveau un format.",
-          "retry": "Veuillez recommencer l'exportation.",
-          "title": "Ouverture de fenêtre bloquée par votre fureteur"
+          "retry": "Recommencer l'exportation.",
+          "title": "Fenêtres intempestives bloquées par votre navigateur"
         },
         "success": {
           "text": "Données exportées avec succès.",
@@ -103,12 +103,12 @@
           "KML": "KML",
           "Shapefile": "Shapefile",
           "CSVcomma": "CSV (séparateur virgule)",
-          "CSVsemicolon": "CSV (compatible Excel)",
+          "CSVsemicolon": "CSV (compatible MS Excel)",
           "URL": "Lien externe"
         },
         "gpx.error.poly": {
           "title": "GPX en erreur",
-          "text": "Le format GPX ne permet pas de stocker les polygones"
+          "text": "Le format GPX ne permet pas de stocker les polygones."
         },
         "encoding": {
           "LATIN1": "LATIN-1",
@@ -127,16 +127,16 @@
         "exportSeparator": "Insérer un séparateur (ligne vide) entre les couches",
         "encodingPlaceholder": "Encodage",
         "exportTabTitle": "Exporter",
-        "exportFeatureInExtent": "Seulement les entités contenues dans la carte",
-        "exportNoLayersExportable": "Aucune couche exportable dans la carte courante",
-        "exportSelectedFeature": "Seulement les entités sélectionnées",
+        "exportFeatureInExtent": "Exporter seulement les entités contenues dans la vue actuelle",
+        "exportNoLayersExportable": "Aucune couche exportable dans la carte",
+        "exportSelectedFeature": "Exporter les entités sélectionnées seulement",
         "importButton": "Importer",
         "importProjPlaceholder": "Système de coordonnées du fichier à importer",
         "importTabTitle": "Importer",
         "importClarifications": "Précisions",
-        "importSizeMax": "La taille limite du fichier est de {{size}} Mo",
+        "importSizeMax": "Taille limite du fichier de {{size}} Mo",
         "importFormatAuthorized": "Formats autorisés: geojson, kml, gpx, gml, shapefile",
-        "importShpZip": "Les shapefiles doivent être compressés (zippés) ET leurs géométries doivent être en coordonnées Latitude Longitude (EPSG:4326/WGS84)",
+        "importShpZip": "Les shapefiles doivent être compressés (zippés) ET leurs géométries doivent être en coordonnées géographiques (EPSG:4326/WGS84)",
         "importHtmlClarifications": "",
         "exportHtmlClarifications": "",
         "other": "autre",
@@ -147,7 +147,7 @@
           "webMercator": "Web Mercator ({{code}})",
           "nad83": "Lat-Long NAD83 ({{code}})",
           "wgs84": "Lat-Long WGS84 ({{code}})",
-          "choose": "Vous devez choisir une projection avant d'importer le fichier."
+          "choose": "Choisissez une projection avant d'importer le fichier."
         }
       },
       "operators": {
@@ -172,7 +172,7 @@
           "Or": "Opérateur logique entre les filtres où au moins une (1) condition doit être vraie",
           "PropertyIsEqualTo": "Identique (sensible à la case)",
           "PropertyIsNotEqualTo": "Différent (sensible à la case)",
-          "PropertyIsLike": "Comme. Exemple: *route* trouve toutes les valeurs contenent 'route', peu importe sa position dans l'attribut. route* trouve toutes les valeurs commencant par 'route'. Options avancées : wildCard ='*', singleChar = '.' escapeChar = '!' (sensible à la case)",
+          "PropertyIsLike": "Comme. Exemple: *route* trouve toutes les valeurs contenant 'route', peu importe sa position dans l'attribut. route* trouve toutes les valeurs débutant par 'route'. Options avancées : wildCard ='*', singleChar = '.' escapeChar = '!' (sensible à la case)",
           "PropertyIsGreaterThan": "Plus grand",
           "PropertyIsGreaterThanOrEqualTo": "Plus grand ou égal",
           "PropertyIsLessThan": "Plus petit",
@@ -191,9 +191,9 @@
       "filter": {
         "resetFilters": "Réinitialiser les valeurs par défaut",
         "addFilter": "Ajouter un filtre vide à la liste courante",
-        "removeFilter": "Supprimer le présent filtre à la liste des filtres",
+        "removeFilter": "Supprimer le présent filtre de la liste de filtres",
         "toggleFilterState": "Activer/désactiver le présent filtre",
-        "refreshFilters": "Mettre à jour la source de donnée avec les filtres actifs de la liste. Pour activer ce boutton, la couche doit etre visible (et dans les échelles permises) ou veillez modifier le présent filtre.",
+        "refreshFilters": "Mettre à jour la source de donnée avec les filtres actifs de la liste. Pour activer ce boutton, la couche doit être visible et dans les échelles permises.",
         "layerFiltered": "Cette couche d'information est présentement filtrée.",
         "layerFilterable": "Cette couche d'information est filtrable",
         "filterBy": "Filtrer par",
@@ -216,10 +216,10 @@
       },
       "layer": {
         "hideLayer": "Masquer la couche",
+        "lowerLayer": "Mettre en arrière",
         "hideSelectedLayers": "Masquer les couches sélectionnées",
         "notInResolution": "La couche n'est pas visible à l'échelle active. Veuillez zoomer ou dézoomer pour la visualiser.",
-        "lowerLayer": "Mettre en arrière",
-        "filterLowerLayer": "Le déplacement arrière se fait toujours selon l'ordre de la carte!",
+        "filterLowerLayer": "Le déplacement arrière se fait toujours selon l'ordre de la carte.",
         "filterPlaceholder": "Filtrer la liste de couches",
         "activateSelectionMode": "Activer le mode de sélection multiple",
         "deactivateSelectionMode": "Désactiver le mode de sélection multiple",
@@ -230,7 +230,7 @@
         "zoomLayers": "Cadrer sur l'étendue des couches sélectionnées",
         "opacity": "Opacité",
         "raiseLayer": "Mettre en avant",
-        "filterRaiseLayer": "Le déplacement avant se fait toujours selon l'ordre de la carte!",
+        "filterRaiseLayer": "Le déplacement avant se fait toujours selon l'ordre de la carte.",
         "moreOptions": "Outils de la couche",
         "removeLayer": "Retirer la couche de la carte",
         "removeSelectedLayers": "Retirer les couches sélectionnées de la carte",
@@ -238,50 +238,50 @@
         "showFeaturesList": "Afficher la liste des entités",
         "showLayer": "Afficher la couche",
         "showSelectedLayers": "Afficher les couches sélectionnées",
-        "subsetLayersListKeyword": "Limiter l'affichage de la liste selon le titre ou  par type (wms, wfs,...)",
+        "subsetLayersListKeyword": "Limiter l'affichage de la liste selon le titre ou le type (WMS, WFS,...)",
         "deleteKeyword": "Supprimer le mot-clé",
         "subsetLayersListOnlyVisible": "Conserver seulement les couches visibles",
         "subsetLayersListOnlyInRange": "Conserver seulement les couches de la plage d'échelle active",
         "sortAlphabetically": "Trier la liste des couches en ordre alphabétique",
-        "sortMapOrder": "Replacer les couches selon l'ordre cartographique",
+        "sortMapOrder": "Trier les couches selon l'ordre cartographique",
         "resetLayersList": "Rétablir l'affichage de l'ensemble des couches",
         "trackFeature": "Suivre l'entité",
         "legend": {
           "default": "Défaut",
           "loadingLegendText": "Chargement de la légende",
           "noLegendText": "Aucune symbologie disponible pour cette couche",
-          "noLegendScale": "Aucune symbologie disponible pour cette échelle",
+          "noLegendScale": "Aucune symbologie disponible à cette échelle",
           "selectStyle": "Sélectionner le style de la légende",
-          "showAll": "Montrer toutes les couches (non visible et hors échelle)",
+          "showAll": "Montrer toutes les légendes (non visibles et hors échelle)",
           "noLayersVisibleWithShowAllButton": "Aucune couche actuellement visible. Activez le bouton ci haut pour voir toutes les légendes.",
-          "noLayersVisibleWithShowAllButtonButZoom": "Aucune couche actuellement visible. Si vous zoomez dans la carte, certaines couches apparaîtront OU activez le bouton ci haut pour voir toutes les légendes.",
+          "noLayersVisibleWithShowAllButtonButZoom": "Aucune couche actuellement visible. Si vous zoomez dans la carte, certaines couches apparaîtront OU activez le bouton ci-haut pour voir toutes les légendes.",
           "noLayersVisible": "Aucune couche actuellement visible.",
-          "noLayersVisibleButZoom": "Aucune couche actuellement visible. Par contre, si vous zoomez dans la carte, certaines couches apparaîtront."
+          "noLayersVisibleButZoom": "Aucune couche actuellement visible. Si vous zoomez dans la carte, certaines couches apparaîtront."
         },
         "style": {
           "styleModal": "Modifier le style",
-          "styleModalTooltip": "Éditer le style des entités sélectionnées"
+          "styleModalTooltip": "Modifier le style des entités sélectionnées"
         }
       },
       "download": {
         "action": "Télécharger les données associées",
         "title": "Téléchargement des données",
         "start": "Vérifiez la progression du téléchargement dans votre navigateur",
-        "end": "Terminé"
+        "end": "Téléchargement terminé"
       },
       "mapButtons": {
         "baselayerSwitcher": "Changer le fond de carte",
         "geolocate": "Afficher votre position",
         "geolocateInactive": "Masquer votre position",
-        "home-extent": "Aller à l'étendue de la carte",
+        "home-extent": "Aller à l'étendue d'origine de la carte",
         "offline": "Passer en mode hors-ligne",
         "online": "Passer en mode en ligne",
         "zoomIn": "Zoomer ({{zoom}})",
         "zoomOut": "Dézoomer ({{zoom}})",
 				"resetRotation": "Azimut: {{azimuth}}°N. Rotation: {{rotation}}°. Réinitialiser la carte vers le nord",
-        "tipRotation": "Maintenez les touches Alt et Majuscule (shift) tout en cliquant sur la carte pour faire pivoter la carte",
-        "preventSreenLock": "Prévient l'écran d'entrer en mode verrouillé.",
-        "letScreenLock": "Permet l'écran d'entrer en mode verrouillé."
+        "tipRotation": "Maintenez les touches Alt+Majuscule (Shift) tout en cliquant sur la carte pour la faire pivoter",
+        "preventSreenLock": "Empêcher l'écran d'entrer en mode verrouillé.",
+        "letScreenLock": "Permettre à l'écran d'entrer en mode verrouillé."
       },
       "metadata": {
         "show": "Montrer les métadonnées"
@@ -290,18 +290,18 @@
         "corsErrorMessageBody": "Impossible d'imprimer dû à des droits d'accès non détenus",
         "corsErrorMessageHeader": "Impression",
         "comment": "Commentaire",
-        "doZipFile": "Compresser le fichier",
+        "doZipFile": "Compresser (zipper) le fichier",
         "outputFormat": "Format de sortie",
         "paperFormat": "Format du papier",
         "paperFormats": {
-          "A0": "33.1 X 46.8\" (A0)",
-          "A1": "23.4 X 33.1\" (A1)",
-          "A2": "16.5 X 23.5\" (A2)",
-          "A3": "11.7 X 16.5\" (A3)",
-          "A4": "8.3 X 11.7\" (A4)",
-          "A5": "5.8 X 8.3\" (A5)",
-          "Letter": "Lettre",
-          "Legal": "Légal"
+          "A0": "A0 (118,9 cm x 84,1 cm)",
+          "A1": "A1 (84,1 cm x 59,4 cm)",
+          "A2": "A2 (59,4 cm x 42 cm)",
+          "A3": "A3 (42 cm x 29,7 cm)",
+          "A4": "A4 (29,7 cm x 21 cm)",
+          "A5": "A5 (21 cm x 14,8 cm)",
+          "Letter": "Lettre (11\" x 8,5\")",
+          "Legal": "Légal (14\" x 8,5\")"
         },
         "imageFormat": "Format de l'image",
         "orientation": "Orientation",
@@ -318,10 +318,10 @@
         "legendPosition": "Position de la légende",
         "legendPositions": {
           "none": "Aucune légende",
-          "topleft": "Coin haut gauche de la carte",
-          "topright": "Coin haut droit de la carte",
-          "bottomleft": "Coin bas gauche de la carte",
-          "bottomright": "Coin bas droit de la carte",
+          "topleft": "Coin supérieur gauche de la carte",
+          "topright": "Coin supérieur droit de la carte",
+          "bottomleft": "Coin inférieur gauche de la carte",
+          "bottomright": "Coin inférieur droit de la carte",
           "newpage": "Sur une nouvelle page"
         }
       },
@@ -347,7 +347,7 @@
         "stopsList": "Liste des lieux d'arrêts",
         "instructions": "Indications",
         "copy": "Copier l'itinéraire",
-        "geolocate": "Utiliser sa localisation comme point d'arrêt",
+        "geolocate": "Utiliser la géolocalisation comme point d'arrêt",
         "link": "Lien",
         "dialog": {
           "copyMsg": "Itinéraire copié dans le presse-papier",
@@ -373,7 +373,7 @@
         "depart": "Aller en direction {{translatedDirection}} sur {{route}}",
         "arrive": {
           "lastStep" : "Vous êtes arrivé {{coma}} {{aggregatedDirection}}",
-          "intermediate" : "Vous atteignez le point intermédiaire sur {{route}}"
+          "intermediate" : "Vous avez atteint le point intermédiaire sur {{route}}"
         },
         "merge": "Continuer sur {{route}}",
         "on ramp": "Prendre l'entrée d'autoroute {{aggregatedDirection}}",
@@ -415,12 +415,12 @@
         "nw": "nord-ouest"
       },
       "search": {
-        "placeholder": "Rechercher une localisation ou une couche de données",
+        "placeholder": "Rechercher un emplacement ou une couche de données",
         "emptyType.placeholder": "Veuillez choisir un type de recherche",
-        "feature.title": "Localisation",
-        "feature.placeholder": "Rechercher une localisation",
+        "feature.title": "Emplacement",
+        "feature.placeholder": "Rechercher un emplacement",
         "layer.title": "Couche de données",
-        "layer.placeholder": "Rechercher une couche de données.",
+        "layer.placeholder": "Rechercher une couche de données",
         "ichercheReverse.name": "Recherche par coordonnées",
         "clearSearch": "Effacer la recherche",
         "ilayer": {
@@ -434,7 +434,7 @@
             "metadataUrl": "Métadonnées",
             "name": "Nom de la couche",
             "urlInfo": "Lien du service web WMS/WFS",
-            "downloadUrl": "Lien de téléchargement de la données"
+            "downloadUrl": "Lien de téléchargement des adonnées"
           },
           "type": {
             "layer": "Couche",
@@ -446,7 +446,7 @@
             "food": "Restauration",
             "health": "Santé",
             "entertainment": "Divertissement",
-            "finance": "Finance"
+            "finance": "Finances"
           },
           "country": {
             "all": "Le monde",
@@ -469,7 +469,7 @@
             "place": "Lieu",
             "exit": "Sortie d'autoroute",
             "cn": "Borne du CN",
-            "gcc": "Repère de la garde cotière (GCC)",
+            "gcc": "Repère de la GCC.",
             "sumi": "Borne SUMI",
             "km": "Repère kilométrique",
             "hq": "Hydro-Québec",
@@ -494,7 +494,7 @@
         },
         "pointerSearchSummary": {
           "title": "Position du curseur",
-          "tooltip": "Afficher les coordonnées du curseur ainsi que d'autres informations sur sa position en fonction des types de résultats activées. Utiliser F2 pour activer / désactiver."
+          "tooltip": "Afficher les coordonnées du curseur et d'autres informations sur sa position en fonction des types de résultats activées. Utiliser F2 pour activer/désactiver."
         },
         "searchResultsGeometry": {
           "title": "Montrer tous les résultats",
@@ -504,12 +504,12 @@
           "selectAll": "Tout sélectionner",
           "unselectAll": "Tout désélectionner",
           "settings": {
-            "results type": "Type de résultat",
+            "results type": "Types de résultat",
             "ecmax": "Écart maximal",
             "radius": "Rayon de recherche",
             "results limit": "Nombre de résultats",
             "multiple object": "Objet multiple",
-            "restrictExtent": "Restreint l'étendue",
+            "restrictExtent": "Restreindre l'étendue",
             "selectAll": "Tout sélectionner",
             "unselectAll": "Tout désélectionner",
             "true": "Oui",
@@ -519,10 +519,10 @@
         "displayMoreResults": "Afficher plus de résultats"
       },
       "geometry": {
-        "geometry": "Geometrie",
+        "geometry": "Géométrie",
         "point": "Point",
         "line": "Ligne",
-        "polygon": "Surface"
+        "polygon": "Polygone"
       },
       "targetHtmlUrl": "Ouvrir le lien externe",
       "targetHtmlUrlUnauthorizedTitle": "Non autorisé",
@@ -541,7 +541,7 @@
       },
       "spatialFilter": {
         "spatialFilter": "Filtre spatial",
-        "predefined": "Zone Prédéfinie",
+        "predefined": "Zone prédéfinie",
         "draw": "Dessin",
         "polygon": "Polygone",
         "point": "Cercle",
@@ -568,7 +568,7 @@
         "radius": "Rayon",
         "radiusAlert": "Le rayon doit être compris entre 0 et 100 kilomètres (ou 100 000 mètres)",
         "bufferAlert": "La zone tampon doit être comprise entre 0 et 100 kilomètres (ou 100 000 mètres)",
-        "maxSizeAlert": "Le nombre de résultats excède 10000. Certains pourraient être manquants.",
+        "maxSizeAlert": "Le nombre de résultats excède 10 000. Certains pourraient être manquants.",
         "zeroResults": "Aucun résultat ne correspond à cette recherche.",
         "warning": "Avertissement",
         "freehandControl": "À main levée",
@@ -592,7 +592,7 @@
         "MRC": "MRC",
         "RegTour": "Régions touristiques",
         "limites": "Limites administratives",
-        "bornes": "Bornes sumi",
+        "bornes": "Bornes SUMI",
         "hydro": "Hydrographie",
         "routes": "Routes",
         "bati": "Bâtiments",
@@ -605,7 +605,7 @@
         "secteur": "Secteurs",
         "immeubles": "Immeubles patrimoniaux",
         "sites": "Sites patrimoniaux",
-        "cpe": "Centre de la petite enfance",
+        "cpe": "Centres de la petite enfance",
         "public": "Écoles publiques",
         "prive": "Écoles privés",
         "gouvernemental": "Écoles gouvernementales",
@@ -624,7 +624,7 @@
         "palais-justice": "Palais de justice",
         "penitencier-fed": "Pénitenciers fédéraux",
         "penitencier-prov": "Pénitenciers provinciaux",
-        "polices": "Poste de police"
+        "polices": "Postes de police"
       },
       "measure": {
         "dialog": {
@@ -669,8 +669,8 @@
         "acres": "ac",
         "ac": "ac",
         "toggleActive": "Activer le contrôle de mesure",
-        "toggleDisplayLines": "Afficher les distances pour les lignes",
-        "toggleDisplayDistance": "Afficher les distances pour les superficies",
+        "toggleDisplayLines": "Afficher les longueurs pour les lignes",
+        "toggleDisplayDistance": "Afficher les périmètres pour les superficies",
         "toggleDisplayAreas": "Afficher les superficies",
         "toggleAutoUnits": "Unités automatiques",
         "actionbar": {
@@ -683,8 +683,8 @@
         "abort": "Annuler le dessin en cours",
         "cancel": "Annuler",
         "Circle": "Cercle",
-        "colorPicker": "Cliquer pour ouvrir le sélecteur de couleurs",
-        "dialogInstruction": "Veuillez entrer l'étiquette de votre dessin",
+        "colorPicker": "Sélecteur de couleurs",
+        "dialogInstruction": "Entrer l'étiquette de votre dessin",
         "dialogTitle": "Étiquette",
         "delete": "Retirer les dessins de la carte",
         "drawing": "Dessins",
@@ -713,7 +713,7 @@
         "layer": {
           "title": "Titre",
           "createNewLayer": "Créer une nouvelle couche de dessin",
-          "layerDialogInstruction": "Veuillez entrer le titre de votre couche de dessin"
+          "layerDialogInstruction": "Entrer le titre de votre couche de dessin"
         },
         "builtInInstructions": "Sélectionnez une option",
         "labelType": {
@@ -743,29 +743,29 @@
         "deleteSuccess": "L'entité a été supprimée.",
         "addSuccess": "L'entité a été ajoutée.",
         "modifySuccess": "L'entité a été modifiée.",
-        "deleteError": "Un problème est survenu. L'entité n'a pas pu être supprimée.",
-        "addError": "Un problème est survenu. L'entité n'a pas pu être ajoutée.",
-        "modifyError": "Un problème est survenu. L'entité n'a pas pu être modifiée.",
+        "deleteError": "Un problème est survenu. L'entité n'a pu être supprimée.",
+        "addError": "Un problème est survenu. L'entité n'a pu être ajoutée.",
+        "modifyError": "Un problème est survenu. L'entité n'a pu être modifiée.",
         "cancel": "Annuler",
-        "inMapExtent.active.tooltip": "Ne montrer que les enregistrements contenus dans la carte",
-        "inMapExtent.inactive.tooltip": "Montrer tous les enregistrements"
+        "inMapExtent.active.tooltip": "Ne montrer que les entités contenues dans la carte",
+        "inMapExtent.inactive.tooltip": "Montrer toutes les entités"
       },
       "formValidation": {
-        "mandatory": "{{column}}est un champ obligatoire",
+        "mandatory": "{{column}} est un champ obligatoire",
         "minValue": "{{column}} doit être plus grand que {{value}}",
-        "maxValue": "{{column}}doit être plus petit que {{value}}",
-        "minLength": "{{column}} doit être plus long que {{value}} caractères",
-        "maxLength": "{{column}} doit être plus court que {{value}} caractères"
+        "maxValue": "{{column}} doit être plus petit que {{value}}",
+        "minLength": "{{column}} doit posséder plus de {{value}} caractères",
+        "maxLength": "{{column}} doit posséder mois de {{value}} caractères"
       },
       "query": {
         "featureCountMax": "Vous pourriez avoir plus d'entités interrogeables sur la couche {{value}}. Pour vous en assurer, vous pouvez zoomer et redéclencher l'interrogation.",
         "link": {
-          "message": "Le lien a été copié dans le presse-papier"
+          "message": "Lien copié dans le presse-papier"
         }
       },
       "indexedDb": {
         "data-download-start": "Téléchargement des données. Veuillez ne pas quitter.",
-        "data-download-completed": "Téléchargement des données terminée."
+        "data-download-completed": "Téléchargement des données terminé."
       }
     }
   }
