@@ -1,29 +1,32 @@
 {
   "igo": {
     "auth": {
-      "accessAnonymous": "Access as anonymous",
-      "connection": "Connection",
-      "login": "Login",
+      "accessAnonymous": "Anonymous user",
+      "connection": "Login",
+      "login": "Log in",
       "password": "Password",
       "signOut": "Sign out",
-      "user": "User",
-      "welcome": "Welcome {{name}}!",
+      "user": "Username",
+      "welcome": "Welcome {{name}}",
       "deconnection": "You are logged out.",
       "home": "Return to the home page",
       "error": {
         "Password expired": "Password expired",
-        "Maximun logins exceeded": "Maximum logins exceeded",
-        "Login lockout": "Maximum number of attempts exceeded. Your account is locked.",
-        "Wrong password": "Wrong password",
+        "Maximun logins exceeded": "Maximum number of logins reached.",
+        "Login lockout": "Maximum number of attempts reached. Your account is locked.",
+        "Wrong password": "Invalid password",
         "Invalid username": "Invalid username"
       },
+      "google": {
+        "login": "Log in using Google",
+        "logged": "Logged in with Google"
+      },
       "microsoft": {
-        "login": "Sign in with Azure account"
+        "login": "Log in with Azure account"
       },
       "microsoftb2c": {
-        "login": "Sign in"
+        "login": "Log in"
       }
-
     }
   }
 }
