@@ -36,6 +36,7 @@ export interface FeatureWithDrawProperties {
   bufferFormControl: FormControl;
   labelType: LabelType;
   measureUnit: MeasureLengthUnit | MeasureAreaUnit | CoordinatesUnit;
+  geometry4326: any; 
 }
 
 export interface FeatureStoreDrawStrategyOptions {

@@ -99,7 +99,6 @@ import {
 } from '../../measure/shared/measure.enum';
 import Polygon, { fromCircle } from 'ol/geom/Polygon';
 
-
 @Component({
   selector: 'igo-draw',
   animations: [
@@ -208,7 +207,6 @@ export class DrawComponent implements OnInit, OnDestroy {
   @Output() fontStyle: string;
   @Output() bufferMeasureUnitChange = new EventEmitter<MeasureLengthUnit>();
 
-
   public activeStore: FeatureStore<FeatureWithDraw>;
   private layerCounterID: number = 0;
   public draw$: BehaviorSubject<Draw> = new BehaviorSubject({}); // Observable of draw
@@ -239,7 +237,6 @@ export class DrawComponent implements OnInit, OnDestroy {
 
   public bufferMeasureUnit: MeasureLengthUnit = MeasureLengthUnit.Meters;
   public currentBufferValue: number = 0;
-  
 
   @ViewChild('selectedLayer') select;
 
@@ -250,7 +247,7 @@ export class DrawComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private drawIconService: DrawIconService,
     // private spatialFilterService: SpatialFilterService,
-    private cdRef: ChangeDetectorRef,
+    private cdRef: ChangeDetectorRef
   ) {
     this.buildForm();
     this.fillColor = this.drawStyleService.getFillColor();
@@ -428,71 +425,24 @@ export class DrawComponent implements OnInit, OnDestroy {
         .subscribe((value) => {
           if (this.selectedFeatures$.value[0]) {
             const feature = this.selectedFeatures$.value[0];
+            console.log("subscriptions");
+            console.log(feature);
             let bufferID =
               this.activeDrawingLayer.id + '-' + feature.properties.id;
             let currValue = value[bufferID];
 
             if (
-              currValue > 0 
+              currValue > 0
               // && this.bufferFormControls.get(bufferID).value == currValue
             ) {
-              console.log("currValue: " + currValue);
-
-              let geometry4326;
-              if (feature.geometry.type === 'Polygon') {
-                const coordinates4326 = [];
-                const geom = [];
-                for (const coordinate of feature.geometry.coordinates[0]) {
-                  let point4326 = transform(
-                    coordinate,
-                    this.map.ol.getView().getProjection().getCode(),
-                    'EPSG:4326'
-                  );
-                  geom.push(point4326);
-                }
-                coordinates4326.push(geom);
-                geometry4326 = {
-                  type: feature.geometry.type,
-                  coordinates: coordinates4326
-                };
-              } else if (feature.geometry.type === 'Point') {
-                const coordinates4326 = [];
-                const geom = [];
-                let point4326 = transform(
-                  feature.geometry.coordinates,
-                  this.map.ol.getView().getProjection().getCode(),
-                  'EPSG:4326'
-                );
-                geom.push(point4326);
-
-                coordinates4326.push(geom);
-                geometry4326 = {
-                  type: feature.geometry.type,
-                  coordinates: coordinates4326
-                };
-              } else if (feature.geometry.type === 'LineString') {
-                const coordinates4326 = [];
-                const geom = [];
-                for (const coordinate of feature.geometry.coordinates) {
-                  let point4326 = transform(
-                    coordinate,
-                    this.map.ol.getView().getProjection().getCode(),
-                    'EPSG:4326'
-                  );
-                  geom.push(point4326);
-                }
-                coordinates4326.push(geom);
-                geometry4326 = {
-                  type: feature.geometry.type,
-                  coordinates: coordinates4326
-                };
-              }
-              if (this.bufferMeasureUnit === MeasureLengthUnit.Kilometers){
-                currValue = currValue*1000;
+              let geometry4326 = feature.properties.geometry4326;
+              // geometry4326 = this.getGeometry4326(feature);
+              if (this.bufferMeasureUnit === MeasureLengthUnit.Kilometers) {
+                currValue = currValue * 1000;
               }
 
-
-              this.drawStyleService.loadBufferGeometry(geometry4326, currValue)
+              this.drawStyleService
+                .loadBufferGeometry(geometry4326, currValue)
                 .subscribe((featureGeo: FeatureGeometry) => {
                   feature.geometry.coordinates = featureGeo.coordinates;
                   feature.projection = 'EPSG:4326';
@@ -505,6 +455,8 @@ export class DrawComponent implements OnInit, OnDestroy {
                   this.onSelectDraw(olFeature, label);
                   this.cdRef.detectChanges();
                 });
+              // ActiveDrawing layer ou the source for the feature storage
+              // we can store the coordinates and the type of feature to make a new feature in the util
             }
           }
         })
@@ -571,7 +523,6 @@ export class DrawComponent implements OnInit, OnDestroy {
             dialogRef.componentInstance.labelFlag
           );
           this.updateMeasureUnit(olGeometry, result.measureUnit);
-
           if (!(olGeometry instanceof OlFeature)) {
             this.updateFontSizeAndStyle(olGeometry, '15', FontType.Arial);
             this.updateFillAndStrokeColor(
@@ -584,11 +535,17 @@ export class DrawComponent implements OnInit, OnDestroy {
               0,
               olGeometry instanceof OlPoint ? -15 : 0
             );
-          }
-          if (!(olGeometry instanceof OlFeature)) {
             let tempFormControl = new FormControl();
             tempFormControl.setValue(0);
             this.updateFormControl(olGeometry, tempFormControl);
+
+            let tempGeometry4326 = {} as FeatureWithDraw;
+            tempGeometry4326 = new OlGeoJSON().writeGeometryObject(olGeometry, {
+              featureProjection: this.map.ol.getView().getProjection(),
+              dataProjection: this.map.ol.getView().getProjection()
+            }) as any;
+            this.updateGeometry4326(olGeometry, this.getGeometry4326(tempGeometry4326));
+
           }
 
           isDrawEnd
@@ -727,6 +684,7 @@ export class DrawComponent implements OnInit, OnDestroy {
           entity.properties.offsetX,
           entity.properties.offsetY
         );
+        this.updateGeometry4326(olGeometry, entity.properties.geometry4326);
         this.replaceFeatureInStore(entity, olGeometry);
       }
     });
@@ -747,35 +705,36 @@ export class DrawComponent implements OnInit, OnDestroy {
     );
 
     entities.forEach((entity) => {
+      if (entity.properties.id === olFeature.getId()) {
+        const fontSize = olFeature
+          .get('fontStyle')
+          .split(' ')[0]
+          .replace('px', '');
+        const fontStyle = olFeature
+          .get('fontStyle')
+          .substring(olFeature.get('fontStyle').indexOf(' ') + 1);
 
-      // if (olGeometryCoordinates === entityCoordinates) {
-      const fontSize = olFeature
-        .get('fontStyle')
-        .split(' ')[0]
-        .replace('px', '');
-      const fontStyle = olFeature
-        .get('fontStyle')
-        .substring(olFeature.get('fontStyle').indexOf(' ') + 1);
+        const fillColor = olFeature.get('drawingStyle').fill;
+        const strokeColor = olFeature.get('drawingStyle').stroke;
 
-      const fillColor = olFeature.get('drawingStyle').fill;
-      const strokeColor = olFeature.get('drawingStyle').stroke;
+        const offsetX = olFeature.get('offsetX');
+        const offsetY = olFeature.get('offsetY');
+        const bufferFormControl = olFeature.get('bufferFormControl');
+        const geometry4326 = olFeature.get('geometry4326');
 
-      const offsetX = olFeature.get('offsetX');
-      const offsetY = olFeature.get('offsetY');
-      const bufferFormControl = olFeature.get('bufferFormControl');
-
-      const rad: number = entity.properties.rad
-        ? entity.properties.rad
-        : undefined;
-      this.updateLabelOfOlGeometry(olGeometry, label);
-      this.updateFontSizeAndStyle(olGeometry, fontSize, fontStyle);
-      this.updateFillAndStrokeColor(olGeometry, fillColor, strokeColor);
-      this.updateOffset(olGeometry, offsetX, offsetY);
-      this.updateFormControl(olGeometry, bufferFormControl); 
-      // this.updateLabelType(olGeometry, labelTypeAndUnit[0]);
-      // this.updateMeasureUnit(olGeometry, labelTypeAndUnit[1]);
-      this.replaceFeatureInStore(entity, olGeometry, rad);
-      // }
+        const rad: number = entity.properties.rad
+          ? entity.properties.rad
+          : undefined;
+        this.updateLabelOfOlGeometry(olGeometry, label);
+        this.updateFontSizeAndStyle(olGeometry, fontSize, fontStyle);
+        this.updateFillAndStrokeColor(olGeometry, fillColor, strokeColor);
+        this.updateOffset(olGeometry, offsetX, offsetY);
+        this.updateFormControl(olGeometry, bufferFormControl);
+        this.updateGeometry4326(olGeometry, geometry4326);
+        // this.updateLabelType(olGeometry, labelTypeAndUnit[0]);
+        // this.updateMeasureUnit(olGeometry, labelTypeAndUnit[1]);
+        this.replaceFeatureInStore(entity, olGeometry, rad);
+      }
     });
   }
 
@@ -859,7 +818,8 @@ export class DrawComponent implements OnInit, OnDestroy {
         offsetY: olGeometry.get('offsetY_'),
         bufferFormControl: olGeometry.get('bufferFormControl_'),
         labelType: olGeometry.get('labelType_'),
-        measureUnit: olGeometry.get('measureUnit_')
+        measureUnit: olGeometry.get('measureUnit_'),
+        geometry4326: olGeometry.get('geometry4326_')
       },
       meta: {
         id: featureId
@@ -1201,14 +1161,14 @@ export class DrawComponent implements OnInit, OnDestroy {
     this.toggleDrawControl();
   }
 
-  onBufferUnitChange(unit: MeasureLengthUnit){
+  onBufferUnitChange(unit: MeasureLengthUnit) {
     if (unit === this.bufferMeasureUnit) {
       return;
     } else {
       this.bufferMeasureUnit = unit;
-      this.bufferMeasureUnit === MeasureLengthUnit.Meters ?
-      this.bufferFormControl.setValue(this.bufferFormControl.value * 1000) :
-      this.bufferFormControl.setValue(this.bufferFormControl.value / 1000);
+      this.bufferMeasureUnit === MeasureLengthUnit.Meters
+        ? this.bufferFormControl.setValue(this.bufferFormControl.value * 1000)
+        : this.bufferFormControl.setValue(this.bufferFormControl.value / 1000);
     }
   }
 
@@ -1299,6 +1259,20 @@ export class DrawComponent implements OnInit, OnDestroy {
     olFeature.setProperties(
       {
         measureUnit_: measureUnit
+      },
+      true
+    );
+  }
+
+  private updateGeometry4326(
+    olFeature: OlFeature<OlGeometry>,
+    geometry4326: any
+  ){
+
+    olFeature.setProperties(
+      {
+        geometry4326_: geometry4326
+
       },
       true
     );
@@ -1493,5 +1467,59 @@ export class DrawComponent implements OnInit, OnDestroy {
     const length = getLength(olGeometry);
     return Number(length / (2 * Math.PI));
   }
-  
+
+  private getGeometry4326(feature): any{
+    let geometry4326;
+    let featureGeo = feature.geometry ? feature.geometry :feature;
+
+    if (featureGeo.type === 'Polygon') {
+      const coordinates4326 = [];
+      const geom = [];
+      for (const coordinate of featureGeo.coordinates[0]) {
+        let point4326 = transform(
+          coordinate,
+          this.map.ol.getView().getProjection().getCode(),
+          'EPSG:4326'
+        );
+        geom.push(point4326);
+      }
+      coordinates4326.push(geom);
+      geometry4326 = {
+        type: featureGeo.type,
+        coordinates: coordinates4326
+      };
+    } else if (featureGeo.type === 'Point') {
+      const coordinates4326 = [];
+      const geom = [];
+      let point4326 = transform(
+        featureGeo.coordinates,
+        this.map.ol.getView().getProjection().getCode(),
+        'EPSG:4326'
+      );
+      geom.push(point4326);
+
+      coordinates4326.push(geom);
+      geometry4326 = {
+        type: featureGeo.type,
+        coordinates: coordinates4326
+      };
+    } else if (featureGeo.type === 'LineString') {
+      const coordinates4326 = [];
+      const geom = [];
+      for (const coordinate of featureGeo.coordinates) {
+        let point4326 = transform(
+          coordinate,
+          this.map.ol.getView().getProjection().getCode(),
+          'EPSG:4326'
+        );
+        geom.push(point4326);
+      }
+      coordinates4326.push(geom);
+      geometry4326 = {
+        type: featureGeo.type,
+        coordinates: coordinates4326
+      };
+    }
+    return geometry4326;
+  }
 }

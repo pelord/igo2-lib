@@ -240,11 +240,10 @@ export class DrawStyleService {
     feature: Feature | FeatureGeometry,
     buffer?: number,
   ): Observable<Feature | FeatureGeometry> {
-    // if point {create new Feature}
     let bufferedFeature = feature as FeatureGeometry;
-
-    if (bufferedFeature.type.includes("LineString")){
-      bufferedFeature.type = "MultiLineString";
+    if (bufferedFeature.type.includes("Point")){
+      console.log("it is a point");
+      bufferedFeature.type = "Polygon";
     }
     return this.http
       .post<Feature>(this.baseUrl + 'geospatial/buffer?', {
