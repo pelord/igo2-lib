@@ -34,6 +34,8 @@ import { IgoMap } from '../../map';
 import { QueryableDataSourceOptions } from '../../query/shared/query.interfaces';
 import { EditionWorkspace } from './edition-workspace';
 
+import WKT from 'ol/format/WKT';
+import GeoJSON from 'ol/format/GeoJSON';
 import olFeature from 'ol/Feature';
 import olSourceImageWMS from 'ol/source/ImageWMS';
 import type { default as OlGeometry } from 'ol/geom/Geometry';
@@ -49,6 +51,8 @@ export class EditionWorkspaceService {
   public relationLayers$ = new BehaviorSubject<ImageLayer[] | VectorLayer[]>(undefined);
   public rowsInMapExtentCheckCondition$ = new BehaviorSubject<boolean>(true);
   public loading = false;
+  public wktFormat = new WKT();
+  public geoJsonFormat = new GeoJSON();
 
   get zoomAuto(): boolean {
     return this.storageService.get('zoomAuto') as boolean;
@@ -88,7 +92,6 @@ export class EditionWorkspaceService {
       layer.options.linkedLayers = { linkId: wmsLinkId, links: [] };
     }
     const linkProperties = {
-      bidirectionnal: true,
       syncedDelete: true,
       linkedIds: [wfsLinkId],
       properties: [
@@ -166,7 +169,7 @@ export class EditionWorkspaceService {
           relations: dataSource.options.relations,
           queryTitle: (dataSource.options as QueryableDataSourceOptions).queryTitle,
           params: dataSource.options.paramsWFS,
-          ogcFilters: Object.assign({}, dataSource.ogcFilters$.value, {enabled: hasOgcFilters}),
+          ogcFilters: Object.assign({}, dataSource.ogcFilters, {enabled: hasOgcFilters}),
           sourceFields: dataSource.options.sourceFields || undefined,
           edition: dataSource.options.edition
         } as WFSoptions
@@ -255,12 +258,14 @@ export class EditionWorkspaceService {
           editMode: false,
           icon: 'pencil',
           color: 'primary',
+          disabled: layer.dataSource.options.edition.modifyButton === false ? true : false,
           click: (feature) => { workspace.editFeature(feature, workspace); }
         },
         {
           editMode: false,
           icon: 'delete',
           color: 'warn',
+          disabled: layer.dataSource.options.edition.deleteButton === false ? true : false,
           click: (feature) => { workspace.deleteFeature(feature, workspace); }
         },
         {
@@ -326,6 +331,7 @@ export class EditionWorkspaceService {
         primary: field.primary === true ? true : false,
         visible: field.visible,
         validation: field.validation,
+        linkColumnForce: field.linkColumnForce,
         type: field.type,
         domainValues: undefined,
         relation: undefined,
@@ -335,7 +341,7 @@ export class EditionWorkspaceService {
       };
 
       if (field.type === 'list' || field.type === 'autocomplete') {
-        this.getDomainValues(field.relation.table).subscribe(result => {
+        this.getDomainValues(field.relation).subscribe(result => {
           column.domainValues = result;
           column.relation = field.relation;
         });
@@ -387,10 +393,13 @@ export class EditionWorkspaceService {
 
     this.sanitizeParameter(feature, workspace);
 
+    const baseUrl = workspace.layer.dataSource.options.edition.baseUrl;
     let url = this.configService.getConfig('edition.url');
 
-    if (workspace.layer.dataSource.options.edition.baseUrl) {
-      url += workspace.layer.dataSource.options.edition.baseUrl;
+    if (!url) {
+      url = baseUrl;
+    } else {
+      url += baseUrl ? baseUrl : '';
     }
 
     if (feature.newFeature) {
@@ -417,16 +426,17 @@ export class EditionWorkspaceService {
   }
 
   public addFeature(feature, workspace: EditionWorkspace, url: string, headers: {[key: string]: any}) {
-    // TODO: adapt to any kind of geometry
     if (workspace.layer.dataSource.options.edition.hasGeometry) {
-      //feature.properties[geom] = feature.geometry;
-      feature.properties["longitude"] = feature.geometry.coordinates[0];
-      feature.properties["latitude"] = feature.geometry.coordinates[1];
+      const projDest = workspace.layer.options.sourceOptions.edition.geomDatabaseProj;
+      feature.properties[workspace.layer.dataSource.options.params.fieldNameGeometry] =
+      'SRID=' + projDest.replace("EPSG:", "") + ';' + this.wktFormat.writeGeometry(
+        this.geoJsonFormat.readFeature(feature.geometry).getGeometry().transform('EPSG:4326', projDest),
+        { dataProjection: projDest });
     }
 
     for (const property in feature.properties) {
       for (const sf of workspace.layer.dataSource.options.sourceFields) {
-        if (sf.name === property && sf.validation?.readonly) {
+        if ((sf.name === property && sf.validation?.readonly) || (sf.name === property && sf.validation?.send === false)) {
           delete feature.properties[property];
         }
       }
@@ -521,16 +531,20 @@ export class EditionWorkspaceService {
   }
 
   public modifyFeature(feature, workspace: EditionWorkspace, url: string, headers: {[key: string]: any}, protocole = 'patch' ) {
-    //TODO: adapt to any kind of geometry
     if (workspace.layer.dataSource.options.edition.hasGeometry) {
-      //feature.properties[geom] = feature.geometry;
-      feature.properties["longitude"] = feature.geometry.coordinates[0];
-      feature.properties["latitude"] = feature.geometry.coordinates[1];
+      const projDest = workspace.layer.options.sourceOptions.edition.geomDatabaseProj;
+      // Remove 3e dimension
+      feature.geometry.coordinates = removeZ(feature.geometry.coordinates);
+      feature.properties[workspace.layer.dataSource.options.params.fieldNameGeometry] =
+        'SRID=' + projDest.replace("EPSG:", "") + ';' + this.wktFormat.writeGeometry(
+          this.geoJsonFormat.readFeature(feature.geometry).getGeometry().transform('EPSG:4326', projDest),
+          { dataProjection: projDest });
     }
 
     for (const property in feature.properties) {
       for (const sf of workspace.layer.dataSource.options.sourceFields) {
-        if ((sf.name === property && sf.validation?.readonly) || property === 'boundedBy') {
+        if ((sf.name === property && sf.validation?.readonly) || (sf.name === property && sf.validation?.send === false)
+          || property === 'boundedBy') {
           delete feature.properties[property];
         }
       }
@@ -590,9 +604,9 @@ export class EditionWorkspaceService {
     feature.edition = false;
     this.adding$.next(false);
     workspace.deleteDrawings();
+    workspace.entityStore.stateView.clear();
 
     if (feature.newFeature) {
-      workspace.entityStore.stateView.clear();
       workspace.entityStore.delete(feature);
       workspace.deactivateDrawControl();
 
@@ -607,14 +621,19 @@ export class EditionWorkspaceService {
     }
   }
 
-  getDomainValues(table: string): Observable<any> {
-    let url = this.configService.getConfig('edition.url') + table;
+  getDomainValues(relation: RelationOptions): Observable<any> {
+    let url = relation.url;
+    if (!url) {
+      url = this.configService.getConfig('edition.url') ?
+        this.configService.getConfig('edition.url') + relation.table : relation.table;
+    }
 
     return this.http.get<any>(url).pipe(
       map(result => {
         return result;
       }),
       catchError((err: HttpErrorResponse) => {
+        err.error.caught = true;
         return throwError(err);
       })
     );
@@ -762,4 +781,10 @@ function getColumnKeyWithoutPropertiesTag(column: string) {
     return column.split('.')[1];
   }
   return column;
+}
+
+function removeZ(coords: any) {
+  if (coords.length === 0) return coords;
+  if (typeof coords[0] === 'number') return coords.slice(0, 2);
+  return coords.map(removeZ);
 }

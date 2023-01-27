@@ -49,8 +49,6 @@ export class WMSDataSource extends DataSource {
     return (this.options as OgcFilterableDataSourceOptions).ogcFilters;
   }
 
-  readonly ogcFilters$: BehaviorSubject<OgcFiltersOptions> = new BehaviorSubject(undefined);
-
   set timeFilter(value: TimeFilterOptions ) {
     (this.options as TimeFilterableDataSourceOptions).timeFilter = value;
   }
@@ -114,7 +112,7 @@ export class WMSDataSource extends DataSource {
       );
     } else {
       initOgcFilters.advancedOgcFilters = (initOgcFilters.pushButtons || initOgcFilters.checkboxes
-        || initOgcFilters.radioButtons || initOgcFilters.select)
+        || initOgcFilters.radioButtons || initOgcFilters.select || initOgcFilters.autocomplete)
         ? false
         : true;
       if (initOgcFilters.advancedOgcFilters && initOgcFilters.filters) {
@@ -134,6 +132,9 @@ export class WMSDataSource extends DataSource {
       }
       if (initOgcFilters.select){
         initOgcFilters.select.selectorType = 'select';
+      }
+      if (initOgcFilters.autocomplete){
+        initOgcFilters.autocomplete.selectorType = 'autocomplete';
       }
     }
 
@@ -165,6 +166,7 @@ export class WMSDataSource extends DataSource {
       fieldNameGeometry
     );
     sourceParams.FILTER = filterQueryString;
+    this.ol.updateParams({'FILTER': sourceParams.FILTER});
     this.setOgcFilters(initOgcFilters, true);
 
     const timeFilterableDataSourceOptions = (options as TimeFilterableDataSourceOptions);
@@ -193,7 +195,7 @@ export class WMSDataSource extends DataSource {
   setOgcFilters(ogcFilters: OgcFiltersOptions, triggerEvent: boolean = false) {
     this.ogcFilters = ogcFilters;
     if (triggerEvent) {
-      this.ogcFilters$.next(this.ogcFilters);
+      this.ol.notify('ogcFilters', this.ogcFilters);
     }
   }
 
@@ -201,6 +203,7 @@ export class WMSDataSource extends DataSource {
     this.timeFilter = timeFilter;
     if (triggerEvent) {
       this.timeFilter$.next(this.timeFilter);
+      this.ol.notify('timeFilter', this.ogcFilters);
     }
   }
 

@@ -79,6 +79,7 @@ export interface EntityTableTemplate {
   selectMany?: boolean;
   sort?: boolean;
   fixedHeader?: boolean;
+  tableHeight?:string;
   valueAccessor?: (entity: object, property: string, record: EntityRecord<object>) => any;
   headerClassFunc?: () => {
     [key: string]: boolean;
@@ -111,11 +112,13 @@ export interface EntityTableColumn {
   renderer?: EntityTableColumnRenderer;
   valueAccessor?: (entity: object, record: EntityRecord<object>) => any;
   visible?: boolean;
+  linkColumnForce?: string;
   sort?: boolean;
   type?: string;
   multiple?: boolean;
   domainValues?: Array<SelectOption>;
   relation?: TableRelation;
+  tooltip?: string;
   cellClassFunc?: (entity: object, record: EntityRecord<object>) => {
     [key: string]: boolean;
   };

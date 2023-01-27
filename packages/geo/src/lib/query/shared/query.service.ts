@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 
-import * as striptags_ from 'striptags';
+import { default as striptags } from 'striptags';
 
 import * as olformat from 'ol/format';
 import * as olextent from 'ol/extent';
@@ -13,6 +13,7 @@ import olFormatEsriJSON from 'ol/format/EsriJSON';
 import olFeature from 'ol/Feature';
 import * as olgeom from 'ol/geom';
 
+import { LanguageService, MessageService } from '@igo2/core';
 import { uuid } from '@igo2/utils';
 import { Feature, FeatureGeometry } from '../../feature/shared/feature.interfaces';
 import { FEATURE } from '../../feature/shared/feature.enums';
@@ -42,10 +43,22 @@ import { MapExtent } from '../../map/shared/map.interface';
 })
 export class QueryService {
   public queryEnabled = true;
+  public defaultFeatureCount = 20; // default feature count
+  public featureCount = 20; // feature count
 
-  constructor(private http: HttpClient) {}
+  private previousMessageIds = [];
+
+  constructor(
+    private http: HttpClient,
+    private messageService: MessageService,
+    private languageService: LanguageService) {}
 
   query(layers: Layer[], options: QueryOptions): Observable<Feature[]>[] {
+    if (this.previousMessageIds.length) {
+      this.previousMessageIds.forEach(id => {
+        this.messageService.remove(id);
+      });
+    }
     return layers
       .filter((layer: Layer) => layer.visible && layer.isInResolutionsRange)
       .map((layer: Layer) => this.queryLayer(layer, options));
@@ -126,7 +139,7 @@ export class QueryService {
         outBboxExtent = true;
         // TODO: Check to project the geometry?
       }*/
-      const featureGeometryCoordinates = feature.getGeometry().getCoordinates();
+      const featureGeometryCoordinates = (feature.getGeometry() as any).getCoordinates();
       const featureGeometryType = feature.getGeometry().getType();
 
       if (!firstFeatureType && !outBboxExtent) {
@@ -301,13 +314,27 @@ export class QueryService {
         features = this.extractGML2Data(res, layer, allowedFieldsAndAlias);
         break;
     }
-
-    if (features.length > 0 && features[0].geometry === null) {
+    if (features.length > 0 && (features[0].geometry === null || !features[0].geometry)) {
       const geomToAdd = this.createGeometryFromUrlClick(url);
 
       for (const feature of features) {
         feature.geometry = geomToAdd;
       }
+    }
+
+    const wmsDatasource = layer.dataSource as WMSDataSource;
+    const featureCount = wmsDatasource.params?.FEATURE_COUNT ?
+      new RegExp('FEATURE_COUNT=' + this.featureCount) :
+      new RegExp('FEATURE_COUNT=' + this.defaultFeatureCount);
+
+    if (
+      featureCount.test(url) &&
+      ((wmsDatasource.params?.FEATURE_COUNT && this.featureCount > 1 && features.length === this.featureCount) ||
+      (!wmsDatasource.params?.FEATURE_COUNT && features.length === this.defaultFeatureCount))) {
+      this.languageService.translate.get('igo.geo.query.featureCountMax', {value: layer.title}).subscribe(message => {
+        const messageObj = this.messageService.info(message);
+        this.previousMessageIds.push(messageObj.toastId);
+      });
     }
 
     return features.map((feature: Feature, index: number) => {
@@ -498,7 +525,6 @@ export class QueryService {
     const bodyTagStart = res.toLowerCase().indexOf('<body>');
     const bodyTagEnd = res.toLowerCase().lastIndexOf('</body>') + 7;
     // replace \r \n  and ' ' with '' to validate if the body is really empty. Clear all the html tags from body
-    const striptags = striptags_;
     const body = striptags(res.slice(bodyTagStart, bodyTagEnd).replace(/(\r|\n|\s)/g, ''));
     if (body === '' || res === '') {
       return [];
@@ -541,8 +567,12 @@ export class QueryService {
     delete properties.boundedBy;
     delete properties.shape;
     delete properties.SHAPE;
+    delete properties.SHAPE_S;
+    delete properties.SHAPE_L;
+    delete properties.SHAPE_P;
     delete properties.the_geom;
     delete properties.geom;
+    delete properties.geom32198;
 
     let geometry;
     if (featureGeometry) {
@@ -586,8 +616,12 @@ export class QueryService {
             wmsDatasource.params.INFO_FORMAT ||
             this.getMimeInfoFormat(datasource.options.queryFormat),
           QUERY_LAYERS: wmsDatasource.params.LAYERS,
-          FEATURE_COUNT: wmsDatasource.params.FEATURE_COUNT || '5'
+          FEATURE_COUNT: wmsDatasource.params.FEATURE_COUNT || this.defaultFeatureCount
         };
+
+        if (wmsDatasource.params.FEATURE_COUNT) {
+          this.featureCount = wmsDatasource.params.FEATURE_COUNT;
+        }
 
         if (forceGML2) {
           WMSGetFeatureInfoOptions.INFO_FORMAT = this.getMimeInfoFormat(
@@ -749,15 +783,23 @@ export class QueryService {
     options: QueryOptions,
     mapExtent?: MapExtent): string {
 
-      let url = datasource.options.queryUrl.replace(/\{xmin\}/g, mapExtent[0].toString())
-      .replace(/\{ymin\}/g, mapExtent[1].toString())
-      .replace(/\{xmax\}/g, mapExtent[2].toString())
-      .replace(/\{ymax\}/g, mapExtent[3].toString())
-      .replace(/\{x\}/g, options.coordinates[0].toString())
-      .replace(/\{y\}/g, options.coordinates[1].toString())
-      .replace(/\{resolution\}/g, options.resolution.toString())
-      .replace(/\{srid\}/g, options.projection.replace('EPSG:',''));
+    const extent = olextent.getForViewAndSize(
+      options.coordinates,
+      options.resolution,
+      0,
+      [101, 101]
+    );
 
-      return url;
-    }
+    let url = datasource.options.queryUrl.replace(/\{bbox\}/g, extent.join(','))
+    .replace(/\{xmin\}/g, mapExtent[0].toString())
+    .replace(/\{ymin\}/g, mapExtent[1].toString())
+    .replace(/\{xmax\}/g, mapExtent[2].toString())
+    .replace(/\{ymax\}/g, mapExtent[3].toString())
+    .replace(/\{x\}/g, options.coordinates[0].toString())
+    .replace(/\{y\}/g, options.coordinates[1].toString())
+    .replace(/\{resolution\}/g, options.resolution.toString())
+    .replace(/\{srid\}/g, options.projection.replace('EPSG:',''));
+
+    return url;
+  }
 }

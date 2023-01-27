@@ -14,9 +14,9 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { IgoMap } from '../../../map';
 import { SpatialFilterItemType } from './../../shared/spatial-filter.enum';
 import { Feature } from './../../../feature/shared/feature.interfaces';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import type { default as OlGeometryType } from 'ol/geom/GeometryType';
+import type { Type } from 'ol/geom/Geometry';
 import type { default as OlGeometry } from 'ol/geom/Geometry';
 import { GeoJSONGeometry } from '../../../geometry/shared/geometry.interfaces';
 import * as olStyle from 'ol/style';
@@ -186,6 +186,7 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
 
   @Output() radiusEvent = new EventEmitter<number>();
   @Output() freehandControl = new EventEmitter<boolean>();
+  @Output() predefinedRadius = new EventEmitter<boolean>();
 
   @Output() clearButtonEvent = new EventEmitter();
 
@@ -220,8 +221,8 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
   private radiusChanges$$: Subscription;
   private bufferChanges$$: Subscription;
 
-  public formControl = new FormControl();
-  public geometryType: typeof OlGeometryType | string;
+  public formControl = new UntypedFormControl();
+  public geometryType: Type | string;
   public geometryTypeField = false;
   public geometryTypes: string[] = ['Point', 'Polygon'];
   public drawGuideField = false;
@@ -238,8 +239,8 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
 
   public radius: number;
   public buffer: number = 0;
-  public radiusFormControl = new FormControl();
-  public bufferFormControl = new FormControl();
+  public radiusFormControl = new UntypedFormControl();
+  public bufferFormControl = new UntypedFormControl();
 
   public measureUnit: MeasureLengthUnit = MeasureLengthUnit.Meters;
   public zoneWithBuffer;
@@ -613,6 +614,15 @@ export class SpatialFilterItemComponent implements OnDestroy, OnInit {
   onfreehandControlChange() {
     this.freehandDrawIsActive = !this.freehandDrawIsActive;
     this.freehandControl.emit(this.freehandDrawIsActive);
+    if (this.isPoint()) {
+      this.predefinedRadius.emit(!this.freehandDrawIsActive);
+      if (this.freehandDrawIsActive) {
+        this.overlayStyle$.next(undefined);
+        this.drawStyle$.next(undefined);
+      }
+    } else {
+      this.predefinedRadius.emit(false);
+    }
   }
 
   /**
