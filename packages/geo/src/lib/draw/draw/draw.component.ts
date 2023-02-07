@@ -425,8 +425,8 @@ export class DrawComponent implements OnInit, OnDestroy {
         .subscribe((value) => {
           if (this.selectedFeatures$.value[0]) {
             const feature = this.selectedFeatures$.value[0];
-            console.log("subscriptions");
-            console.log(feature);
+            // console.log("subscriptions");
+            // console.log(feature);
             let bufferID =
               this.activeDrawingLayer.id + '-' + feature.properties.id;
             let currValue = value[bufferID];

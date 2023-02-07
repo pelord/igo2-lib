@@ -374,11 +374,14 @@ export function clearOlGeometryMidpoints(olGeometry: OlPoint | OlLineString | Ol
  * @returns OL points
  */
 function getOlGeometryMidpoints(olGeometry: OlPoint | OlLineString | OlPolygon | OlCircle): OlPoint[] {
+  console.log("getOlGeometryMidpoints: ");
+  console.log(olGeometry);
   let expectedNumber;
   if (olGeometry instanceof OlCircle) {
     expectedNumber = 0;
   } else {
-    expectedNumber = Math.max((olGeometry.getFlatCoordinates().length / 2) - 1, 0);
+    console.log(Math.round(Math.max((olGeometry.getFlatCoordinates().length / 2) - 1, 0)));
+    expectedNumber = Math.round(Math.max((olGeometry.getFlatCoordinates().length / 2) - 1, 0));
   }
   // TODO: This works but it's quite messy. If time permits,
   // clean this. Maybe a Tooltip class could handle that
@@ -414,6 +417,8 @@ function getOlGeometryMidpoints(olGeometry: OlPoint | OlLineString | OlPolygon |
     }
   }
   olMidpoints.splice(expectedNumber);
+
+  console.log(olMidpoints);
 
   return olMidpoints;
 }
