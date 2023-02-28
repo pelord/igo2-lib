@@ -242,7 +242,13 @@ export class DrawStyleService {
   ): Observable<Feature | FeatureGeometry> {
     let bufferedFeature = feature as FeatureGeometry;
     if (bufferedFeature.type.includes("Point")){
+      if (bufferedFeature.coordinates[0][0]){
+        bufferedFeature.coordinates = bufferedFeature.coordinates[0][0]; 
+      }
       console.log("it is a point");
+    }
+    if (bufferedFeature.type.includes("LineString")){
+      bufferedFeature.coordinates[0] = bufferedFeature.coordinates[0][0]; 
       bufferedFeature.type = "Polygon";
     }
     return this.http
