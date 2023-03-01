@@ -248,8 +248,11 @@ export class DrawStyleService {
       console.log("it is a point");
     }
     if (bufferedFeature.type.includes("LineString")){
-      bufferedFeature.coordinates[0] = bufferedFeature.coordinates[0][0]; 
-      bufferedFeature.type = "Polygon";
+      
+      console.log(bufferedFeature);
+      if (bufferedFeature.coordinates[0][0][0]){
+        bufferedFeature.coordinates = bufferedFeature.coordinates[0]; 
+      }
     }
     return this.http
       .post<Feature>(this.baseUrl + 'geospatial/buffer?', {
