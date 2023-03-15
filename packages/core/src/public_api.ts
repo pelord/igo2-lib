@@ -28,3 +28,4 @@ export * from './lib/storage';
 export * from './lib/compression';
 export * from './lib/download';
 export * from './lib/network';
+export * from './lib/regex';
