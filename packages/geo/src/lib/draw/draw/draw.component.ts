@@ -425,7 +425,6 @@ export class DrawComponent implements OnInit, OnDestroy {
         .subscribe((value) => {
           if (this.selectedFeatures$.value[0]) {
             const feature = this.selectedFeatures$.value[0];
-            console.log(feature);
 
             let bufferID =
               this.activeDrawingLayer.id + '-' + feature.properties.id;
@@ -440,16 +439,10 @@ export class DrawComponent implements OnInit, OnDestroy {
               if (this.bufferMeasureUnit === MeasureLengthUnit.Kilometers) {
                 currValue = currValue * 1000;
               }
-              console.log("Before loadBufferGeometry:");
-              console.log(geometry4326);
-
 
               this.drawStyleService
                 .loadBufferGeometry(geometry4326, currValue)
                 .subscribe((featureGeo: FeatureGeometry) => {
-                  console.log("loadBufferGeometry");
-                  console.log(featureGeo);
-
                   feature.geometry.coordinates = featureGeo.coordinates;
                   feature.projection = 'EPSG:4326';
                   feature.geometry.type = "Polygon";
@@ -458,9 +451,6 @@ export class DrawComponent implements OnInit, OnDestroy {
                     feature,
                     this.map.ol.getView().getProjection().getCode()
                   );
-
-                  console.log("olFeature");
-                  console.log(olFeature);
 
                   const label = feature.properties.draw;
                   this.onSelectDraw(olFeature, label);
@@ -596,7 +586,6 @@ export class DrawComponent implements OnInit, OnDestroy {
 
   private onModifyDraw(olGeometry) {
     console.log("onModifyDraw");
-    console.log(olGeometry);
     const entities = this.activeStore.all();
 
     entities.forEach((entity) => {
