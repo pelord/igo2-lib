@@ -25,7 +25,7 @@ import { WFSDataSourceOptions } from '../../../datasource/shared/datasources/wfs
 import { buildUrl, defaultMaxFeatures } from '../../../datasource/shared/datasources/wms-wfs.utils';
 import { OgcFilterableDataSourceOptions } from '../../../filter/shared/ogc-filter.interface';
 import { GeoNetworkService, SimpleGetOptions } from '../../../offline/shared/geo-network.service';
-import { catchError, concatMap, first } from 'rxjs/operators';
+import { catchError, concatMap, delay, first } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { DbNameEnum } from '../../../offline/geoDB/geoDB.enums';
 export class VectorLayer extends Layer {
@@ -412,7 +412,7 @@ export class VectorLayer extends Layer {
       };
 
       const options: SimpleGetOptions = { responseType };
-      this.geoNetworkService.geoDBService.get(url).pipe(concatMap(r =>
+      this.geoNetworkService.geoDBService.get(url).pipe(delay(750)).pipe(concatMap(r =>
         r ? of(r) : this.geoNetworkService.get(modifiedUrl, options, DbNameEnum.GeoData)
           .pipe(
             first(),
