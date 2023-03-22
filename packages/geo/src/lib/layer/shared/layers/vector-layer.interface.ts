@@ -20,7 +20,7 @@ import { ClusterDataSourceOptions } from '../../../datasource/shared/datasources
 
 import { ClusterParam } from '../clusterParam';
 
-import { StyleByAttribute, MapboxStyle } from '../vector-style.interface';
+import { IgoStyle } from '../../../style/shared/vector/vector-style.interface';
 import RenderFeature from 'ol/render/Feature';
 import Feature from 'ol/Feature';
 import { Qc511DataSource } from '../../../datasource/shared/datasources/qc511-datasource';
@@ -44,12 +44,9 @@ export interface VectorLayerOptions extends LayerOptions {
   exportable?: boolean;
   ol?: olLayerVector<olSourceVector<OlGeometry>>;
   animation?: VectorAnimation;
-  styleByAttribute?: StyleByAttribute;
-  hoverStyle?: StyleByAttribute;
-  clusterBaseStyle?: { [key: string]: any } | olStyle | olStyle[];
   clusterParam?: ClusterParam;
   trackFeature?: string | number;
-  mapboxStyle ?: MapboxStyle;
+  igoStyle?: IgoStyle;
 }
 
 export interface VectorAnimation {

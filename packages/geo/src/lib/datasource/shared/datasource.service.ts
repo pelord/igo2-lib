@@ -177,15 +177,11 @@ export class DataSourceService {
       observables.push(
         this.capabilitiesService.getWMSOptions(context).pipe(
           catchError(e => {
-            const title = this.languageService.translate.instant(
-              'igo.geo.dataSource.unavailableTitle'
-            );
-            const message = this.languageService.translate.instant(
+            this.messageService.error(
               'igo.geo.dataSource.unavailable',
-              { value: context.params.LAYERS }
-            );
-
-            this.messageService.error(message, title);
+              'igo.geo.dataSource.unavailableTitle',
+              undefined,
+              { value: context.params.LAYERS });
             throw e;
           })
         )
@@ -233,15 +229,11 @@ export class DataSourceService {
           return options ? new WMTSDataSource(options) : undefined;
         }),
         catchError(() => {
-          const title = this.languageService.translate.instant(
-            'igo.geo.dataSource.unavailableTitle'
-          );
-          const message = this.languageService.translate.instant(
+          this.messageService.error(
             'igo.geo.dataSource.unavailable',
-            { value: context.layer }
-          );
-
-          this.messageService.error(message, title);
+            'igo.geo.dataSource.unavailableTitle',
+            undefined,
+            { value: context.layer });
           return of(undefined);
         })
       );
@@ -282,15 +274,11 @@ export class DataSourceService {
     const observables = [];
     observables.push(this.capabilitiesService.getArcgisOptions(context).pipe(
       catchError(e => {
-        const title = this.languageService.translate.instant(
-          'igo.geo.dataSource.unavailableTitle'
-        );
-        const message = this.languageService.translate.instant(
+        this.messageService.error(
           'igo.geo.dataSource.unavailable',
-          { value: context.layer }
-        );
-
-        this.messageService.error(message, title);
+          'igo.geo.dataSource.unavailableTitle',
+          undefined,
+          { value: context.layer });
         throw e;
       })
     ));
@@ -332,15 +320,11 @@ export class DataSourceService {
 
     observables.push(this.capabilitiesService.getImageArcgisOptions(context).pipe(
       catchError(e => {
-        const title = this.languageService.translate.instant(
-          'igo.geo.dataSource.unavailableTitle'
-        );
-        const message = this.languageService.translate.instant(
+        this.messageService.error(
           'igo.geo.dataSource.unavailable',
-          { value: context.params.LAYERS }
-        );
-
-        this.messageService.error(message, title);
+          'igo.geo.dataSource.unavailableTitle',
+          undefined,
+          { value: context.params.LAYERS });
         throw e;
       })
     ));
@@ -381,15 +365,11 @@ export class DataSourceService {
     const observables = [];
     observables.push(this.capabilitiesService.getImageArcgisOptions(context).pipe(
       catchError(e => {
-        const title = this.languageService.translate.instant(
-          'igo.geo.dataSource.unavailableTitle'
-        );
-        const message = this.languageService.translate.instant(
+        this.messageService.error(
           'igo.geo.dataSource.unavailable',
-          { value: context.params.LAYERS }
-        );
-
-        this.messageService.error(message, title);
+          'igo.geo.dataSource.unavailableTitle',
+          undefined,
+          { value: context.params.LAYERS });
         throw e;
       })
     ));
