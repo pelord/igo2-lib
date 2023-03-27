@@ -518,6 +518,7 @@ export class DrawComponent implements OnInit, OnDestroy {
       dialogRef.afterClosed().subscribe((result) => {
         // checks if the user clicked ok
         if (dialogRef.componentInstance.confirmFlag) {
+          this.activeStore.state.updateAll({ selected: false });
           this.updateLabelOfOlGeometry(olGeometry, result.label);
           this.updateLabelType(
             olGeometry,
@@ -686,7 +687,13 @@ export class DrawComponent implements OnInit, OnDestroy {
           entity.properties.offsetX,
           entity.properties.offsetY
         );
-        this.updateGeometry4326(olGeometry, entity.properties.geometry4326);
+        let tempGeometry4326 = {} as FeatureWithDraw;
+        tempGeometry4326 = new OlGeoJSON().writeGeometryObject(olGeometry, {
+          featureProjection: this.map.ol.getView().getProjection(),
+          dataProjection: this.map.ol.getView().getProjection()
+        }) as any;
+        this.updateGeometry4326(olGeometry, this.getGeometry4326(tempGeometry4326));
+
         this.replaceFeatureInStore(entity, olGeometry);
       }
     });
