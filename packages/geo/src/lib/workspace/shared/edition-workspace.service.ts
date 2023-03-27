@@ -11,7 +11,7 @@ import {
   EntityTableColumnRenderer,
   EntityTableTemplate,
   EntityTableButton} from '@igo2/common';
-import { ConfigService, LanguageService, MessageService, StorageService } from '@igo2/core';
+import { ConfigService, MessageService, StorageService } from '@igo2/core';
 import { AuthInterceptor } from '@igo2/auth';
 import { catchError, map, skipWhile, take } from 'rxjs/operators';
 import { RelationOptions, SourceFieldsOptionsParams, WMSDataSource } from '../../datasource';
@@ -28,12 +28,14 @@ import {
 
 import { OgcFilterableDataSourceOptions } from '../../filter/shared/ogc-filter.interface';
 import { ImageLayer, LayerService, LayersLinkProperties, LinkedProperties, VectorLayer } from '../../layer';
-import { StyleService } from '../../layer/shared/style.service';
+import { StyleService } from '../../style/style-service/style.service';
 import { GeoWorkspaceOptions } from '../../layer/shared/layers/layer.interface';
 import { IgoMap } from '../../map';
 import { QueryableDataSourceOptions } from '../../query/shared/query.interfaces';
 import { EditionWorkspace } from './edition-workspace';
 
+import WKT from 'ol/format/WKT';
+import GeoJSON from 'ol/format/GeoJSON';
 import olFeature from 'ol/Feature';
 import olSourceImageWMS from 'ol/source/ImageWMS';
 import type { default as OlGeometry } from 'ol/geom/Geometry';
@@ -49,6 +51,8 @@ export class EditionWorkspaceService {
   public relationLayers$ = new BehaviorSubject<ImageLayer[] | VectorLayer[]>(undefined);
   public rowsInMapExtentCheckCondition$ = new BehaviorSubject<boolean>(true);
   public loading = false;
+  public wktFormat = new WKT();
+  public geoJsonFormat = new GeoJSON();
 
   get zoomAuto(): boolean {
     return this.storageService.get('zoomAuto') as boolean;
@@ -59,7 +63,6 @@ export class EditionWorkspaceService {
     private storageService: StorageService,
     private configService: ConfigService,
     private messageService: MessageService,
-    private languageService: LanguageService,
     private http: HttpClient,
     private dialog: MatDialog,
     private styleService: StyleService,
@@ -422,11 +425,12 @@ export class EditionWorkspaceService {
   }
 
   public addFeature(feature, workspace: EditionWorkspace, url: string, headers: {[key: string]: any}) {
-    // TODO: adapt to any kind of geometry
     if (workspace.layer.dataSource.options.edition.hasGeometry) {
-      //feature.properties[geom] = feature.geometry;
-      feature.properties["longitude"] = feature.geometry.coordinates[0];
-      feature.properties["latitude"] = feature.geometry.coordinates[1];
+      const projDest = workspace.layer.options.sourceOptions.edition.geomDatabaseProj;
+      feature.properties[workspace.layer.dataSource.options.params.fieldNameGeometry] =
+      'SRID=' + projDest.replace("EPSG:", "") + ';' + this.wktFormat.writeGeometry(
+        this.geoJsonFormat.readFeature(feature.geometry).getGeometry().transform('EPSG:4326', projDest),
+        { dataProjection: projDest });
     }
 
     for (const property in feature.properties) {
@@ -445,10 +449,7 @@ export class EditionWorkspaceService {
         workspace.deleteDrawings();
         workspace.entityStore.delete(feature);
 
-        const message = this.languageService.translate.instant(
-          'igo.geo.workspace.addSuccess'
-        );
-        this.messageService.success(message);
+        this.messageService.success('igo.geo.workspace.addSuccess');
 
         this.refreshMap(workspace.layer as VectorLayer, workspace.layer.map);
         this.adding$.next(false);
@@ -457,9 +458,6 @@ export class EditionWorkspaceService {
       error => {
         this.loading = false;
         error.error.caught = true;
-        const genericErrorMessage = this.languageService.translate.instant(
-          'igo.geo.workspace.addError'
-        );
         const messages = workspace.layer.dataSource.options.edition.messages;
         if (messages) {
           let text;
@@ -471,10 +469,10 @@ export class EditionWorkspaceService {
             }
           });
           if (!text) {
-            this.messageService.error(genericErrorMessage);
+            this.messageService.error('igo.geo.workspace.addError');
           }
         } else {
-          this.messageService.error(genericErrorMessage);
+          this.messageService.error('igo.geo.workspace.addError');
         }
       }
     );
@@ -485,10 +483,7 @@ export class EditionWorkspaceService {
     this.http.delete(`${url}`, {}).subscribe(
       () => {
         this.loading = false;
-        const message = this.languageService.translate.instant(
-          'igo.geo.workspace.deleteSuccess'
-        );
-        this.messageService.success(message);
+        this.messageService.success('igo.geo.workspace.deleteSuccess');
 
         this.refreshMap(workspace.layer as VectorLayer, workspace.layer.map);
         for (const relation of workspace.layer.options.sourceOptions.relations) {
@@ -502,9 +497,6 @@ export class EditionWorkspaceService {
       error => {
         this.loading = false;
         error.error.caught = true;
-          const genericErrorMessage = this.languageService.translate.instant(
-            'igo.geo.workspace.addError'
-          );
           const messages = workspace.layer.dataSource.options.edition.messages;
           if (messages) {
             let text;
@@ -516,21 +508,24 @@ export class EditionWorkspaceService {
               }
             });
             if (!text) {
-              this.messageService.error(genericErrorMessage);
+              this.messageService.error('igo.geo.workspace.addError');
             }
           } else {
-            this.messageService.error(genericErrorMessage);
+            this.messageService.error('igo.geo.workspace.addError');
           }
       }
     );
   }
 
   public modifyFeature(feature, workspace: EditionWorkspace, url: string, headers: {[key: string]: any}, protocole = 'patch' ) {
-    //TODO: adapt to any kind of geometry
     if (workspace.layer.dataSource.options.edition.hasGeometry) {
-      //feature.properties[geom] = feature.geometry;
-      feature.properties["longitude"] = feature.geometry.coordinates[0];
-      feature.properties["latitude"] = feature.geometry.coordinates[1];
+      const projDest = workspace.layer.options.sourceOptions.edition.geomDatabaseProj;
+      // Remove 3e dimension
+      feature.geometry.coordinates = removeZ(feature.geometry.coordinates);
+      feature.properties[workspace.layer.dataSource.options.params.fieldNameGeometry] =
+        'SRID=' + projDest.replace("EPSG:", "") + ';' + this.wktFormat.writeGeometry(
+          this.geoJsonFormat.readFeature(feature.geometry).getGeometry().transform('EPSG:4326', projDest),
+          { dataProjection: projDest });
     }
 
     for (const property in feature.properties) {
@@ -548,10 +543,7 @@ export class EditionWorkspaceService {
         this.loading = false;
         this.cancelEdit(workspace, feature, true);
 
-        const message = this.languageService.translate.instant(
-          'igo.geo.workspace.modifySuccess'
-        );
-        this.messageService.success(message);
+        this.messageService.success('igo.geo.workspace.modifySuccess');
 
         this.refreshMap(workspace.layer as VectorLayer, workspace.layer.map);
 
@@ -569,9 +561,6 @@ export class EditionWorkspaceService {
       error => {
         this.loading = false;
         error.error.caught = true;
-        const genericErrorMessage = this.languageService.translate.instant(
-          'igo.geo.workspace.addError'
-        );
         const messages = workspace.layer.dataSource.options.edition.messages;
         if (messages) {
           let text;
@@ -583,10 +572,10 @@ export class EditionWorkspaceService {
             }
           });
           if (!text) {
-            this.messageService.error(genericErrorMessage);
+            this.messageService.error('igo.geo.workspace.addError');
           }
         } else {
-          this.messageService.error(genericErrorMessage);
+          this.messageService.error('igo.geo.workspace.addError');
         }
       }
     );
@@ -670,8 +659,7 @@ export class EditionWorkspaceService {
   }
 
   validateFeature(feature, workspace: EditionWorkspace) {
-    const translate = this.languageService.translate;
-    let message ;
+    let message;
     let key;
     let valid = true;
     workspace.meta.tableTemplate.columns.forEach(column => {
@@ -682,38 +670,39 @@ export class EditionWorkspaceService {
             case 'mandatory': {
               if (column.validation[type] && (!feature.properties.hasOwnProperty(key) || !feature.properties[key])) {
                 valid = false;
-                  message = translate.instant('igo.geo.formValidation.mandatory',
-                  {
-                    column: column.title
-                  }
-                );
-                this.messageService.error(message);
+                this.messageService.error(
+                  'igo.geo.formValidation.mandatory',
+                  undefined,
+                  undefined,
+                  {column: column.title});
               }
               break;
             }
             case 'minValue': {
               if (feature.properties.hasOwnProperty(key) && feature.properties[key] && feature.properties[key] < column.validation[type]) {
                 valid = false;
-                message = translate.instant('igo.geo.formValidation.minValue',
+                this.messageService.error(
+                  'igo.geo.formValidation.minValue',
+                  undefined,
+                  undefined,
                   {
                     column: column.title,
                     value: column.validation[type]
-                  }
-                );
-                this.messageService.error(message);
+                  });
               }
               break;
             }
             case 'maxValue': {
               if (feature.properties.hasOwnProperty(key) && feature.properties[key] && feature.properties[key] > column.validation[type]) {
                 valid = false;
-                message = translate.instant('igo.geo.formValidation.maxValue',
+                this.messageService.error(
+                  'igo.geo.formValidation.maxValue',
+                  undefined,
+                  undefined,
                   {
                     column: column.title,
                     value: column.validation[type]
-                  }
-                );
-                this.messageService.error(message);
+                  });
               }
               break;
             }
@@ -723,13 +712,14 @@ export class EditionWorkspaceService {
                 feature.properties[key].length < column.validation[type])
               {
                 valid = false;
-                message = translate.instant('igo.geo.formValidation.minLength',
+                this.messageService.error(
+                  'igo.geo.formValidation.minLength',
+                  undefined,
+                  undefined,
                   {
                     column: column.title,
                     value: column.validation[type]
-                  }
-                );
-                this.messageService.error(message);
+                  });
               }
               break;
             }
@@ -739,13 +729,14 @@ export class EditionWorkspaceService {
                 feature.properties[key].length > column.validation[type])
               {
                 valid = false;
-                message = translate.instant('igo.geo.formValidation.maxLength',
+                this.messageService.error(
+                  'igo.geo.formValidation.maxLength',
+                  undefined,
+                  undefined,
                   {
                     column: column.title,
                     value: column.validation[type]
-                  }
-                );
-                this.messageService.error(message);
+                  });
               }
               break;
             }
@@ -773,4 +764,10 @@ function getColumnKeyWithoutPropertiesTag(column: string) {
     return column.split('.')[1];
   }
   return column;
+}
+
+function removeZ(coords: any) {
+  if (coords.length === 0) return coords;
+  if (typeof coords[0] === 'number') return coords.slice(0, 2);
+  return coords.map(removeZ);
 }

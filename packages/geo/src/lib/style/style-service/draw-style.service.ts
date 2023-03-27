@@ -2,14 +2,15 @@ import { Injectable } from '@angular/core';
 
 import * as OlStyle from 'ol/style';
 import OlPoint from 'ol/geom/Point';
-import { transform } from 'ol/proj';
 import { MapService } from '../../map/shared/map.service';
-import { FontType } from './draw.enum';
 import { HttpClient } from '@angular/common/http';
 import { Feature, FeatureGeometry } from '../../feature/shared';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import Point from 'ol/geom/Point';
+import { ProjectionLike, transform } from 'ol/proj';
+import { FontType } from '../shared/font.enum';
+
 
 @Injectable({
   providedIn: 'root'
@@ -106,11 +107,11 @@ export class DrawStyleService {
     strokeColor: string,
     offsetX: number,
     offsetY: number,
+    proj: ProjectionLike,
     icon?: string
   ): OlStyle.Style {
     let style;
     let labelsAreOffset: boolean = false;
-    const proj = this.mapService.getMap().projection;
     const geom = feature.getGeometry();
 
     if (geom instanceof OlPoint) {

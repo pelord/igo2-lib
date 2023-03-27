@@ -52,24 +52,24 @@ export class MapOfflineDirective implements AfterViewInit {
         this.messageService.remove(this.previousMessageId);
       }
       this.offlineButtonStatus = offlineButtonToggle;
-      const translate = this.languageService.translate;
       if (this.offlineButtonStatus && this.networkState.connection) {
-        const message = translate.instant('igo.geo.network.offline.message');
-        const title = translate.instant('igo.geo.network.offline.title');
-        const messageObj = this.messageService.info(message, title);
+        const messageObj = this.messageService.info(
+          'igo.geo.network.offline.message',
+          'igo.geo.network.offline.title');
         this.previousMessageId = messageObj.toastId;
         this.offlineButtonState.connection = false;
         this.changeLayer();
       } else if (!this.offlineButtonStatus && !this.networkState.connection) {
-        const message = translate.instant('igo.geo.network.offline.message');
-        const title = translate.instant('igo.geo.network.offline.title');
-        const messageObj = this.messageService.info(message, title);
+        const messageObj = this.messageService.info(
+          'igo.geo.network.offline.message',
+          'igo.geo.network.offline.title');
         this.previousMessageId = messageObj.toastId;
         this.offlineButtonState.connection = false;
         this.changeLayer();
       } else if (!this.offlineButtonStatus && this.networkState.connection) {
         let message;
         let title;
+        const translate = this.languageService.translate;
         const messageObs = translate.get('igo.geo.network.online.message');
         const titleObs = translate.get('igo.geo.network.online.title');
         messageObs.subscribe((message1: string) => {
@@ -120,13 +120,13 @@ export class MapOfflineDirective implements AfterViewInit {
           this.networkState.connection === false ||
           this.offlineButtonState.connection === false
         ) {
-          layer.ol.setMaxResolution(0);
+          layer.maxResolution = 0;
           return;
         } else if (
           this.networkState.connection === true ||
           this.offlineButtonState.connection === true
         ) {
-          layer.ol.setMaxResolution(Infinity);
+          layer.maxResolution = layer.options.maxResolution || Infinity;
           return;
         }
       }
@@ -163,12 +163,12 @@ export class MapOfflineDirective implements AfterViewInit {
             this.networkState.connection === false ||
             this.offlineButtonState.connection === false
           ) {
-            layer.ol.setMaxResolution(0);
+            layer.maxResolution = 0;
           } else if (
             this.networkState.connection === true ||
             this.offlineButtonState.connection === true
           ) {
-            layer.ol.setMaxResolution(Infinity);
+            layer.maxResolution = layer.options.maxResolution || Infinity;
           }
         }
       } else {
@@ -176,12 +176,12 @@ export class MapOfflineDirective implements AfterViewInit {
           this.networkState.connection === false ||
           this.offlineButtonState.connection === false
         ) {
-          layer.ol.setMaxResolution(0);
+          layer.maxResolution = 0;
         } else if (
           this.networkState.connection === true ||
           this.offlineButtonState.connection === true
         ) {
-          layer.ol.setMaxResolution(Infinity);
+          layer.maxResolution = layer.options.maxResolution || Infinity;
         }
       }
     });
