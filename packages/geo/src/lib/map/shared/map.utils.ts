@@ -478,12 +478,17 @@ export function roundCoordTo(coord: [number, number], decimal: number = 3): [num
     NumberUtils.roundToNDecimal(coord[1], decimal)] as [number, number];
 }
 
+export function roundCoordToString(coord: [number, number], decimal: number = 3): [string, string]{
+    return roundCoordTo(coord, decimal).map(r => r.toString()) as [string, string];
+}
+
 /**
  * Returns an array of converted coordinates.
  * Conversion is done for every configured projections
  * and for the current UTM zone and MTM zone.
  * @param lonLat [number, number] array of the coordinate to transform.
  * @param projections  Projection[] Array of destination projection.
+ * @param reverseCoords To reverse coords from latLon to lonLat (search option)
  * @returns Returns an array of converted coordinates.
  */
 export function lonLatConversion(
@@ -539,9 +544,7 @@ export function lonLatConversion(
       code: projection.code,
       alias: projection.alias || projection.code,
       coord: rawCoord,
-      igo2CoordFormat: `${roundCoordTo(rawCoord).join(
-        ', '
-      )} ; ${numericEpsgCode}`
+      igo2CoordFormat: `${roundCoordTo(rawCoord).join(', ')} ; ${numericEpsgCode}`
     });
   });
 

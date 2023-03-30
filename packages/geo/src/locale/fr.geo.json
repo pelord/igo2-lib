@@ -6,6 +6,7 @@
         "layer.addToMapOutRange": "Ajouter à la carte. La donnée est non visible à l'échelle active. Veuillez zoomer +/- si vous voulez l'apercevoir à la carte.",
         "layer.removeFromMap": "Retirer de la carte",
         "layer.removeFromMapOutRange": "Retirer de la carte. La donnée est non visible à l'échelle active. Veuillez zoomer +/- si vous voulez l'apercevoir à la carte.",
+        "layer.removeFromMapNotVisible": "Retirer de la carte. La donnée est visible à l'échelle active, mais n'est pas activée. Veuillez basculer vers l'outil carte pour la rendre visible.",
         "group.addToMap": "Ajouter toutes les couches de ce groupe à la carte",
         "group.removeFromMap": "Retirer toutes les couches de ce groupe de la carte",
         "baseLayers": "Fonds de carte",
@@ -257,7 +258,28 @@
           "noLayersVisibleWithShowAllButtonButZoom": "Aucune couche actuellement visible. Si vous zoomez dans la carte, certaines couches apparaîtront OU activez le bouton ci haut pour voir toutes les légendes.",
           "noLayersVisible": "Aucune couche actuellement visible.",
           "noLayersVisibleButZoom": "Aucune couche actuellement visible. Par contre, si vous zoomez dans la carte, certaines couches apparaîtront."
-        }
+        },
+        "style": {
+          "styleModal": "Modifier le style",
+          "styleModalTooltip": "Éditer le style des entités sélectionnées"
+        },
+        "saveBtn": "Sauvegarder",
+        "cancelBtn": "Cancel",
+        "saveFeatureInLayer": "Ajouter la sélection dans une couche",
+        "chooseOrSet": "Choisir une couche ou définir un nouveau nom"
+      },
+      "style": {
+        "styleModal": "Modifier le style",
+        "styleModalTooltipLayer": "Éditer le style des la présente couche.",
+        "styleModalTooltipSelected": "Éditer le style des entités sélectionnées",
+        "colorPicker": "Cliquer pour ouvrir le sélecteur de couleurs",
+        "cancel": "Annuler",
+        "fill": "Remplissage",
+        "stroke": "Contour",
+        "fontSize": "Taille de police",
+        "fontStyle": "Style de police",
+        "offsetX": "Décalage horizontal",
+        "offsetY": "Décalage vertical"
       },
       "download": {
         "action": "Télécharger les données associées",
@@ -274,9 +296,9 @@
         "online": "Passer en mode en ligne",
         "zoomIn": "Zoomer ({{zoom}})",
         "zoomOut": "Dézoomer ({{zoom}})",
-        "resetRotation": "Réinitialiser la carte vers le nord",
+				"resetRotation": "Azimut: {{azimuth}}°N. Rotation: {{rotation}}°. Réinitialiser la carte vers le nord",
         "tipRotation": "Maintenez les touches Alt et Majuscule (shift) tout en cliquant sur la carte pour faire pivoter la carte",
-        "preventSreenLock": "Prévient l'écran d'entrer en mode verrouillé.",
+        "preventScreenLock": "Prévient l'écran d'entrer en mode verrouillé.",
         "letScreenLock": "Permet l'écran d'entrer en mode verrouillé."
       },
       "metadata": {
@@ -318,7 +340,8 @@
           "topright": "Coin haut droit de la carte",
           "bottomleft": "Coin bas gauche de la carte",
           "bottomright": "Coin bas droit de la carte",
-          "newpage": "Sur une nouvelle page"
+          "newpage": "Sur une nouvelle page",
+          "newimage": "Sur une nouvelle image"
         }
       },
       "directionsForm": {
@@ -418,6 +441,8 @@
         "layer.title": "Couche de données",
         "layer.placeholder": "Rechercher une couche de données.",
         "ichercheReverse.name": "Recherche par coordonnées",
+        "clearSearch": "Effacer la recherche",
+        "addToLayer": "Ajouter à une couche",
         "ilayer": {
           "name": "Couches",
           "properties": {
@@ -448,6 +473,13 @@
             "canada": "Canada"
           }
         },
+        "workspace": {
+          "name": "Données importées (vecteurs)",
+          "restrictExtent": {
+            "map": "À l'étendue de la carte",
+            "whole": "L'entièreté du jeu de données"
+          }
+        },
         "icherche": {
           "name": "iCherche",
           "type": {
@@ -469,7 +501,9 @@
             "km": "Repère kilométrique",
             "hq": "Hydro-Québec",
             "entreprise": "Entreprise",
-            "cadastre": "Cadastre"
+            "cadastre": "Cadastre",
+            "restArea": "Halte routière",
+            "cycleStop": "Halte cyclable"
           },
           "restrictExtent": {
             "map": "À l'étendue de la carte",
@@ -479,7 +513,9 @@
         "coordinates": {
           "name": "Coordonnées",
           "coord": "Coordonnée (longitude, latitude)",
+          "reversedCoord": "Coordonnée (latitude, longitude)",
           "coordDMS": "Coordonnée (longitude, latitude) (DMS)",
+          "reversedCoordDMS": "Coordonnée (latitude, longitude) (DMS)",
           "radius": "Rayon",
           "conf": "Confiance"
         },
@@ -495,10 +531,16 @@
           "title": "Montrer tous les résultats",
           "tooltip": "Afficher/cacher la géométrie des résultats"
         },
+        "reverseCoordFormat": {
+          "title": "Afficher les données en latitude/longitude",
+          "tooltipLonLat": "Afficher les données en latitude/longitude.",
+          "tooltipLatLon": "Afficher les données en longitude/latitude."
+        },
         "searchSources": {
           "selectAll": "Tout sélectionner",
           "unselectAll": "Tout désélectionner",
           "settings": {
+            "datasets": "Jeu de données",
             "results type": "Type de résultat",
             "ecmax": "Écart maximal",
             "radius": "Rayon de recherche",
@@ -600,7 +642,7 @@
         "secteur": "Secteurs",
         "immeubles": "Immeubles patrimoniaux",
         "sites": "Sites patrimoniaux",
-        "cpe": "Centre de la petite enfance",
+        "service-garde": "Services de garde",
         "public": "Écoles publiques",
         "prive": "Écoles privés",
         "gouvernemental": "Écoles gouvernementales",
@@ -678,14 +720,14 @@
         "abort": "Annuler le dessin en cours",
         "cancel": "Annuler",
         "Circle": "Cercle",
-        "colorPicker": "Cliquer pour ouvrir le sélecteur de couleurs",
         "dialogInstruction": "Veuillez entrer l'étiquette de votre dessin",
         "dialogTitle": "Étiquette",
         "delete": "Retirer les dessins de la carte",
         "drawing": "Dessins",
-        "fill": "Remplissage",
         "finish": "Terminer le dessin en cours",
+        "freehandMode": "Dessiner à main levée",
         "icon": "Icônes",
+        "insertvalueRadius": "Utiliser un rayon prédéfini",
         "labels": "Étiquettes",
         "LineString": "Ligne",
         "move": "Centrer la vue sur le curseur",
@@ -695,12 +737,24 @@
         "Polygon": "Polygone",
         "radius": "Rayon",
         "shortcuts": "Raccourcis clavier",
-        "stroke": "Contour",
         "styleSelect": "Sélectionner le style",
         "toggleMapTooltips": "Afficher les étiquettes",
         "undo": "Retirer le dernier sommet",
-        "fontSize": "Taille de police",
-        "fontStyle": "Style de police"
+        "layer": {
+          "title": "Titre",
+          "createNewLayer": "Créer une nouvelle couche de dessin",
+          "layerDialogInstruction": "Veuillez entrer le titre de votre couche de dessin"
+        },
+        "builtInInstructions": "Sélectionnez une option",
+        "labelType": {
+          "Coordinates": "Coordonnées",
+          "Length": "Longueur",
+          "Area": "Superficie",
+          "predefined": "Prédéfinie",
+          "custom": "Personnalisée",
+          "A": "S: "
+        },
+        "popupTitle": "Étiquette du dessin"
       },
       "network": {
         "online": {
@@ -734,7 +788,14 @@
         "maxLength": "{{column}} doit être plus court que {{value}} caractères"
       },
       "query": {
-        "featureCountMax": "Vous pourriez avoir plus d'entités interrogeables sur la couche {{value}}. Pour vous en assurer, vous pouvez zoomer et redéclencher l'interrogation."
+        "featureCountMax": "Vous pourriez avoir plus d'entités interrogeables sur la couche {{value}}. Pour vous en assurer, vous pouvez zoomer et redéclencher l'interrogation.",
+        "link": {
+          "message": "Le lien a été copié dans le presse-papier"
+        }
+      },
+      "indexedDb": {
+        "data-download-start": "Téléchargement des données. Veuillez ne pas quitter.",
+        "data-download-completed": "Téléchargement des données terminée."
       }
     }
   }

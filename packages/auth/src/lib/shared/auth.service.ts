@@ -19,6 +19,7 @@ export class AuthService {
   public authenticate$ = new BehaviorSubject<boolean>(undefined);
   public logged$ = new BehaviorSubject<boolean>(undefined);
   public redirectUrl: string;
+  public languageForce = false;
   private anonymous = false;
 
   get hasAuthService() {
@@ -166,15 +167,11 @@ export class AuthService {
         this.tokenService.set(data.token);
         const tokenDecoded = this.decodeToken();
         if (tokenDecoded && tokenDecoded.user) {
-          if (tokenDecoded.user.locale) {
+          if (tokenDecoded.user.locale && !this.languageForce) {
             this.languageService.setLanguage(tokenDecoded.user.locale);
           }
           if (tokenDecoded.user.isExpired) {
-            this.languageService.translate
-              .get('igo.auth.error.Password expired')
-              .subscribe((expiredAlert) =>
-                this.messageService.alert(expiredAlert)
-              );
+              this.messageService.alert('igo.auth.error.Password expired');
           }
         }
         this.authenticate$.next(true);

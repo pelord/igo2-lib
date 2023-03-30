@@ -1,6 +1,6 @@
 import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -15,6 +15,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { ColorPickerModule } from 'ngx-color-picker';
+
 import { IgoLanguageModule } from '@igo2/core';
 import {
   IgoListModule,
@@ -26,7 +28,7 @@ import {
 } from '@igo2/common';
 
 import { LayerService } from './shared/layer.service';
-import { StyleService } from './shared/style.service';
+import { StyleService } from '../style/style-service/style.service';
 import { LayerListToolService } from './layer-list-tool/layer-list-tool.service';
 import { LayerItemComponent } from './layer-item/layer-item.component';
 import { LayerLegendComponent } from './layer-legend/layer-legend.component';
@@ -41,6 +43,7 @@ import { LayerLegendItemComponent } from './layer-legend-item/layer-legend-item.
 @NgModule({
   imports: [
     MatInputModule,
+    ReactiveFormsModule,
     MatFormFieldModule,
     CommonModule,
     FormsModule,
@@ -55,6 +58,7 @@ import { LayerLegendItemComponent } from './layer-legend-item/layer-legend-item.
     MatSliderModule,
     MatBadgeModule,
     MatCheckboxModule,
+    ColorPickerModule,
     IgoLanguageModule,
     IgoListModule,
     IgoCollapsibleModule,

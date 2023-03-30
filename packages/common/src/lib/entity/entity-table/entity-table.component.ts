@@ -197,6 +197,8 @@ export class EntityTableComponent implements OnInit, OnChanges, OnDestroy {
    */
   get fixedHeader(): boolean { return this.template.fixedHeader === undefined ? true : this.template.fixedHeader; }
 
+  get tableHeight(): string { return this.template.tableHeight ? this.template.tableHeight : 'auto'; }
+
   constructor(private cdRef: ChangeDetectorRef,
     private formBuilder: UntypedFormBuilder,
     protected _focusMonitor: FocusMonitor,
@@ -342,7 +344,7 @@ export class EntityTableComponent implements OnInit, OnChanges, OnDestroy {
           );
         }
       } else if (column.type === 'date') {
-        if (column.visible) {
+        if (column.visible !== false) {
           if (item[key]) {
             let date = moment(item[key]);
             item[key] = date.utc().format('YYYY-MM-DD');

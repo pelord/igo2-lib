@@ -53,7 +53,7 @@ gulp.task('core:copyAssets', done => {
 
 gulp.task('common:copyAssets', done => {
   gulp
-    .src('./packages/common/src/assets', {
+    .src('./packages/common/src/assets/**/*', {
       base: './packages/common/src/assets/',
       allowEmpty: true
     })
@@ -64,7 +64,7 @@ gulp.task('common:copyAssets', done => {
 
 gulp.task('auth:copyAssets', done => {
   gulp
-    .src('./packages/auth/src/assets', {
+    .src('./packages/auth/src/assets/**/*', {
       base: './packages/auth/src/assets/',
       allowEmpty: true
     })
@@ -214,6 +214,7 @@ gulp.task('core:concatStyles', done => {
       './packages/geo/src/lib/workspace/workspace.theming.scss',
       './packages/geo/src/lib/workspace/confirmation-popup/confirmation-popup.theming.scss',
       './packages/core/src/style/themes/blue.theme.scss',
+      './packages/core/src/style/themes/bluedark.theme.scss',
       './packages/core/src/style/themes/bluedq.theme.scss',
       './packages/core/src/style/themes/bluegrey.theme.scss',
       './packages/core/src/style/themes/deeppurple.theme.scss',
