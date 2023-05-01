@@ -173,7 +173,7 @@ export class DataSourceService {
 
   private createWMSDataSource(context: WMSDataSourceOptions, detailedContextUri?: string): Observable<any> {
     const observables = [];
-    if (context.optionsFromCapabilities) {
+    if (context.optionsFromCapabilities && window.navigator.onLine) {
       observables.push(
         this.capabilitiesService.getWMSOptions(context).pipe(
           catchError(e => {
@@ -188,7 +188,7 @@ export class DataSourceService {
       );
     }
 
-    if (this.optionsService && context.optionsFromApi === true) {
+    if (this.optionsService && context.optionsFromApi && window.navigator.onLine) {
       observables.push(
         this.optionsService.getWMSOptions(context, detailedContextUri).pipe(
           catchError(e => {
@@ -223,7 +223,7 @@ export class DataSourceService {
   private createWMTSDataSource(
     context: WMTSDataSourceOptions
   ): Observable<WMTSDataSource> {
-    if (context.optionsFromCapabilities) {
+    if (context.optionsFromCapabilities && window.navigator.onLine) {
       return this.capabilitiesService.getWMTSOptions(context).pipe(
         map((options: WMTSDataSourceOptions) => {
           return options ? new WMTSDataSource(options) : undefined;
@@ -272,17 +272,19 @@ export class DataSourceService {
     detailedContextUri?: string
   ): Observable<ArcGISRestDataSource> {
     const observables = [];
-    observables.push(this.capabilitiesService.getArcgisOptions(context).pipe(
-      catchError(e => {
-        this.messageService.error(
-          'igo.geo.dataSource.unavailable',
-          'igo.geo.dataSource.unavailableTitle',
-          undefined,
-          { value: context.layer });
-        throw e;
-      })
-    ));
-    if (this.optionsService && context.optionsFromApi === true) {
+    if (window.navigator.onLine) {
+      observables.push(this.capabilitiesService.getArcgisOptions(context).pipe(
+        catchError(e => {
+          this.messageService.error(
+            'igo.geo.dataSource.unavailable',
+            'igo.geo.dataSource.unavailableTitle',
+            undefined,
+            { value: context.layer });
+          throw e;
+        })
+      ));
+    }
+    if (this.optionsService && context.optionsFromApi && window.navigator.onLine) {
       observables.push(
         this.optionsService.getArcgisRestOptions(context, detailedContextUri).pipe(
           catchError(e => {
@@ -318,17 +320,19 @@ export class DataSourceService {
   ): Observable<ArcGISRestImageDataSourceOptions> {
     const observables = [];
 
-    observables.push(this.capabilitiesService.getImageArcgisOptions(context).pipe(
-      catchError(e => {
-        this.messageService.error(
-          'igo.geo.dataSource.unavailable',
-          'igo.geo.dataSource.unavailableTitle',
-          undefined,
-          { value: context.params.LAYERS });
-        throw e;
-      })
-    ));
-    if (this.optionsService && context.optionsFromApi === true) {
+    if (window.navigator.onLine) {
+      observables.push(this.capabilitiesService.getImageArcgisOptions(context).pipe(
+        catchError(e => {
+          this.messageService.error(
+            'igo.geo.dataSource.unavailable',
+            'igo.geo.dataSource.unavailableTitle',
+            undefined,
+            { value: context.params.LAYERS });
+          throw e;
+        })
+      ));
+    }
+    if (this.optionsService && context.optionsFromApi && window.navigator.onLine) {
       observables.push(
         this.optionsService.getArcgisRestOptions(context, detailedContextUri).pipe(
           catchError(e => {
@@ -363,17 +367,19 @@ export class DataSourceService {
     detailedContextUri?: string
   ): Observable<TileArcGISRestDataSource> {
     const observables = [];
-    observables.push(this.capabilitiesService.getImageArcgisOptions(context).pipe(
-      catchError(e => {
-        this.messageService.error(
-          'igo.geo.dataSource.unavailable',
-          'igo.geo.dataSource.unavailableTitle',
-          undefined,
-          { value: context.params.LAYERS });
-        throw e;
-      })
-    ));
-    if (this.optionsService && context.optionsFromApi === true) {
+    if (window.navigator.onLine) {
+      observables.push(this.capabilitiesService.getImageArcgisOptions(context).pipe(
+        catchError(e => {
+          this.messageService.error(
+            'igo.geo.dataSource.unavailable',
+            'igo.geo.dataSource.unavailableTitle',
+            undefined,
+            { value: context.params.LAYERS });
+          throw e;
+        })
+      ));
+    }
+    if (this.optionsService && context.optionsFromApi && window.navigator.onLine) {
       observables.push(
         this.optionsService.getArcgisRestOptions(context, detailedContextUri).pipe(
           catchError(e => {
