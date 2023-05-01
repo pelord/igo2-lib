@@ -58,9 +58,10 @@ export class ExportService {
     return this.exportAsync(exportOlFeatures, format, title, encoding, projectionIn, projectionOut);
   }
 
-  private generateFeature(
+  public generateFeature(
     olFeatures: OlFeature<OlGeometry>[],
-    format: ExportFormat
+    format: ExportFormat,
+    excludePrefix: string = '_'
   ): OlFeature<OlGeometry>[] {
     if (format === ExportFormat.GPX && this.aggregateInComment) {
       return this.generateAggregatedFeature(olFeatures);
@@ -69,7 +70,7 @@ export class ExportService {
     return olFeatures.map((olFeature: OlFeature<OlGeometry>) => {
       const keys = olFeature
         .getKeys()
-        .filter((key: string) => !key.startsWith('_'));
+        .filter((key: string) => !key.startsWith(excludePrefix));
       const properties = keys.reduce(
         (acc: object, key: string) => {
           acc[key] = olFeature.get(key);
@@ -224,7 +225,7 @@ export class ExportService {
       outputName = `${title}.csv`;
     }
     outputName = outputName.replace(' ', '_');
-    outputName = outputName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    outputName = outputName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/’/g, "'");
     outputNameField.setAttribute('type', 'hidden');
     outputNameField.setAttribute('name', 'outputName');
     outputNameField.setAttribute('value', outputName);

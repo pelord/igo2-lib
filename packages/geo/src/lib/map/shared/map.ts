@@ -15,7 +15,7 @@ import { BehaviorSubject, skipWhile, Subject } from 'rxjs';
 
 import { SubjectStatus } from '@igo2/utils';
 
-import { Layer } from '../../layer/shared/layers';
+import { Layer, VectorLayer } from '../../layer/shared/layers';
 import { Overlay } from '../../overlay/shared/overlay';
 
 import { LayerWatcher } from '../utils/layer-watcher';
@@ -43,8 +43,9 @@ import {
 // Move some stuff into controllers.
 export class IgoMap {
   public ol: olMap;
-  public offlineButtonToggle$ = new BehaviorSubject<boolean>(false);
+  public forcedOffline$ = new BehaviorSubject<boolean>(false);
   public layers$ = new BehaviorSubject<Layer[]>([]);
+  public layersAddedByClick$ = new BehaviorSubject<Layer[]>(undefined);
   public status$: Subject<SubjectStatus>;
   public propertyChange$: Subject<{event:ObjectEvent, layer: Layer}>;
   public overlay: Overlay;
@@ -149,6 +150,7 @@ export class IgoMap {
           }
         }
       });
+      this.viewController.monitorRotation();
   });
   this.propertyChange$.pipe(skipWhile((pc) => !pc)).subscribe(p => handleLayerPropertyChange(this, p.event, p.layer));
   }
@@ -345,6 +347,9 @@ export class IgoMap {
     const newLayers = this.layers$.value.slice(0);
     const layersToRemove = [];
     layers.forEach((layer: Layer) => {
+      if (layer instanceof VectorLayer) {
+        layer.removeLayerFromIDB();
+      }
       const index = newLayers.indexOf(layer);
       if (index >= 0) {
         layersToRemove.push(layer);
@@ -512,9 +517,5 @@ export class IgoMap {
    */
   private getLayerIndex(layer: Layer) {
     return this.layers.findIndex((_layer: Layer) => _layer === layer);
-  }
-
-  onOfflineToggle(offline: boolean) {
-    this.offlineButtonToggle$.next(offline);
   }
 }

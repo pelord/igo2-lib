@@ -1,5 +1,9 @@
 import { Feature } from '../../feature/shared/feature.interfaces';
 import { IgoMap } from '../../map/shared/map';
+import { DrawControl } from '../../geometry/shared/controls/draw';
+import { FeatureStore } from '../../feature';
+import { CoordinatesUnit, LabelType } from '../shared/draw.enum';
+import { MeasureAreaUnit, MeasureLengthUnit } from '../../measure/shared/measure.enum';
 
 export interface DrawOptions {
   icons?: string[];
@@ -28,8 +32,15 @@ export interface FeatureWithDrawProperties {
   drawingStyle: DrawingStyle;
   offsetX: number;
   offsetY: number;
+  labelType: LabelType;
+  measureUnit: MeasureLengthUnit | MeasureAreaUnit | CoordinatesUnit;
 }
 
 export interface FeatureStoreDrawStrategyOptions {
   map: IgoMap;
+}
+
+export interface StoreAndDrawControl {
+  store: FeatureStore<FeatureWithDraw>;
+  drawControl: DrawControl;
 }

@@ -13,6 +13,7 @@ export interface LayerOptions {
   title?: string;
   id?: string;
   alias?: string;
+  security?: LayerSecurityOptions;
   baseLayer?: boolean;
   opacity?: number;
   visible?: boolean;
@@ -36,6 +37,10 @@ export interface LayerOptions {
   showButtonZoomToExtent?: boolean;
 }
 
+export interface LayerSecurityOptions {
+  profils?: string[]
+}
+
 export interface GeoWorkspaceOptions {
   srcId?: string;
   workspaceId?: string;
@@ -45,6 +50,7 @@ export interface GeoWorkspaceOptions {
   queryOptions?: GeoWorkspaceQueryOptions;
   pageSize?: number;
   pageSizeOptions?: number[];
+  searchIndexEnabled?: boolean;
 }
 
 export interface GeoWorkspaceQueryOptions {
@@ -110,4 +116,5 @@ export interface OutputLayerLegend {
   title: string;
   url: string;
   display: boolean;
+  isInResolutionsRange: boolean;
 }

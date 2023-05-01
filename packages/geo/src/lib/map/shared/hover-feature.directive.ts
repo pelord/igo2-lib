@@ -21,7 +21,6 @@ import { Feature } from '../../feature/shared/feature.interfaces';
 
 import type { default as OlGeometry } from 'ol/geom/Geometry';
 import OlFeature from 'ol/Feature';
-import * as OlStyle from 'ol/style';
 import * as OlGeom from 'ol/geom';
 
 import { EntityStore } from '@igo2/common';
@@ -32,10 +31,11 @@ import { tryBindStoreLayer } from '../../feature/shared/feature.utils';
 import { FeatureStore } from '../../feature/shared/store';
 import { FeatureMotion } from '../../feature/shared/feature.enums';
 import { MediaService } from '@igo2/core';
-import { StyleService } from '../../layer/shared/style.service';
+import { StyleService } from '../../style/style-service/style.service';
 import { unByKey } from 'ol/Observable';
 import RenderFeature from 'ol/render/Feature';
-import { StyleByAttribute } from '../../layer/shared/vector-style.interface';
+import { StyleByAttribute } from '../../style/shared/vector/vector-style.interface';
+import { hoverFeatureMarkerStyle } from '../../style/shared/feature/feature-style';
 
 /**
  * This directive makes the mouse coordinate trigger a reverse search on available search sources.
@@ -139,7 +139,7 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
       showInLayerList: false,
       exportable: false,
       browsable: false,
-      style: hoverFeatureMarker
+      style: hoverFeatureMarkerStyle
     });
     tryBindStoreLayer(store, layer);
 
@@ -148,7 +148,7 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
       zIndex: 901,
       renderMode: "vector",
       declutter: true,
-      source: new olVectorTileSource({}),
+      source: new olVectorTileSource({projection: this.map.projection}),
       style: (feature, resolution) => {
         if (this.mvtStyleOptions && feature.getId() in this.selectionMVT) {
           return this.createHoverStyle(feature, this.mvtStyleOptions, resolution);
@@ -220,18 +220,8 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
    */
   subscribeToPointerStore() {
     this.store$$ = this.pointerHoverFeatureStore.entities$.subscribe(resultsUnderPointerPosition => {
-      this.entitiesToPointerOverlay(resultsUnderPointerPosition);
+      this.addFeatureOverlay(resultsUnderPointerPosition);
     });
-  }
-
-  /**
-   * convert store entities to a pointer position overlay with label summary on.
-   * @param event OL map browser pointer event
-   */
-  private entitiesToPointerOverlay(resultsUnderPointerPosition: OlFeature<OlGeometry>[]) {
-
-    this.addFeatureOverlay(resultsUnderPointerPosition);
-
   }
 
   /**
@@ -302,7 +292,6 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
     if (typeof this.lastTimeoutRequest !== 'undefined') { // cancel timeout when the mouse moves
       clearTimeout(this.lastTimeoutRequest);
     }
-    this.clearLayer();
     let maximumZindex = -Infinity;
     let topMostOlLayer;
     const pixel = this.map.ol.getPixelFromCoordinate(event.coordinate);
@@ -327,20 +316,27 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
         hitTolerance: 10, layerFilter: olLayer => olLayer instanceof olLayerVector || olLayer instanceof olLayerVectorTile
       });
       if (!topMostOlLayer) {
+        // To clear label
+        this.clearLayer();
+        this.pointerHoverFeatureStore.clear();
         return;
       }
 
-      this.clearLayer();
       this.map.ol.forEachFeatureAtPixel(pixel, (mapFeature: RenderFeature | OlFeature<OlGeometry>, layerOL: any) => {
-        if (mapFeature.get('hoverSummary') === undefined) {
+        // To avoid flashing feature
+        if (
+          mapFeature.get('hoverSummary') === undefined &&
+          mapFeature.getProperties() !== this.pointerHoverFeatureStore.all()[0]?.getProperties()
+        ) {
+          this.clearLayer();
           let igoLayer;
           if (layerOL instanceof olLayerVector) {
-            igoLayer = this.map.getLayerByOlUId((layerOL as any).ol_uid) as VectorLayer;
-            if (!this.canProcessHover(igoLayer)) {
+            const myLayerVector = this.map.getLayerByOlUId((layerOL as any).ol_uid) as VectorLayer;
+            if (!this.canProcessHover(myLayerVector)) {
               return;
             }
             let localOlFeature = this.handleRenderFeature(mapFeature);
-            this.setLayerStyleFromOptions(igoLayer, localOlFeature);
+            this.setLayerStyleFromOptions(myLayerVector, localOlFeature);
             const featuresToLoad = [localOlFeature];
             localOlFeature.set("_isLabel", false);
             const myLabelOlFeature = new OlFeature();
@@ -350,20 +346,21 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
             myLabelOlFeature.setGeometry(labelGeom);
             myLabelOlFeature.setId(localOlFeature.getId());
             myLabelOlFeature.set("_isLabel", true);
-            this.setLayerStyleFromOptions(igoLayer, myLabelOlFeature);
+            this.setLayerStyleFromOptions(myLayerVector, myLabelOlFeature);
             featuresToLoad.push(myLabelOlFeature);
             this.pointerHoverFeatureStore.load(featuresToLoad);
+            igoLayer = myLayerVector;
             return true;
           }
           if (layerOL instanceof olLayerVectorTile) {
-            igoLayer = this.map.getLayerByOlUId((layerOL as any).ol_uid) as VectorTileLayer;
-            if (!this.canProcessHover(igoLayer)) {
+            const myLayerVectorTile = this.map.getLayerByOlUId((layerOL as any).ol_uid) as VectorTileLayer;
+            if (!this.canProcessHover(myLayerVectorTile)) {
               return;
             }
-            if (igoLayer?.options?.styleByAttribute?.hoverStyle) {
-              this.mvtStyleOptions = igoLayer.options.styleByAttribute.hoverStyle;
-            } else if (igoLayer?.options?.hoverStyle) {
-              this.mvtStyleOptions = igoLayer.options.hoverStyle;
+            if (myLayerVectorTile?.options?.igoStyle?.styleByAttribute?.hoverStyle) {
+              this.mvtStyleOptions = myLayerVectorTile.options.igoStyle.styleByAttribute.hoverStyle;
+            } else if (myLayerVectorTile?.options?.igoStyle?.hoverStyle) {
+              this.mvtStyleOptions = myLayerVectorTile.options.igoStyle.hoverStyle;
             }
             this.selectionLayer.setSource(layerOL.getSource());
             layerOL.getFeatures(event.pixel).then((mvtFeatures: (RenderFeature | OlFeature<OlGeometry>)[]) => {
@@ -387,14 +384,14 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
               myLabelOlFeature.setGeometry(labelGeom);
               myLabelOlFeature.setId(localOlFeature.getId());
               myLabelOlFeature.set("_isLabel", true);
-              this.setLayerStyleFromOptions(igoLayer, myLabelOlFeature);
+              this.setLayerStyleFromOptions(myLayerVectorTile, myLabelOlFeature);
               this.pointerHoverFeatureStore.load([myLabelOlFeature]);
               this.selectionMVT[feature.getId()] = localOlFeature;
               this.selectionLayer.changed();
             });
+            igoLayer = myLayerVectorTile;
           }
         }
-        return true;
       }, {
         hitTolerance: 10, layerFilter: olLayer => olLayer === topMostOlLayer
       });
@@ -412,13 +409,13 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
       return false;
     }
 
-    if (!igoLayer.options.styleByAttribute && !igoLayer.options.hoverStyle) {
+    if (!igoLayer.options.igoStyle?.styleByAttribute && !igoLayer.options.igoStyle?.hoverStyle) {
       return false;
     }
 
     if (
-      (igoLayer.options.styleByAttribute && !igoLayer.options.styleByAttribute.hoverStyle) &&
-      !igoLayer.options.hoverStyle) {
+      (igoLayer.options.igoStyle?.styleByAttribute && !igoLayer.options.igoStyle?.styleByAttribute.hoverStyle) &&
+      !igoLayer.options.igoStyle?.hoverStyle) {
       return false;
     }
     return true;
@@ -434,6 +431,7 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
     } else if (feature instanceof OlFeature) {
       localFeature = feature;
     }
+    localFeature.setProperties(feature.getProperties());
     return localFeature;
   }
 
@@ -459,12 +457,12 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
 
   private setLayerStyleFromOptions(igoLayer: VectorLayer | VectorTileLayer, feature: OlFeature<OlGeometry>) {
     const resolution = this.store.layer.map.viewController.getResolution();
-    if (igoLayer?.options?.styleByAttribute?.hoverStyle) {
-      this.store.layer.ol.setStyle(this.createHoverStyle(feature, igoLayer.options.styleByAttribute.hoverStyle, resolution));
+    if (igoLayer?.options?.igoStyle?.styleByAttribute?.hoverStyle) {
+      this.store.layer.ol.setStyle(this.createHoverStyle(feature, igoLayer.options.igoStyle.styleByAttribute.hoverStyle, resolution));
       return;
     }
-    if (igoLayer?.options?.hoverStyle) {
-      this.store.layer.ol.setStyle(this.createHoverStyle(feature, igoLayer.options.hoverStyle, resolution));
+    if (igoLayer?.options?.igoStyle?.hoverStyle) {
+      this.store.layer.ol.setStyle(this.createHoverStyle(feature, igoLayer.options.igoStyle.hoverStyle, resolution));
     }
   }
 
@@ -523,60 +521,4 @@ export class HoverFeatureDirective implements OnInit, OnDestroy {
       this.store.clearLayer();
     }
   }
-}
-
-/**
- * Create a default style for the pointer position and it's label summary.
- * @param feature OlFeature
- * @returns OL style function
- */
-export function hoverFeatureMarker(feature: OlFeature<OlGeom.Geometry>, resolution: number): OlStyle.Style[] {
-
-  const olStyleText = new OlStyle.Style({
-    text: new OlStyle.Text({
-      text: feature.get('hoverSummary'),
-      textAlign: 'left',
-      textBaseline: 'top',
-      font: '12px Calibri,sans-serif',
-      fill: new OlStyle.Fill({ color: '#000' }),
-      backgroundFill: new OlStyle.Fill({ color: 'rgba(255, 255, 255, 0.5)' }),
-      backgroundStroke: new OlStyle.Stroke({ color: 'rgba(200, 200, 200, 0.75)', width: 2 }),
-      stroke: new OlStyle.Stroke({ color: '#fff', width: 3 }),
-      overflow: true,
-      offsetX: 10,
-      offsetY: 20,
-      padding: [2.5, 2.5, 2.5, 2.5]
-    })
-  });
-
-  const olStyle = [olStyleText];
-  switch (feature.getGeometry().getType()) {
-    case 'Point':
-      olStyle.push(new OlStyle.Style({
-        image: new OlStyle.Circle({
-          radius: 10,
-          stroke: new OlStyle.Stroke({
-            color: 'blue',
-            width: 3
-          })
-        })
-      }));
-      break;
-    default:
-      olStyle.push(new OlStyle.Style({
-        stroke: new OlStyle.Stroke({
-          color: 'white',
-          width: 5
-        })
-      }));
-      olStyle.push(new OlStyle.Style({
-        stroke: new OlStyle.Stroke({
-          color: 'blue',
-          width: 3
-        })
-      }));
-  }
-
-  return olStyle;
-
 }
