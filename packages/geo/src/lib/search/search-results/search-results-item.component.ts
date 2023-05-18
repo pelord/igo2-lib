@@ -77,13 +77,34 @@ export class SearchResultsItemComponent {
     return getEntityIcon(this.result);
   }
 
-  constructor() {}
-
   onZoomHandler() {
     const olFeature = this.format.readFeature(this.result.data, {
       dataProjection: this.result.data.projection,
       featureProjection: this.map.projection
     });
     moveToOlFeatures(this.map, [olFeature], FeatureMotion.Default);
+  }
+
+  /**
+   * On mouse event, mouseenter /mouseleave
+   * @internal
+   */
+  onMouseEvent(event) {
+    const element = event.target;
+    const type = event.type;
+    switch (type) {
+      case 'mouseenter':
+        const hideBtn = element.querySelector('#hide-save-search-result-btn');
+        (hideBtn) ?
+        hideBtn.setAttribute('id', 'show-save-search-result-btn') : null;
+        break;
+      case 'mouseleave':
+        const showBtn = element.querySelector('#show-save-search-result-btn');
+        (showBtn) ?
+        showBtn.setAttribute('id', 'hide-save-search-result-btn') : null;
+        break;
+      default:
+        break;
+    }
   }
 }

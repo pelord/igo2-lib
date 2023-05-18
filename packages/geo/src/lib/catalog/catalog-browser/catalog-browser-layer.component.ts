@@ -10,12 +10,13 @@ import {
 
 import { getEntityTitle, getEntityIcon } from '@igo2/common';
 
-import { CatalogItemLayer } from '../shared';
+import { AddedChangeEmitter, CatalogItemLayer } from '../shared';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { LayerService } from '../../layer/shared/layer.service';
 import { first } from 'rxjs/operators';
 import { Layer, TooltipType } from '../../layer/shared/layers';
 import { MetadataLayerOptions } from '../../metadata/shared/metadata.interface';
+import { IgoMap } from '../../map';
 
 /**
  * Catalog browser layer item
@@ -29,7 +30,10 @@ import { MetadataLayerOptions } from '../../metadata/shared/metadata.interface';
 export class CatalogBrowserLayerComponent implements OnInit, OnDestroy {
   public inRange$: BehaviorSubject<boolean> = new BehaviorSubject(true);
   public isPreview$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  public isVisible$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   private isPreview$$: Subscription;
+  private resolution$$: Subscription;
+  private layers$$: Subscription;
   private lastTimeoutRequest;
 
   public layerLegendShown$: BehaviorSubject<boolean> = new BehaviorSubject(false);
@@ -46,6 +50,8 @@ export class CatalogBrowserLayerComponent implements OnInit, OnDestroy {
    */
   @Input() layer: CatalogItemLayer;
 
+  @Input() map: IgoMap;
+
   /**
    * Whether the layer is already added to the map
    */
@@ -54,10 +60,7 @@ export class CatalogBrowserLayerComponent implements OnInit, OnDestroy {
   /**
    * Event emitted when the add/remove button is clicked
    */
-  @Output() addedChange = new EventEmitter<{
-    added: boolean;
-    layer: CatalogItemLayer;
-  }>();
+  @Output() addedChange = new EventEmitter<AddedChangeEmitter>();
 
   @Output() addedLayerIsPreview = new EventEmitter<boolean>();
 
@@ -78,12 +81,22 @@ export class CatalogBrowserLayerComponent implements OnInit, OnDestroy {
   constructor(private layerService: LayerService ) {}
 
   ngOnInit(): void {
-    this.isInResolutionsRange();
     this.isPreview$$ = this.isPreview$.subscribe(value => this.addedLayerIsPreview.emit(value));
+
+    this.layers$$ = this.map.layers$.subscribe(() => {
+      this.isVisible();
+    });
+
+    this.resolution$$ = this.map.viewController.resolution$.subscribe((resolution) => {
+      this.isInResolutionsRange(resolution);
+      this.isVisible();
+    });
   }
 
   ngOnDestroy() {
     this.isPreview$$.unsubscribe();
+    this.resolution$$.unsubscribe();
+    this.layers$$.unsubscribe();
   }
 
   computeTitleTooltip(): string {
@@ -142,9 +155,9 @@ export class CatalogBrowserLayerComponent implements OnInit, OnDestroy {
       case 'click':
         if (!this.isPreview$.value) {
           if (this.added) {
-            this.remove();
+            this.remove(event);
           } else {
-            this.add();
+            this.add(event);
           }
         }
         this.isPreview$.next(false);
@@ -152,7 +165,7 @@ export class CatalogBrowserLayerComponent implements OnInit, OnDestroy {
       case 'mouseenter':
         if (!this.isPreview$.value && !this.added) {
           this.lastTimeoutRequest = setTimeout(() => {
-            this.add();
+            this.add(event);
             this.isPreview$.next(true);
           }, 500);
         }
@@ -160,7 +173,7 @@ export class CatalogBrowserLayerComponent implements OnInit, OnDestroy {
         break;
       case 'mouseleave':
         if (this.isPreview$.value) {
-          this.remove();
+          this.remove(event);
           this.isPreview$.next(false);
         }
         this.mouseInsideAdd = false;
@@ -173,20 +186,20 @@ export class CatalogBrowserLayerComponent implements OnInit, OnDestroy {
   /**
    * Emit added change event with added = true
    */
-  private add() {
+  private add(event: Event) {
     if (!this.added) {
       this.added = true;
-      this.addedChange.emit({ added: true, layer: this.layer });
+      this.addedChange.emit({ added: true, layer: this.layer, event });
     }
   }
 
   /**
    * Emit added change event with added = false
    */
-  private remove() {
+  private remove(event: Event) {
     if (this.added) {
       this.added = false;
-      this.addedChange.emit({ added: false, layer: this.layer });
+      this.addedChange.emit({ added: false, layer: this.layer, event });
     }
   }
 
@@ -194,22 +207,42 @@ export class CatalogBrowserLayerComponent implements OnInit, OnDestroy {
     return !(!this.layer.address || this.layer.address.split('.').length === 1);
   }
 
-  isInResolutionsRange(): boolean {
-    const minResolution = this.layer.options.minResolution || 0;
-    const maxResolution = this.layer.options.maxResolution || Infinity;
+  isInResolutionsRange(resolution: number) {
+    const minResolution = (!this.layer.options.minResolution || Number.isNaN(this.layer.options.minResolution))
+      ? 0 : this.layer.options.minResolution;
+    const maxResolution = (!this.layer.options.maxResolution || Number.isNaN(this.layer.options.maxResolution))
+    ? Infinity : this.layer.options.maxResolution;
     this.inRange$.next(
-      this.resolution >= minResolution && this.resolution <= maxResolution
+      resolution >= minResolution && resolution <= maxResolution
     );
-    return this.inRange$.value;
+  }
+
+  isVisible() {
+    if (this.layer?.id) {
+      const oLayer = this.map.getLayerById(this.layer?.id);
+      oLayer ? this.isVisible$.next(oLayer.visible) : this.isVisible$.next(false);
+    }
+  }
+
+  getBadgeIcon() {
+    if (this.inRange$.getValue()) {
+      return this.isVisible$.getValue() ? '' : 'eye-off';
+    } else {
+      return 'eye-off';
+    }
   }
 
   computeTooltip(): string {
     if (this.added) {
-      return this.isPreview$.value
-        ? 'igo.geo.catalog.layer.addToMap'
-        : this.inRange$.value
+      if (this.isPreview$.value) {
+        return 'igo.geo.catalog.layer.addToMap';
+      } else if (this.inRange$.value) {
+        return this.isVisible$.value
         ? 'igo.geo.catalog.layer.removeFromMap'
-        : 'igo.geo.catalog.layer.removeFromMapOutRange';
+        : 'igo.geo.catalog.layer.removeFromMapNotVisible';
+      } else {
+        return 'igo.geo.catalog.layer.removeFromMapOutRange';
+      }
     } else {
       return this.inRange$.value
         ? 'igo.geo.catalog.layer.addToMap'
