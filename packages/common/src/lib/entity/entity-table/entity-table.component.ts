@@ -360,7 +360,7 @@ export class EntityTableComponent implements OnInit, OnChanges, OnDestroy {
         const domain = column.domainValues as any;
         if (!domain?.features) {
           column.domainValues?.forEach(option => {
-            if (typeof formControlValue === 'string' && typeof option.id === 'number' && /^\d+$/.test(formControlValue)) {
+            if (this.isStringValidNumber(formControlValue) && typeof option.id === 'number') {
               formControlValue = parseInt(formControlValue);
             }
             if (option.value === formControlValue || option.id === formControlValue) {
@@ -713,7 +713,7 @@ export class EntityTableComponent implements OnInit, OnChanges, OnDestroy {
         } else {
           if (!domain?.features) {
             column.domainValues.forEach(option => {
-              if (typeof value === 'string' && typeof option.id === 'number' && /^\d+$/.test(value)) {
+              if (this.isStringValidNumber(value) && typeof option.id === 'number') {
                 value = parseInt(value);
               }
               if (option.value === value || option.id === value) {
@@ -731,7 +731,7 @@ export class EntityTableComponent implements OnInit, OnChanges, OnDestroy {
       } else {
         if (!domain?.features) {
           column.domainValues.forEach(option => {
-            if (typeof value === 'string' && typeof option.id === 'number' && /^\d+$/.test(value)) {
+            if (this.isStringValidNumber(value) && typeof option.id === 'number') {
               value = parseInt(value);
             }
             if (option.value === value || option.id === value) {
@@ -878,5 +878,13 @@ export class EntityTableComponent implements OnInit, OnChanges, OnDestroy {
       return column.split('.')[1];
     }
     return column;
+  }
+  /**
+   * Check if string is a valid number
+   * @param value string
+   * @returns boolean
+   */
+  private isStringValidNumber(value: string): boolean {
+    return typeof value === 'string' && /^\d+$/.test(value) && (value.length > 1 && value.charAt(0) !== '0');
   }
 }
