@@ -36,6 +36,7 @@ import Circle from 'ol/style/Circle';
 import { VectorSourceEvent as OlVectorSourceEvent } from 'ol/source/Vector';
 import { default as OlGeometry } from 'ol/geom/Geometry';
 import { QueryableDataSourceOptions } from '../../query';
+import { Media, MediaService } from '@igo2/core';
 
 
 @Component({
@@ -103,16 +104,26 @@ export class SearchResultAddButtonComponent implements OnInit, OnDestroy{
       String(layer.id).includes('igo-search-layer')
     );
   }
-
+  private mediaService$$: Subscription;
+  public isMobile: boolean = false;
   constructor(
     private layerService: LayerService,
     private dialog: MatDialog,
-    private dataSourceService: DataSourceService) {}
+    private dataSourceService: DataSourceService,
+    private mediaService: MediaService) {}
 
   /**
    * @internal
    */
   ngOnInit(): void {
+    // check the view if is mobile or not
+    this.mediaService$$ = this.mediaService.media$.subscribe(
+      (media: Media) => {
+        if(media === Media.Mobile) {
+          this.isMobile = true;
+        }
+      }
+    );
     if (this.layer.meta.dataType === 'Layer') {
       this.added =
         this.map.layers.findIndex(
@@ -131,6 +142,9 @@ export class SearchResultAddButtonComponent implements OnInit, OnDestroy{
   ngOnDestroy() {
     this.resolution$$.unsubscribe();
     this.layers$$.unsubscribe();
+    if (this.mediaService$$) {
+      this.mediaService$$.unsubscribe();
+    }
   }
 
   /**
@@ -145,10 +159,11 @@ export class SearchResultAddButtonComponent implements OnInit, OnDestroy{
    * On toggle button click, emit the added change event
    * @internal
    */
-  onToggleClick(event) {
+  onToggleClick(currEvent: Event) {
     if (typeof this.lastTimeoutRequest !== 'undefined') {
       clearTimeout(this.lastTimeoutRequest);
     }
+    const event = currEvent ? currEvent : {} as Event;
 
     if (event.type === 'mouseenter' && this.mouseInsideAdd ) {
       return;
@@ -167,7 +182,7 @@ export class SearchResultAddButtonComponent implements OnInit, OnDestroy{
       case 'mouseenter':
         if (!this.isPreview$.value && !this.added) {
           this.lastTimeoutRequest = setTimeout(() => {
-            this.add();
+            this.add(event);
             this.isPreview$.next(true);
           }, 500);
         }
@@ -185,7 +200,7 @@ export class SearchResultAddButtonComponent implements OnInit, OnDestroy{
     }
   }
 
-  private add(event?: Event) {
+  private add(event: Event) {
     if (!this.added) {
       this.added = true;
       this.addLayerToMap(event);
