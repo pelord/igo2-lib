@@ -86,6 +86,7 @@
               "@turf/line-intersect",
               "pbf",
               "geojson-rbush",
+              "flexsearch",
               "minimatch",
               "path",
               "pixelworks",
@@ -515,6 +516,7 @@
     "cache": {
       "enabled": false,
       "environment": "all"
-    }
+    },
+    "analytics": false
   }
 }

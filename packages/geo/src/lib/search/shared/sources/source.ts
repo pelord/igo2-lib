@@ -9,6 +9,8 @@ import {
   ReverseSearchOptions,
   SearchSourceSettings
 } from './source.interfaces';
+import { FeatureStore } from '../../../feature';
+import { Workspace } from '@igo2/common';
 
 /**
  * Base search source class
@@ -110,6 +112,38 @@ export class SearchSource {
     return this.options.settings === undefined ? [] : this.options.settings;
   }
 
+  set featureStoresWithIndex(storesWithIndex: FeatureStore[]) {
+    this._featureStoresWithIndex = storesWithIndex;
+  }
+  get featureStoresWithIndex() {
+    return this._featureStoresWithIndex;
+  }
+  private _featureStoresWithIndex: FeatureStore[];
+
+  setWorkspaces(workspaces: Workspace[]) {
+    if (workspaces.filter(fw => (fw.entityStore as FeatureStore).searchDocument).length >= 1) {
+      this.options.available = true;
+    } else {
+      this.options.available = false;
+    }
+    const values = [];
+    this.featureStoresWithIndex = workspaces
+      .filter(fw => (fw.entityStore as FeatureStore).searchDocument)
+      .map(fw => {
+        values.push({
+          title: fw.title,
+          value: fw.title,
+          enabled: true
+        });
+        return fw.entityStore as FeatureStore;
+      });
+    const datasets = this.options.settings.find(s => s.title === 'datasets');
+    if (datasets) {
+      datasets.values = values;
+    }
+    this.setParamFromSetting(datasets);
+  }
+
   /**
    * Set params from selected settings
    */
@@ -180,7 +214,7 @@ export class SearchSource {
    * @param hashtag hashtag from query
    */
   getHashtagsValid(term: string, settingsName: string): string[] {
-    const hashtags = term.match(/(#[A-Za-z+]+)/g);
+    const hashtags = term.match(/(#[A-Za-zÀ-ÿ-+]+)/g);
     if (!hashtags) {
       return undefined;
     }
