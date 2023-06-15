@@ -37,6 +37,7 @@ import { FocusMonitor } from '@angular/cdk/a11y';
 import { DateAdapter, ErrorStateMatcher } from '@angular/material/core';
 import { catchError, map } from 'rxjs/operators';
 import { default as moment } from 'moment';
+import { StringUtils } from '@igo2/utils';
 
 @Component({
   selector: 'igo-entity-table',
@@ -360,7 +361,12 @@ export class EntityTableComponent implements OnInit, OnChanges, OnDestroy {
         const domain = column.domainValues as any;
         if (!domain?.features) {
           column.domainValues?.forEach(option => {
-            if (this.isStringValidNumber(formControlValue) && typeof option.id === 'number') {
+            if (
+              typeof option.id === 'number' &&
+              typeof formControlValue === "string" &&
+              StringUtils.isValidNumber(formControlValue) &&
+              !StringUtils.isOctalNumber(formControlValue)
+            ) {
               formControlValue = parseInt(formControlValue);
             }
             if (option.value === formControlValue || option.id === formControlValue) {
@@ -713,7 +719,12 @@ export class EntityTableComponent implements OnInit, OnChanges, OnDestroy {
         } else {
           if (!domain?.features) {
             column.domainValues.forEach(option => {
-              if (this.isStringValidNumber(value) && typeof option.id === 'number') {
+              if (
+                typeof option.id === 'number' &&
+                typeof value === "string" &&
+                StringUtils.isValidNumber(value) &&
+                !StringUtils.isOctalNumber(value)
+              ) {
                 value = parseInt(value);
               }
               if (option.value === value || option.id === value) {
@@ -731,7 +742,12 @@ export class EntityTableComponent implements OnInit, OnChanges, OnDestroy {
       } else {
         if (!domain?.features) {
           column.domainValues.forEach(option => {
-            if (this.isStringValidNumber(value) && typeof option.id === 'number') {
+            if (
+              typeof option.id === 'number' &&
+              typeof value === "string" &&
+              StringUtils.isValidNumber(value) &&
+              !StringUtils.isOctalNumber(value)
+            ) {
               value = parseInt(value);
             }
             if (option.value === value || option.id === value) {
@@ -878,13 +894,5 @@ export class EntityTableComponent implements OnInit, OnChanges, OnDestroy {
       return column.split('.')[1];
     }
     return column;
-  }
-  /**
-   * Check if string is a valid number
-   * @param value string
-   * @returns boolean
-   */
-  private isStringValidNumber(value: string): boolean {
-    return typeof value === 'string' && /^\d+$/.test(value) && (value.length > 1 && value.charAt(0) !== '0');
   }
 }
