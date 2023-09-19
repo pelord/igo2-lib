@@ -59,6 +59,8 @@
         "inMapExtent.inactive.tooltip": "Show all records",
         "zoomAuto.title": "Zoom auto",
         "zoomAuto.tooltip": "Zoom auto",
+        "print.title": "Print the current table (PDF)",
+        "print.tooltip": "Print the current table (PDF)",
         "selected.title": "Show selected records only",
         "selected.tooltip": "Show selected records only",
         "clearSelection.title": "Deselect all",
@@ -91,9 +93,9 @@
           "title": "Geolocation",
           "tracking": "Activate/show the geolocation",
           "follow": "Follow your position on map"
-         },
+        },
         "advanced-swipe": {
-          "swipe-select":  "select the layers for swiping",
+          "swipe-select": "select the layers for swiping",
           "selectAll": "Select all",
           "empty": "No layer is currently active on this map. ",
           "customize": "Customize it by adding layer from the : ",

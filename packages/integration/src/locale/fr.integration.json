@@ -59,6 +59,8 @@
         "inMapExtent.inactive.tooltip": "Montrer toutes les entités",
         "zoomAuto.title": "Zoom auto",
         "zoomAuto.tooltip": "Zoom auto",
+        "print.title": "Imprimer la présente table (PDF)",
+        "print.tooltip": "Imprimer la présente table (PDF)",
         "selected.title": "Montrer les entités sélectionnées",
         "selected.tooltip": "Montrer les entités sélectionnées",
         "clearSelection.title": "Tout désélectionner",
@@ -86,13 +88,13 @@
         "feature": "Entité",
         "distance": "Distance"
       },
-      "advanced-map-tool": {        
-        "geolocation": { 
+      "advanced-map-tool": {
+        "geolocation": {
           "title": "Géolocalisation",
           "tracking": "Activer/montrer votre localisation",
           "follow": "Activer le suivi de position sur la carte"
         },
-        "advanced-swipe":{      
+        "advanced-swipe": {
           "swipe-select": "Choisir les couches à comparer",
           "selectAll": "Tout sélectionner",
           "empty": "La carte ne contient aucune couche de données.",
@@ -101,7 +103,7 @@
           "catalog-tool": "Catalogue de données",
           "context-tool": "Gestionnaire de contextes",
           "swipe": "Activer",
-          "swipe-tool": "Outil de comparaison"         
+          "swipe-tool": "Outil de comparaison"
         },
         "advanced-coordinates": {
           "copy": "Copier",
@@ -118,8 +120,7 @@
           "scale": "Échelle cartographique: ",
           "resolution": "Résolution cartographique: "
         }
-
-      }      
+      }
     }
   }
 }
