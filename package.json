@@ -3,7 +3,7 @@
   "workspaces": [
     "./packages/*"
   ],
-  "version": "16.0.0-rc.0",
+  "version": "16.0.0-rc.1",
   "description": "IGO Library",
   "author": "IGO Community",
   "license": "MIT",
@@ -101,6 +101,7 @@
     "@angular/platform-browser-dynamic": "^16.2.5",
     "@angular/router": "^16.2.5",
     "@azure/msal-angular": "^3.0.4",
+    "@floating-ui/utils": "^0.1.4",
     "@mat-datetimepicker/core": "~12.0.0",
     "@mdi/angular-material": "^7.2.96",
     "@ngx-translate/core": "^15.0.0",
@@ -124,7 +125,7 @@
     "ngx-indexed-db": "^11.0.2",
     "ngx-toastr": "^17.0.0",
     "nosleep.js": "^0.12.0",
-    "ol": "^8.1.0",
+    "ol": "^7.5.2",
     "ol-mapbox-style": "^12.0.0",
     "proj4": "^2.9.0",
     "rxjs": "^7.8.0",
