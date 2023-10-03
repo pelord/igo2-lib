@@ -83,7 +83,7 @@ export const environment: Environment = {
       },
       icherchereverse: {
         showInPointerSummary: true,
-        searchUrl: 'https://geoegl.msp.gouv.qc.ca/apis/terrapi',
+        searchUrl: 'https://testgeoegl.msp.gouv.qc.ca/apis/terrapi',
         order: 3,
         enabled: true
       },

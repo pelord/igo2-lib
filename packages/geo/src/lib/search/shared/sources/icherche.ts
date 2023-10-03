@@ -143,7 +143,7 @@ export class IChercheSearchSource extends SearchSource implements TextSearch {
 
     return {
       title: 'igo.geo.search.icherche.name',
-      searchUrl: 'https://geoegl.msp.gouv.qc.ca/apis/icherche',
+      searchUrl: 'https://testgeoegl.msp.gouv.qc.ca/apis/icherche',
       settings: [
         {
           type: 'checkbox',
@@ -276,6 +276,12 @@ export class IChercheSearchSource extends SearchSource implements TextSearch {
               value: 'culture',
               enabled: types.indexOf('culture') !== -1,
               hashtags: ['grille', 'culture']
+            },
+            {
+              title: 'igo.geo.search.icherche.type.hoveadres',
+              value: 'adressebati',
+              enabled: types.indexOf('adressebati') !== -1,
+              hashtags: ['adressebati']
             }
           ]
         },
