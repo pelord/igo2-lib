@@ -101,7 +101,7 @@
                     matInput
                     [matDatepicker]="picker"
                     [formControlName]="column.name"
-                    value="{{ row.entity.properties[column.name] }}"
+                    value="{{ getValue(row, column) }}"
                     (dateChange)="onDateChange(column, row, $event)"
                   />
                   <mat-datepicker #picker></mat-datepicker>
@@ -130,7 +130,7 @@
                     class="class_number_edition"
                     [formControlName]="column.name"
                     step="{{ column.step }}"
-                    value="{{ row.entity.properties[column.name] }}"
+                    value="{{ getValue(row, column) }}"
                     (input)="onValueChange(column, row, $event)"
                     readonly="{{
                       getValidationAttributeValue(column, 'readonly')
@@ -142,7 +142,7 @@
                 <mat-checkbox
                   *ngSwitchCase="'boolean'"
                   [formControlName]="column.name"
-                  [checked]="row.entity.properties[column.name]"
+                  [checked]="getValue(row, column)"
                   (change)="onBooleanValueChange(column, row, $event)"
                 ></mat-checkbox>
                 <igo-entity-select-field
@@ -169,7 +169,7 @@
                     matInput
                     type="text"
                     [formControlName]="column.name"
-                    value="{{ row.entity.properties[column.name] }}"
+                    value="{{ getValue(row, column) }}"
                     (input)="onValueChange(column, row, $event)"
                     readonly="{{
                       getValidationAttributeValue(column, 'readonly')
@@ -211,12 +211,12 @@
           >
             <mat-icon
               *ngIf="column.onClick"
-              svgIcon="{{ row.entity.properties[column.name] || column.icon }}"
+              svgIcon="{{ getValue(row, column) || column.icon }}"
               (click)="column.onClick($event)"
             ></mat-icon>
             <mat-icon
               *ngIf="!column.onClick"
-              svgIcon="{{ row.entity.properties[column.name] || column.icon }}"
+              svgIcon="{{ getValue(row, column) || column.icon }}"
             ></mat-icon>
           </td>
         </ng-container>

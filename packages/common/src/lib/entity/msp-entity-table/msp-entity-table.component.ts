@@ -853,15 +853,11 @@ export class MspEntityTableComponent implements OnInit, OnChanges, OnDestroy {
       clickFunc(record.entity, record);
     }
   }
-  /**
-   * Trackby function
-   * @param record Record
-   * @param index Record index
-   * @internal
-   */
+
   rowTrackBy(): TrackByFunction<EntityRecord<object>> {
     return (_index, row) => row.ref;
   }
+
   columnTrackBy(): TrackByFunction<EntityTableColumn> {
     return (_index, column) => column.name;
   }

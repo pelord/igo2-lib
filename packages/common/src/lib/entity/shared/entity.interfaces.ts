@@ -100,9 +100,14 @@ export interface EntityRelation {
   params?: EntityRelationParam;
   choiceList?: {
     path?: {
+      /** The list is useful when the API return a Object instead of a List. In this case,
+       * you can define the path Object to be resolved to access the List
+       **/
       list?: string;
-      id: string;
-      value: string;
+      /** Default value is "id" */
+      id?: string;
+      /** Default value is "value" */
+      value?: string;
     };
   };
 }
