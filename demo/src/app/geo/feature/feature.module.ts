@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 
-import { IgoEntityTableModule, IgoPanelModule } from '@igo2/common';
+import { IgoPanelModule, MspEntityTableModule } from '@igo2/common';
 import { IgoFeatureModule, IgoMapModule } from '@igo2/geo';
 
 import { SharedModule } from '../../shared/shared.module';
@@ -13,7 +13,7 @@ import { AppFeatureComponent } from './feature.component';
     SharedModule,
     AppFeatureRoutingModule,
     IgoPanelModule,
-    IgoEntityTableModule,
+    MspEntityTableModule,
     IgoMapModule,
     IgoFeatureModule
   ],

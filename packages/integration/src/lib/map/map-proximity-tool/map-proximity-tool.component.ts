@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatRadioChange } from '@angular/material/radio';
 
 import {
-  EntityTableComponent,
+  MspEntityTableComponent,
   EntityTableTemplate,
   ToolComponent
 } from '@igo2/common';
@@ -30,7 +30,7 @@ import { MapState } from '../map.state';
 })
 export class MapProximityToolComponent implements OnInit, OnDestroy {
   private subs$$: Subscription[] = [];
-  @ViewChild('table', { static: true }) table: EntityTableComponent;
+  @ViewChild('table', { static: true }) table: MspEntityTableComponent;
 
   get maxDistance() {
     return this.mapProximityState.proximityRadiusValue$.value;

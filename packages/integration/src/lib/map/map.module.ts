@@ -21,7 +21,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { IgoEntityTableModule, IgoSpinnerModule } from '@igo2/common';
+import { IgoSpinnerModule, MspEntityTableModule } from '@igo2/common';
 import { IgoContextModule } from '@igo2/context';
 import { IgoLanguageModule } from '@igo2/core';
 import {
@@ -73,7 +73,7 @@ import { MapToolsComponent } from './map-tools/map-tools.component';
     MatMenuModule,
     MatButtonModule,
     MatTooltipModule,
-    IgoEntityTableModule
+    MspEntityTableModule
   ],
   declarations: [
     AdvancedMapToolComponent,

@@ -4,14 +4,17 @@ import {
   HttpParams
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+
 import { ConfigService } from '@igo2/core';
+import { ObjectUtils } from '@igo2/utils';
+
 import { Observable, catchError, map, throwError } from 'rxjs';
+
 import {
   EntityRelation,
   EntityRelationParam,
   SelectOption
 } from './entity.interfaces';
-import { ObjectUtils } from '@igo2/utils';
 
 @Injectable({
   providedIn: 'root'
@@ -58,18 +61,16 @@ export class EntityService {
     relation: EntityRelation,
     results: any
   ): SelectOption[] {
-    const propertyGetter = relation.choiceList?.propertyGetter;
+    const path = relation.choiceList?.path;
 
-    const items = propertyGetter?.list
-      ? ObjectUtils.resolve(results, propertyGetter.list)
+    const items = path?.list
+      ? ObjectUtils.resolve(results, path.list)
       : results;
 
     return items.map((item) => {
-      const id = propertyGetter?.id
-        ? ObjectUtils.resolve(item, propertyGetter.id)
-        : item.id;
-      const value = propertyGetter?.value
-        ? ObjectUtils.resolve(item, propertyGetter.value)
+      const id = path?.id ? ObjectUtils.resolve(item, path.id) : item.id;
+      const value = path?.value
+        ? ObjectUtils.resolve(item, path.value)
         : item.value;
       return { id, value } satisfies SelectOption;
     });

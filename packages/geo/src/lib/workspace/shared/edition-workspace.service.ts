@@ -1,8 +1,4 @@
-import {
-  HttpClient,
-  HttpErrorResponse,
-  HttpHeaders
-} from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -28,8 +24,8 @@ import WKT from 'ol/format/WKT';
 import type { default as OlGeometry } from 'ol/geom/Geometry';
 import olSourceImageWMS from 'ol/source/ImageWMS';
 
-import { BehaviorSubject, throwError } from 'rxjs';
-import { catchError, skipWhile, take } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
+import { skipWhile, take } from 'rxjs/operators';
 
 import {
   RelationOptions,
@@ -713,27 +709,6 @@ export class EditionWorkspaceService {
       if (!fromSave) {
         feature.properties = feature.original_properties;
         feature.geometry = feature.original_geometry;
-        workspace.meta.tableTemplate.columns.forEach((column) => {
-          if (column.relation?.url?.includes('/terrapi/municipalites')) {
-            let dom = [];
-            this.http
-              .get<any>(
-                column.relation.url + '?mrcCode=' + feature.properties.code_mrc
-              )
-              .subscribe((result) => {
-                result.features.map((feature) => {
-                  const id = parseInt(feature.properties.code);
-                  const value = feature.properties.nom;
-                  dom.push({ id, value });
-                });
-                (column.domainValues = dom),
-                  catchError((err: HttpErrorResponse) => {
-                    err.error.caught = true;
-                    return throwError(err);
-                  });
-              });
-          }
-        });
       }
       delete feature.original_properties;
       delete feature.original_geometry;

@@ -11,7 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { IgoEntityTableModule } from '@igo2/common';
+import { MspEntityTableModule } from '@igo2/common';
 import { IgoLanguageModule } from '@igo2/core';
 
 import { MeasureFormatPipe } from './measure-format.pipe';
@@ -36,7 +36,7 @@ import { MeasurerComponent } from './measurer.component';
     MatSlideToggleModule,
     MatDividerModule,
     IgoLanguageModule,
-    IgoEntityTableModule
+    MspEntityTableModule
   ],
   declarations: [
     MeasureFormatPipe,

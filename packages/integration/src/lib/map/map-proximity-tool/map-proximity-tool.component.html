@@ -1,9 +1,9 @@
-<igo-entity-table
+<msp-entity-table
   #table
   class="table-compact"
   [store]="mapProximityState.proximityFeatureStore"
   [template]="tableTemplate"
-></igo-entity-table>
+></msp-entity-table>
 <br />
 <mat-form-field
   *ngIf="mapProximityState.currentPositionCoordinate$ | async as coord"

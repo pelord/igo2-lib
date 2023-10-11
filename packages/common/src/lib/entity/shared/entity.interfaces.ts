@@ -99,7 +99,7 @@ export interface EntityRelation {
   url?: string;
   params?: EntityRelationParam;
   choiceList?: {
-    propertyGetter?: {
+    path?: {
       list?: string;
       id: string;
       value: string;
@@ -107,6 +107,7 @@ export interface EntityRelation {
   };
 }
 
+/** The relation between field who could affect the query parameter */
 export interface EntityRelationParam {
   name?: string;
   field: string;

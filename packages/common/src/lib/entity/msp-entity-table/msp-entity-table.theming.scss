@@ -1,0 +1,47 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+@mixin theme($theme) {
+  @include color($theme);
+  @include density($theme);
+}
+
+@mixin color($theme) {
+  $primary: map.get($theme, primary);
+  $accent: map.get($theme, accent);
+  $background: map-get($theme, background);
+
+  msp-entity-table {
+    table.igo-entity-table-with-selection tr.igo-entity-table-row-highlighted {
+      background-color: mat.get-color-from-palette($primary, A100);
+      color: mat.get-color-from-palette($primary, default-contrast);
+    }
+
+    .mat-mdc-table thead {
+      background-color: mat.get-color-from-palette($background, background);
+    }
+  }
+}
+
+@mixin density($theme) {
+  $density: mat.get-density-config($theme);
+
+  $themeTable: map.merge(
+    $theme,
+    (
+      density: $density - 1
+    )
+  );
+
+  $themeFormField: map.merge(
+    $theme,
+    (
+      density: $density - 4
+    )
+  );
+
+  msp-entity-table {
+    @include mat.table-density($themeTable);
+    @include mat.form-field-density($themeFormField);
+  }
+}

@@ -9,7 +9,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 
 import { EntityRecord, EntityTableTemplate } from '@igo2/common';
-import type { EntityTableComponent } from '@igo2/common';
+import type { MspEntityTableComponent } from '@igo2/common';
 import { LanguageService, StorageScope, StorageService } from '@igo2/core';
 import { uuid } from '@igo2/utils';
 
@@ -275,7 +275,7 @@ export class MeasurerComponent implements OnInit, OnDestroy {
    */
   @Input() minSegmentLength: number = 10;
 
-  @ViewChild('table', { static: true }) table: EntityTableComponent;
+  @ViewChild('table', { static: true }) table: MspEntityTableComponent;
 
   /**
    * Wheter one of the draw control is active

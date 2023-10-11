@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 
 import {
-  IgoEntityTableModule,
-  IgoEntityTablePaginatorModule
+  IgoEntityTablePaginatorModule,
+  MspEntityTableModule
 } from '@igo2/common';
 
 import { SharedModule } from '../../shared/shared.module';
@@ -14,7 +14,7 @@ import { AppEntityTableComponent } from './entity-table.component';
   imports: [
     AppEntityTableRoutingModule,
     SharedModule,
-    IgoEntityTableModule,
+    MspEntityTableModule,
     IgoEntityTablePaginatorModule
   ],
   exports: [AppEntityTableComponent]

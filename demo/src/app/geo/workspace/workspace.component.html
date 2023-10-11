@@ -33,7 +33,7 @@
       >
       </igo-actionbar>
 
-      <igo-entity-table
+      <msp-entity-table
         *ngIf="
           workspace.entityStore &&
           workspace.meta &&
@@ -46,7 +46,7 @@
         [store]="workspace.entityStore"
         [template]="workspace.meta.tableTemplate"
       >
-      </igo-entity-table>
+      </msp-entity-table>
       <mat-card-content
         *ngIf="(workspace.inResolutionRange$ | async) === false"
       >

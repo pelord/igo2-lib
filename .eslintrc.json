@@ -34,7 +34,7 @@
         "@angular-eslint/component-selector": [
           "error",
           {
-            "prefix": "igo",
+            "prefix": ["igo", "msp"],
             "style": "kebab-case",
             "type": "element"
           }
@@ -42,7 +42,7 @@
         "@angular-eslint/directive-selector": [
           "error",
           {
-            "prefix": "igo",
+            "prefix": ["igo", "msp"],
             "style": "camelCase",
             "type": "attribute"
           }

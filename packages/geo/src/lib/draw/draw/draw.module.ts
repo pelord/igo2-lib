@@ -18,7 +18,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { IgoEntityTableModule } from '@igo2/common';
+import { MspEntityTableModule } from '@igo2/common';
 import { IgoLanguageModule } from '@igo2/core';
 
 import { DrawLayerPopupComponent } from './draw-layer-popup.component';
@@ -48,7 +48,7 @@ import { DrawComponent } from './draw.component';
     MatSlideToggleModule,
     MatDialogModule,
     IgoLanguageModule,
-    IgoEntityTableModule,
+    MspEntityTableModule,
     BrowserModule,
     BrowserAnimationsModule,
     MatRadioModule,
