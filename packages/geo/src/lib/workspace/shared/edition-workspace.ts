@@ -12,9 +12,9 @@ import OlModify from 'ol/interaction/Modify';
 import OlVectorSource from 'ol/source/Vector';
 import * as OlStyle from 'ol/style';
 
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 
-import { FeatureDataSource, RelationOptions } from '../../datasource/shared';
+import { FeatureDataSource } from '../../datasource/shared';
 import { GeometryType, createInteractionStyle } from '../../draw';
 import { featureToOl } from '../../feature';
 import { DrawControl } from '../../geometry';
@@ -83,7 +83,6 @@ export class EditionWorkspace extends Workspace {
     private dialog: MatDialog,
     private configService: ConfigService,
     private adding$: BehaviorSubject<boolean>,
-    private getDomainValues: (relation: RelationOptions, feature) => Observable<any>,
     protected options: EditionWorkspaceOptions
   ) {
     super(options);
@@ -169,12 +168,6 @@ export class EditionWorkspace extends Workspace {
     let find = false;
     const editionOpt = workspace.layer.dataSource.options.edition;
     for (const column of workspace.meta.tableTemplate.columns) {
-      // Update domain list
-      if (column.type === 'list' || column.type === 'autocomplete') {
-        this.getDomainValues(column.relation, feature).subscribe((result) => {
-          column.domainValues = result;
-        });
-      }
       if (find === false) {
         for (const property in feature.properties) {
           let columnName = column.name;

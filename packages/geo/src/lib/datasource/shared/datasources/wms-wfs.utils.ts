@@ -4,6 +4,7 @@ import olFormatGML3 from 'ol/format/GML3';
 import olFormatGML32 from 'ol/format/GML32';
 import olFormatOSMXML from 'ol/format/OSMXML';
 import olProjection from 'ol/proj/Projection';
+import { isChoiceFieldWithLabelField } from '@igo2/common';
 import { Extent } from 'ol/extent';
 
 import { OgcFilterWriter } from '../../../filter/shared/ogc-filter';
@@ -143,6 +144,9 @@ export function formatWFSQueryString(
     const fieldsNames = [];
     dataSourceOptions.sourceFields.forEach((sourcefield) => {
       fieldsNames.push(sourcefield.name);
+      if (isChoiceFieldWithLabelField(sourcefield)) {
+        fieldsNames.push(sourcefield.labelField);
+      }
     });
     propertyName = `propertyName=${fieldsNames.join(',')},${
       paramsWFS.fieldNameGeometry
