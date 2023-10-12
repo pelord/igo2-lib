@@ -100,13 +100,14 @@ export interface EntityRelation {
   params?: EntityRelationParam;
   choiceList?: {
     path?: {
-      /** The list is useful when the API return a Object instead of a List. In this case,
-       * you can define the path Object to be resolved to access the List
+      /**
+       * The list property allows you to determine a path to resolve to access the list in an Object.
+       * This is required when the API returns an Object instead of a raw List
        **/
       list?: string;
-      /** Default value is "id" */
+      /** Default is "id" */
       id?: string;
-      /** Default value is "value" */
+      /** Default is "value" */
       value?: string;
     };
   };
@@ -172,9 +173,9 @@ export interface SelectOption {
   value: string | number;
 }
 
-export interface EntityTableButton {
+export interface EntityTableButton<T extends object> {
   icon: string;
-  click: (record: EntityRecord<object>) => void;
+  click: (record: EntityRecord<T>) => void;
   color?: 'primary' | 'accent' | 'warn';
   disabled?: boolean;
   style?: 'mat-mini-fab' | 'mat-icon-button';
