@@ -1,21 +1,23 @@
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
-  Output,
   OnInit,
-  ChangeDetectorRef,
-  ChangeDetectionStrategy
+  Output
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { MatSelectChange } from '@angular/material/select';
+
 import { BehaviorSubject, Observable, first, tap } from 'rxjs';
+
 import {
   EntityRecord,
   EntityRelation,
   EntityService,
   SelectOption
 } from '../../shared';
-import { MatSelectChange } from '@angular/material/select';
 
 @Component({
   selector: 'igo-entity-select-field',

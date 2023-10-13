@@ -444,8 +444,6 @@ export class EditionWorkspaceService {
       return false;
     }
 
-    this.sanitizeParameter(feature, workspace);
-
     const baseUrl = workspace.layer.dataSource.options.edition.baseUrl;
     let url = this.configService.getConfig('edition.url');
 
@@ -508,20 +506,10 @@ export class EditionWorkspaceService {
         );
     }
 
-    for (const property in feature.properties) {
-      for (const sf of workspace.layer.dataSource.options.sourceFields) {
-        if (
-          (sf.name === property && sf.validation?.readonly) ||
-          (sf.name === property && sf.validation?.send === false)
-        ) {
-          delete feature.properties[property];
-        }
-
-        if (isChoiceFieldWithLabelField(sf)) {
-          delete feature.properties[sf.labelField];
-        }
-      }
-    }
+    this.cleanFeatureProperties(
+      feature,
+      workspace.layer.dataSource.options.sourceFields
+    );
 
     this.loading = true;
     this.http
@@ -643,21 +631,10 @@ export class EditionWorkspaceService {
         );
     }
 
-    for (const property in feature.properties) {
-      for (const sf of workspace.layer.dataSource.options.sourceFields) {
-        if (
-          (sf.name === property && sf.validation?.readonly) ||
-          (sf.name === property && sf.validation?.send === false) ||
-          property === 'boundedBy'
-        ) {
-          delete feature.properties[property];
-        }
-
-        if (isChoiceFieldWithLabelField(sf)) {
-          delete feature.properties[sf.labelField];
-        }
-      }
-    }
+    this.cleanFeatureProperties(
+      feature,
+      workspace.layer.dataSource.options.sourceFields
+    );
 
     this.loading = true;
     this.http[protocole](`${url}`, feature.properties, {
@@ -703,6 +680,25 @@ export class EditionWorkspaceService {
         }
       }
     );
+  }
+
+  private cleanFeatureProperties(
+    feature: Feature,
+    fieldsSchema: SourceFieldsOptionsParams[]
+  ): void {
+    for (const key in feature.properties) {
+      const schema = fieldsSchema.find((schema) => schema.name === key);
+
+      if (
+        !schema ||
+        schema.validation?.readonly ||
+        schema.validation?.send === false
+      ) {
+        delete feature.properties[key];
+      } else if (isChoiceFieldWithLabelField(schema)) {
+        delete feature.properties[schema.labelField];
+      }
+    }
   }
 
   cancelEdit(
@@ -880,20 +876,6 @@ export class EditionWorkspaceService {
       }
     });
     return valid;
-  }
-
-  sanitizeParameter(feature: Feature, workspace: EditionWorkspace) {
-    workspace.meta.tableTemplate.columns.forEach((column) => {
-      if (
-        column.type === 'list' &&
-        feature.properties[getColumnKeyWithoutPropertiesTag(column.name)]
-      ) {
-        feature.properties[getColumnKeyWithoutPropertiesTag(column.name)] =
-          feature.properties[
-            getColumnKeyWithoutPropertiesTag(column.name)
-          ].toString();
-      }
-    });
   }
 }
 

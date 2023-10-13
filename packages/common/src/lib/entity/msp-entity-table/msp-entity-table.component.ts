@@ -31,11 +31,14 @@ import { MatFormFieldControl } from '@angular/material/form-field';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 
+import { ObjectUtils } from '@igo2/utils';
+
 import { default as moment } from 'moment';
 import { BehaviorSubject, Subscription, debounceTime } from 'rxjs';
 
 import { EntityTablePaginatorOptions } from '../entity-table-paginator/entity-table-paginator.interface';
 import {
+  EntityDataType,
   EntityKey,
   EntityRecord,
   EntityStore,
@@ -44,6 +47,7 @@ import {
   EntityTableScrollBehavior,
   EntityTableSelectionState,
   EntityTableTemplate,
+  SelectEntityTableColumn,
   getColumnKeyWithoutPropertiesTag
 } from '../shared';
 
@@ -423,10 +427,75 @@ export class MspEntityTableComponent implements OnInit, OnChanges, OnDestroy {
       .all$()
       .pipe(debounceTime(300))
       .subscribe((all) => {
-        this.dataSource.data = all;
+        this.dataSource.data = all.map((record) =>
+          this.parseFeatureWithSchema(record, this.template.columns)
+        );
 
         this.cdRef.markForCheck();
       });
+  }
+
+  private parseFeatureWithSchema(
+    record: EntityRecord<any>,
+    columnsSchema: EntityTableColumn[]
+  ): EntityRecord<object> {
+    const entity = record.entity.properties ?? record.entity;
+    for (const column of columnsSchema) {
+      if (column.validation?.send === false) {
+        continue;
+      }
+      const key = getColumnKeyWithoutPropertiesTag(column.name);
+      let value = ObjectUtils.resolve(record.entity, column.name);
+      switch (column.type) {
+        case 'list':
+        case 'autocomplete':
+          entity[key] = this.parseList(
+            value,
+            (column as SelectEntityTableColumn).dataType,
+            column.multiple
+          );
+          break;
+        case 'boolean':
+          entity[key] = this.parseBoolean(value);
+          break;
+
+        default:
+          break;
+      }
+    }
+
+    return record;
+  }
+
+  private parseList(
+    value: string | unknown[],
+    dataType: EntityDataType,
+    isMultiple: boolean
+  ): unknown | unknown[] {
+    return Array.isArray(value)
+      ? value
+      : isMultiple
+      ? this.parseMultipleValue(value, dataType)
+      : this.parseValue(value, dataType);
+  }
+
+  private parseMultipleValue(
+    value: string | undefined,
+    dataType: EntityDataType
+  ): unknown[] {
+    return value?.split(',').map((data) => this.parseValue(data, dataType));
+  }
+
+  private parseValue(value: string, dataType: EntityDataType): unknown {
+    return dataType === 'number' ? Number(value) : value;
+  }
+
+  private parseBoolean(value: string | number | boolean): boolean {
+    return typeof value === 'boolean'
+      ? value
+      : typeof value === 'string'
+      ? JSON.parse(value.toLowerCase())
+      : !!value;
   }
 
   private handleSelection(): Subscription {

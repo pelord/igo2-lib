@@ -131,7 +131,7 @@ export interface BaseEntityTableColumn extends BaseEntityField {
   step?: number;
   title: string;
   tooltip?: string;
-  validation?: EntityTableColumnValidation;
+  validation?: EntityTableColumnValidation & { send?: boolean };
   visible?: boolean;
   cellClassFunc?: (
     entity: object,
@@ -159,7 +159,10 @@ export interface ChoiceEntityFieldWithLabelField extends BaseChoiceEntityField {
 interface BaseChoiceEntityField extends BaseEntityField {
   domainValues?: Array<SelectOption>;
   type: 'list' | 'autocomplete';
+  dataType: EntityDataType;
 }
+
+export type EntityDataType = 'string' | 'number' | 'object';
 
 interface BaseEntityField {
   multiple?: boolean;
