@@ -483,7 +483,20 @@ export class MspEntityTableComponent implements OnInit, OnChanges, OnDestroy {
     value: string | undefined,
     dataType: EntityDataType
   ): unknown[] {
+    if (this.isStringifyList(value)) {
+      value = value.slice(1, -1);
+    }
     return value?.split(',').map((data) => this.parseValue(data, dataType));
+  }
+
+  private isStringifyList(value: string): boolean {
+    const arrayIdentifiers: [string, string][] = [
+      ['{', '}'],
+      ['[', ']']
+    ];
+    return arrayIdentifiers.some(
+      ([start, end]) => value.startsWith(start) && value.endsWith(end)
+    );
   }
 
   private parseValue(value: string, dataType: EntityDataType): unknown {
