@@ -160,6 +160,8 @@ interface BaseChoiceEntityField extends BaseEntityField {
   domainValues?: Array<SelectOption>;
   type: 'list' | 'autocomplete';
   dataType: EntityDataType;
+  /** Define the caracters who structure the array. This allow a workaround to handle stringify list with custom caracter */
+  arrayIdentifier?: [string, string];
 }
 
 export type EntityDataType = 'string' | 'number' | 'object';

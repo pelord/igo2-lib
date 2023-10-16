@@ -451,8 +451,7 @@ export class MspEntityTableComponent implements OnInit, OnChanges, OnDestroy {
         case 'autocomplete':
           entity[key] = this.parseList(
             value,
-            (column as SelectEntityTableColumn).dataType,
-            column.multiple
+            column as SelectEntityTableColumn
           );
           break;
         case 'boolean':
@@ -469,34 +468,33 @@ export class MspEntityTableComponent implements OnInit, OnChanges, OnDestroy {
 
   private parseList(
     value: string | unknown[],
-    dataType: EntityDataType,
-    isMultiple: boolean
+    column: SelectEntityTableColumn
   ): unknown | unknown[] {
     return Array.isArray(value)
       ? value
-      : isMultiple
-      ? this.parseMultipleValue(value, dataType)
-      : this.parseValue(value, dataType);
+      : column.multiple
+      ? this.parseMultipleValue(value, column)
+      : this.parseValue(value, column.dataType);
   }
 
   private parseMultipleValue(
     value: string | undefined,
-    dataType: EntityDataType
+    column: SelectEntityTableColumn
   ): unknown[] {
-    if (this.isStringifyList(value)) {
+    if (this.isStringnifyList(value, column)) {
       value = value.slice(1, -1);
     }
-    return value?.split(',').map((data) => this.parseValue(data, dataType));
+    return value
+      ?.split(',')
+      .map((data) => this.parseValue(data, column.dataType));
   }
 
-  private isStringifyList(value: string): boolean {
-    const arrayIdentifiers: [string, string][] = [
-      ['{', '}'],
-      ['[', ']']
-    ];
-    return arrayIdentifiers.some(
-      ([start, end]) => value.startsWith(start) && value.endsWith(end)
-    );
+  private isStringnifyList(
+    value: string,
+    column: SelectEntityTableColumn
+  ): boolean {
+    const [start, end]: [string, string] = column.arrayIdentifier ?? ['[', ']'];
+    return value.startsWith(start) && value.endsWith(end);
   }
 
   private parseValue(value: string, dataType: EntityDataType): unknown {

@@ -16,6 +16,7 @@ import {
   isChoiceFieldWithLabelField
 } from '@igo2/common';
 import { ConfigService, MessageService, StorageService } from '@igo2/core';
+import { ObjectUtils } from '@igo2/utils';
 
 import olFeature from 'ol/Feature';
 import { FeatureLoader } from 'ol/featureloader';
@@ -59,6 +60,10 @@ import { ConfirmationPopupComponent } from '../confirmation-popup';
 import { EditionWorkspace } from './edition-workspace';
 import { EditionFeature } from './edition-workspace.interface';
 import { createFilterInMapExtentOrResolutionStrategy } from './workspace.utils';
+
+interface WFSoptions
+  extends WFSDataSourceOptions,
+    OgcFilterableDataSourceOptions {}
 
 @Injectable({
   providedIn: 'root'
@@ -147,9 +152,6 @@ export class EditionWorkspaceService {
       ? layer.options.linkedLayers.linkId
       : wmsLinkId),
       (layer.options.linkedLayers.links = clonedLinks);
-    interface WFSoptions
-      extends WFSDataSourceOptions,
-        OgcFilterableDataSourceOptions {}
     let wks;
     this.layerService
       .createAsyncLayer({
@@ -482,6 +484,40 @@ export class EditionWorkspaceService {
     }
   }
 
+  private parseFeature(feature: Feature, columns: EntityTableColumn[]) {
+    const properties = { ...feature.properties };
+    columns.forEach((column) => {
+      const key = getColumnKeyWithoutPropertiesTag(column.name);
+      switch (column.type) {
+        case 'list':
+        case 'autocomplete':
+          if (column.multiple) {
+            properties[key] = this.parseFeatureList(
+              feature,
+              column as SelectEntityTableColumn
+            );
+          }
+          break;
+
+        default:
+          break;
+      }
+    });
+    return properties;
+  }
+
+  private parseFeatureList(feature: Feature, column: SelectEntityTableColumn) {
+    if (column.arrayIdentifier) {
+      const arrayStringify = JSON.stringify(
+        ObjectUtils.resolve(feature, column.name)
+      );
+      return `${column.arrayIdentifier[0]}${arrayStringify.slice(1, -1)}${
+        column.arrayIdentifier[1]
+      }`;
+    }
+    return ObjectUtils.resolve(feature, column.name);
+  }
+
   public addFeature(
     feature: Feature,
     workspace: EditionWorkspace,
@@ -511,43 +547,47 @@ export class EditionWorkspaceService {
       workspace.layer.dataSource.options.sourceFields
     );
 
+    // WORKAROUND to handle PostgrestApi specificity
+    const properties = this.parseFeature(
+      feature,
+      workspace.meta.tableTemplate.columns
+    );
+
     this.loading = true;
-    this.http
-      .post(`${url}`, feature.properties, { headers: headers })
-      .subscribe(
-        () => {
-          this.loading = false;
-          workspace.entityStore.stateView.clear();
-          workspace.deleteDrawings();
-          workspace.entityStore.delete(feature);
+    this.http.post(`${url}`, properties, { headers: headers }).subscribe(
+      () => {
+        this.loading = false;
+        workspace.entityStore.stateView.clear();
+        workspace.deleteDrawings();
+        workspace.entityStore.delete(feature);
 
-          this.messageService.success('igo.geo.workspace.addSuccess');
+        this.messageService.success('igo.geo.workspace.addSuccess');
 
-          this.refreshMap(workspace.layer as VectorLayer, workspace.layer.map);
-          this.adding$.next(false);
-          this.rowsInMapExtentCheckCondition$.next(true);
-        },
-        (error) => {
-          this.loading = false;
-          error.error.caught = true;
-          const messages = workspace.layer.dataSource.options.edition.messages;
-          if (messages) {
-            let text;
-            messages.forEach((message) => {
-              const key = Object.keys(message)[0];
-              if (error.error.message.includes(key)) {
-                text = message[key];
-                this.messageService.error(text);
-              }
-            });
-            if (!text) {
-              this.messageService.error('igo.geo.workspace.addError');
+        this.refreshMap(workspace.layer as VectorLayer, workspace.layer.map);
+        this.adding$.next(false);
+        this.rowsInMapExtentCheckCondition$.next(true);
+      },
+      (error) => {
+        this.loading = false;
+        error.error.caught = true;
+        const messages = workspace.layer.dataSource.options.edition.messages;
+        if (messages) {
+          let text;
+          messages.forEach((message) => {
+            const key = Object.keys(message)[0];
+            if (error.error.message.includes(key)) {
+              text = message[key];
+              this.messageService.error(text);
             }
-          } else {
+          });
+          if (!text) {
             this.messageService.error('igo.geo.workspace.addError');
           }
+        } else {
+          this.messageService.error('igo.geo.workspace.addError');
         }
-      );
+      }
+    );
   }
 
   askForDeleteFeature(feature: Feature, workspace: EditionWorkspace) {
@@ -636,8 +676,13 @@ export class EditionWorkspaceService {
       workspace.layer.dataSource.options.sourceFields
     );
 
+    // WORKAROUND to handle PostgrestApi specificity
+    const properties = this.parseFeature(
+      feature,
+      workspace.meta.tableTemplate.columns
+    );
     this.loading = true;
-    this.http[protocole](`${url}`, feature.properties, {
+    this.http[protocole](`${url}`, properties, {
       headers: headers
     }).subscribe(
       () => {
