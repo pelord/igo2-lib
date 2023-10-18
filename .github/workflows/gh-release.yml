@@ -25,4 +25,4 @@ jobs:
         with:
           files: ${{ github.workspace }}-CHANGELOG.txt
           body_path: ${{ github.workspace }}-CHANGELOG.txt
-          token: ${{ secrets.GH_RELEASE_PEL }}
+          token: ${{ secrets.GITHUB_TOKEN }}
