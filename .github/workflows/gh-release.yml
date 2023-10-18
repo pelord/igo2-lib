@@ -23,6 +23,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: CHANGELOG.txt
+          files: ${{ github.workspace }}-CHANGELOG.txt
           body_path: ${{ github.workspace }}-CHANGELOG.txt
           token: ${{ secrets.GH_RELEASE_PEL }}
